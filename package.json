@@ -1,0 +1,28 @@
+{
+  "author": "张中合",
+  "license": "MIT",
+  "version": "0.0.1",
+  "scripts": {
+    "test": "jest",
+    "dev": "rollup -c -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hopejs/hope.git"
+  },
+  "keywords": [
+    "hopejs"
+  ],
+  "bugs": {
+    "url": "https://github.com/hopejs/hope/issues"
+  },
+  "homepage": "https://github.com/hopejs/hope#readme",
+  "devDependencies": {
+    "@types/jest": "^26.0.15",
+    "jest": "^26.6.2",
+    "rollup": "^2.33.1",
+    "rollup-plugin-typescript2": "^0.29.0",
+    "ts-jest": "^26.4.3",
+    "typescript": "^4.0.5"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@hopejs/reactivity",
+  "version": "0.0.1",
+  "description": "@hopejs/reactivity",
+  "main": "index.js",
+  "keywords": [
+    "hopejs"
+  ],
+  "author": "张中合",
+  "license": "MIT"
+}

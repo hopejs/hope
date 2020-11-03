@@ -1,0 +1,11 @@
+{
+  "name": "hope",
+  "version": "0.0.1",
+  "description": "hope",
+  "main": "index.js",
+  "keywords": [
+    "hopejs"
+  ],
+  "author": "张中合",
+  "license": "MIT"
+}
