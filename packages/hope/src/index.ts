@@ -1,3 +1,1 @@
-export function foo(): number {
-  return 2;
-}
+export * from '@hopejs/reactivity';
