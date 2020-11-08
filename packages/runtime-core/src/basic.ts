@@ -1,4 +1,4 @@
-import { effect } from "@hopejs/hope";
+import { effect } from "@hopejs/reactivity";
 import { createElement, createFragment } from "@hopejs/renderer";
 
 interface CurrentElementState {
@@ -17,14 +17,28 @@ const elementStack: Element[] = [];
 // 用于存储生成的元素，最终添加到 DOM 树中
 const fragment = createFragment();
 
-export function start(tag: string, attr?: StaticAttr) {
+export function start<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  attr?: StaticAttr
+): void;
+/** @deprecated */
+export function start<K extends keyof HTMLElementDeprecatedTagNameMap>(
+  tag: K,
+  attr?: StaticAttr
+): void;
+export function start<K extends keyof SVGElementTagNameMap>(
+  tag: K,
+  attr?: StaticAttr
+): void;
+export function start(tag: string, attr?: StaticAttr): void {
   currentElement = createElement(tag);
   appendElement();
   elementStack.push(currentElement);
 }
 
 export function end() {
-  currentElement = elementStack.pop();
+  elementStack.pop();
+  currentElement = getLastElement();
 }
 
 export function content(callback: ContentCallback) {
@@ -36,16 +50,23 @@ export function content(callback: ContentCallback) {
 }
 
 export function mount(container: Element) {
-  container.innerHTML = '';
+  container.innerHTML = "";
   container.appendChild(fragment);
+}
+
+export function getCurrentElement() {
+  return currentElement;
 }
 
 function appendElement() {
   if (!currentElement) return;
-  const length = elementStack.length;
-  if (!length) {
+  if (!elementStack.length) {
     fragment.appendChild(currentElement);
   } else {
-    elementStack[length - 1].appendChild(currentElement);
+    getLastElement().appendChild(currentElement);
   }
+}
+
+function getLastElement() {
+  return elementStack[elementStack.length - 1];
 }
