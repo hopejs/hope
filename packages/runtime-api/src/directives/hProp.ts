@@ -1,26 +1,7 @@
 import { effect } from "@hopejs/reactivity";
-import { setAttribute } from "@hopejs/renderer";
 import { getCurrentElement } from "@hopejs/runtime-core";
-import { isFunction, logWarn } from "@hopejs/shared";
-
-function outsideWarn(keyword: string) {
-  logWarn(`${keyword} 指令应该使用在标签函数内部。`);
-}
-
-export function hAttr(name: string, value: string | (() => string)) {
-  const currentElement = getCurrentElement();
-  if (currentElement) {
-    if (isFunction(value)) {
-      effect(() => {
-        setAttribute(currentElement, name, value());
-      });
-    } else {
-      setAttribute(currentElement, name, value);
-    }
-  } else {
-    outsideWarn("hAttr");
-  }
-}
+import { isFunction } from "@hopejs/shared";
+import { outsideWarn } from "./outsideWarn";
 
 export function hProp<K extends keyof HTMLElementTagNameMap>(
   key: keyof HTMLElementTagNameMap[K],

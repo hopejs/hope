@@ -1,3 +1,6 @@
 export * from "./tags";
 export * from "./render";
-export * from "./directive";
+
+// 指令
+export * from "./directives/hAttr";
+export * from "./directives/hProp";
