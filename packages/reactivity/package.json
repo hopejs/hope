@@ -7,5 +7,16 @@
     "hopejs"
   ],
   "author": "张中合",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hopejs/hope.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hopejs/hope/issues"
+  },
+  "homepage": "https://github.com/hopejs/hope#readme",
+  "dependencies": {
+    "@vue/reactivity":"^3.0.0"
+  }
 }

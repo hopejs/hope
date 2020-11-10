@@ -1,2 +1,1 @@
-export { reactive, setReadonly } from './reactive';
-export { effect } from './effect';
+export * from "@vue/reactivity";

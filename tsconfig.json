@@ -14,7 +14,7 @@
     "esModuleInterop": true,
     "removeComments": false,
     "lib": ["esnext", "dom"],
-    "types": ["jest"],
+    "types": ["jest", "node"],
     "rootDir": ".",
     "paths": {
       "@hopejs/*": ["packages/*/src"],

@@ -1,44 +1,8 @@
-import { effect, reactive, setReadonly } from "@hopejs/hope";
+import { reactive } from "../src";
 
 describe("reactive", () => {
-  it("基本类型", () => {
-    const n = reactive(1);
-    expect(n).toEqual({ value: 1 });
-
-    const s = reactive("s");
-    expect(s).toEqual({ value: "s" });
-
-    const symbol = Symbol("symbol");
-    expect(reactive(symbol)).toEqual({ value: symbol });
-
-    const b = reactive(true);
-    expect(b).toEqual({ value: true });
-
-    const bigint = reactive(2n);
-    expect(bigint).toEqual({ value: 2n });
-  });
-
   it("object", () => {
     expect(reactive({ name: "a" })).toEqual({ name: "a" });
-  });
-
-  it("readonly", () => {
-    const proxy = reactive({ name: "a" });
-    let result = "";
-    effect(() => (result = proxy.name));
-    expect(result).toBe("a");
-    proxy.name = "b";
-    expect(result).toBe("b");
-
-    setReadonly(true);
-    expect(() => {
-      proxy.name = "a";
-      expect(result).toBe("b");
-    }).toThrow();
-
-    setReadonly(false);
-    proxy.name = "a";
-    expect(result).toBe("a");
   });
 
   it("array", () => {

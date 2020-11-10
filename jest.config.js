@@ -1,6 +1,6 @@
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   watchPathIgnorePatterns: ['/node_modules/', '/dist/', '/.git/'],
   moduleNameMapper: {
     '^@hopejs/(.*?)$': '<rootDir>/packages/$1/src',

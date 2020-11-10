@@ -1,15 +1,9 @@
-import { effect } from "@hopejs/reactivity";
 import { createElement, createFragment } from "@hopejs/renderer";
-
-interface CurrentElementState {
-  el: Element;
-}
 
 /**
  * 标签元素中的静态属性参数
  */
 export type StaticAttr = Record<string, string>;
-export type ContentCallback = (state: CurrentElementState) => void;
 
 let currentElement: Element | undefined;
 const elementStack: Element[] = [];
@@ -39,14 +33,6 @@ export function start(tag: string, attr?: StaticAttr): void {
 export function end() {
   elementStack.pop();
   currentElement = getLastElement();
-}
-
-export function content(callback: ContentCallback) {
-  if (!currentElement) return;
-  const state = {
-    el: currentElement,
-  };
-  effect(callback, state);
 }
 
 export function mount(container: Element) {
