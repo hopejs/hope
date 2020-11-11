@@ -9,3 +9,4 @@ export * from "./directives/hClass";
 export * from "./directives/hStyle";
 export * from "./directives/hId";
 export * from "./directives/hShow";
+export * from "./directives/hText";

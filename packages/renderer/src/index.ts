@@ -7,3 +7,4 @@ export * from "./createComment";
 export * from "./appendChild";
 export * from "./insertBefore";
 export * from "./removeChild";
+export * from "./createTextNode";
