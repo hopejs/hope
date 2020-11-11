@@ -3,3 +3,7 @@ export * from "./createFragment";
 export * from "./setAttribute";
 export * from "./addEventListener";
 export * from "./removeEventListener";
+export * from "./createComment";
+export * from "./appendChild";
+export * from "./insertBefore";
+export * from "./removeChild";

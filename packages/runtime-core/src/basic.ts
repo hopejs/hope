@@ -1,4 +1,5 @@
 import { createElement, createFragment } from "@hopejs/renderer";
+import { appendChild } from "@hopejs/renderer";
 
 /**
  * 标签元素中的静态属性参数
@@ -37,7 +38,7 @@ export function end() {
 
 export function mount(container: Element) {
   container.innerHTML = "";
-  container.appendChild(fragment);
+  appendChild(container, fragment);
 }
 
 export function getCurrentElement() {
@@ -47,9 +48,9 @@ export function getCurrentElement() {
 function appendElement() {
   if (!currentElement) return;
   if (!elementStack.length) {
-    fragment.appendChild(currentElement);
+    appendChild(fragment, currentElement);
   } else {
-    getLastElement().appendChild(currentElement);
+    appendChild(getLastElement(), currentElement);
   }
 }
 
