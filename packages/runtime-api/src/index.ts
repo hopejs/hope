@@ -11,3 +11,6 @@ export * from "./directives/hId";
 export * from "./directives/hShow";
 export * from "./directives/hText";
 export * from "./directives/hComment";
+
+// block 可以让结构性变化变成可响应式的
+export * from "./block";

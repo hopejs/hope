@@ -1,7 +1,7 @@
 import {
   appendChild,
-  createComment,
   createElement,
+  createPlaceholder,
   insertBefore,
   removeChild,
 } from "@hopejs/renderer";
@@ -13,7 +13,7 @@ import { outsideWarn } from "./outsideWarn";
 export function hShow(value: any | (() => any)) {
   const currentElement = getCurrentElement();
   const cache = createElement("div");
-  const placeholder = createComment("hShow");
+  const placeholder = createPlaceholder("hShow");
   if (currentElement) {
     if (isFunction(value)) {
       effect(() => {

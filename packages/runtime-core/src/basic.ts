@@ -11,6 +11,7 @@ const elementStack: Element[] = [];
 
 // 用于存储生成的元素，最终添加到 DOM 树中
 const fragment = createFragment();
+let blockFragment: DocumentFragment | null = null;
 
 export function start<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -45,8 +46,28 @@ export function getCurrentElement() {
   return currentElement;
 }
 
+export function createBlockFragment() {
+  return createFragment();
+}
+
+export function setBlockFragment(value: DocumentFragment) {
+  blockFragment = value;
+}
+
+export function resetBlockFragment() {
+  blockFragment = null;
+}
+
+export function getFragment() {
+  return fragment;
+}
+
 function appendElement() {
   if (!currentElement) return;
+  if (blockFragment) {
+    appendChild(blockFragment, currentElement);
+    return;
+  }
   if (!elementStack.length) {
     appendChild(fragment, currentElement);
   } else {

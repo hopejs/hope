@@ -1,4 +1,4 @@
-export function removeChild(child: Element | DocumentFragment | Comment) {
+export function removeChild(child: Element | DocumentFragment | Comment | Node) {
   const container = child.parentNode;
   container?.removeChild(child);
 }
