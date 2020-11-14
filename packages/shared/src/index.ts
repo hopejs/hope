@@ -1,6 +1,7 @@
 export {
   isString,
   isFunction,
+  isObject,
   normalizeClass,
   normalizeStyle,
   stringifyStyle,

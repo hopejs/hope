@@ -5,6 +5,8 @@ import { outsideWarn } from "./outsideWarn";
 
 type Modifier = "capture" | "once" | "passive" | string;
 
+let componentOn: Record<string, (...arg: any[]) => void> | null;
+
 export function hOn<K extends keyof ElementEventMap>(
   type: K,
   listener: (this: Element, ev: ElementEventMap[K]) => any
@@ -16,14 +18,19 @@ export function hOn<K extends keyof ElementEventMap>(
 ): void;
 export function hOn(
   type: string,
-  listener: EventListenerOrEventListenerObject
+  listener: EventListenerOrEventListenerObject | ((...arg: any[]) => void)
 ): void;
 export function hOn(
   type: string,
   modifier: Modifier,
-  listener: EventListenerOrEventListenerObject
+  listener: EventListenerOrEventListenerObject | ((...arg: any[]) => void)
 ): void;
 export function hOn(type: string, modifier: any, listener?: any) {
+  if (componentOn) {
+    processComponentOn(type, modifier, listener);
+    return;
+  }
+
   const currentElement = getCurrentElement();
   if (currentElement) {
     if (isFunction(modifier)) {
@@ -60,4 +67,25 @@ function normalizeOptions(
   }
 
   return result;
+}
+
+export function setComponentOn() {
+  componentOn = {};
+}
+
+export function resetComponentOn() {
+  componentOn = null;
+}
+
+export function getComponentOn() {
+  return componentOn;
+}
+
+function processComponentOn(type: string, modifier: any, listener?: any) {
+  if (isFunction(modifier)) {
+    componentOn![type] = modifier;
+  } else {
+    // TODO: 组件事件的修饰符
+    componentOn![type] = listener;
+  }
 }

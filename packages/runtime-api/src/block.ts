@@ -12,6 +12,7 @@ import {
   resetBlockFragment,
   setBlockFragment,
 } from "@hopejs/runtime-core";
+import { callUpdated, getLifecycleHandlers, LIFECYCLE_KEYS } from "./lifecycle";
 
 export function block(range: () => void) {
   const start = createPlaceholder("block start");
@@ -21,11 +22,13 @@ export function block(range: () => void) {
   appendChild(container, end);
 
   const blockFragment = createBlockFragment();
+  const { updatedHandlers } = getLifecycleHandlers()!;
   effect(() => {
     setBlockFragment(blockFragment);
     range();
     resetBlockFragment();
     insertBlockFragment(blockFragment, start, end);
+    updatedHandlers && callUpdated(updatedHandlers);
   });
 }
 
@@ -41,8 +44,12 @@ function insertBlockFragment(
 
 function remove(start: Node, end: Node, firstNode: Node | null) {
   end = firstNode || end;
-  const next = start.nextSibling;
+  const next: any = start.nextSibling;
   if (next === end) return;
+
+  // 调用组件的卸载钩子
+  next[LIFECYCLE_KEYS.unmounted] && next[LIFECYCLE_KEYS.unmounted]();
+
   removeChild(next!);
   remove(start, end, firstNode);
 }

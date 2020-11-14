@@ -3,6 +3,7 @@ import { getCurrentElement } from "@hopejs/runtime-core";
 import { isFunction } from "@vue/shared";
 import { effect } from "@hopejs/reactivity";
 import { outsideWarn } from "./outsideWarn";
+import { callUpdated, getLifecycleHandlers } from "../lifecycle";
 
 export function hText(value: string | (() => string)) {
   const currentElement = getCurrentElement();
@@ -10,8 +11,10 @@ export function hText(value: string | (() => string)) {
   if (currentElement) {
     appendChild(currentElement, textNode);
     if (isFunction(value)) {
+      const { updatedHandlers } = getLifecycleHandlers()!;
       effect(() => {
         textNode.textContent = value();
+        updatedHandlers && callUpdated(updatedHandlers);
       });
     } else {
       textNode.textContent = value;

@@ -1,5 +1,4 @@
-import { createElement, createFragment } from "@hopejs/renderer";
-import { appendChild } from "@hopejs/renderer";
+import { createElement, createFragment, appendChild } from "@hopejs/renderer";
 
 /**
  * 标签元素中的静态属性参数

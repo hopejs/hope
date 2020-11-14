@@ -1,8 +1,4 @@
-import {
-  StaticAttr,
-  start,
-  end,
-} from "@hopejs/runtime-core";
+import { StaticAttr, start, end } from "@hopejs/runtime-core";
 
 export function div(attr: StaticAttr) {
   start("div", attr);
