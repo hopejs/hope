@@ -17,5 +17,5 @@ export * from "./block";
 
 export { defineComponent } from "./defineComponent";
 
-// 生命周期钩子
+// 组件的生命周期钩子
 export { onMounted, onUnmounted, onUpdated } from "./lifecycle";

@@ -1,8 +1,7 @@
 import { appendChild, createPlaceholder } from "@hopejs/renderer";
 import { getCurrentElement, getFragment } from "@hopejs/runtime-core";
-import { isString } from "@hopejs/shared";
+import { isString, isObject } from "@hopejs/shared";
 import { isReactive, reactive } from "@hopejs/reactivity";
-import { isObject } from "@hopejs/shared";
 import { setComponentProps } from "./directives/hProp";
 import {
   getComponentOn,
@@ -21,7 +20,7 @@ import {
 } from "./lifecycle";
 import { mount } from "./render";
 
-interface ComponentOptions<P = object, S = (props: object) => any> {
+interface ComponentOptions<P = Record<string, any>, S = Record<string, (props: object) => any>> {
   props?: P;
   slots?: S;
   emit?(type: string, ...arg: any[]): any;
@@ -46,13 +45,9 @@ export function defineComponent<P, S>(
 ): Component<P, S> {
   let result: Component<P, S>;
 
-  let startPlaceholder;
-  let endPlaceholder: any;
-  let container: any;
-
   const startTag = () => {
-    container = getCurrentElement() || getFragment();
-    startPlaceholder = createPlaceholder(`${render.name || "component"} start`);
+    const container = getCurrentElement() || getFragment();
+    const startPlaceholder = createPlaceholder(`${render.name || "component"} start`);
     appendChild(container, startPlaceholder);
     setSlots();
     setComponentProps();
@@ -84,14 +79,17 @@ export function defineComponent<P, S>(
     // 放在组件渲染完之后，以便让指令能获取到生命周期处理函数
     resetLifecycleHandlers();
 
-    endPlaceholder = createPlaceholder(`${render.name || "component"} end`);
+    const endPlaceholder: any = createPlaceholder(`${render.name || "component"} end`);
     // 生命周期回调存储在占位符中，当 end 占位符从 DOM 中移出时
     // 就说明该组件已经被卸载。
     endPlaceholder[LIFECYCLE_KEYS.unmounted] = callUnmounted.bind(
       null,
       lifecycle.unmountedHandlers!
     );
-    container && appendChild(container, endPlaceholder);
+    const container = getCurrentElement() || getFragment();
+    appendChild(container, endPlaceholder);
+
+    // 调用已挂载钩子
     callMounted(lifecycle.mountedHandlers!);
   };
 

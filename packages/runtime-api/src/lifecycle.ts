@@ -1,4 +1,4 @@
-import { logWarn } from "@hopejs/shared/src";
+import { logWarn } from "@hopejs/shared";
 
 interface Lifecycle {
   mountedHandlers: any[];

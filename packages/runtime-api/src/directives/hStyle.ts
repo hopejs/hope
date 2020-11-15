@@ -1,4 +1,4 @@
-import { setAttribute } from "@hopejs/renderer/src";
+import { setAttribute } from "@hopejs/renderer";
 import { getCurrentElement } from "@hopejs/runtime-core";
 import { isFunction, normalizeStyle, stringifyStyle } from "@hopejs/shared";
 import { effect } from "@hopejs/reactivity";

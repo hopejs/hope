@@ -1,4 +1,4 @@
-import { appendChild, createComment } from "@hopejs/renderer/src";
+import { appendChild, createComment } from "@hopejs/renderer";
 import { getCurrentElement } from "@hopejs/runtime-core";
 import { isFunction } from "@hopejs/shared";
 import { effect } from "@hopejs/reactivity";
@@ -9,7 +9,6 @@ export function hComment(value: string | (() => string)) {
   const currentElement = getCurrentElement();
   const comment = createComment("");
   if (currentElement) {
-    appendChild(currentElement, comment);
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers()!;
       effect(() => {
@@ -19,6 +18,7 @@ export function hComment(value: string | (() => string)) {
     } else {
       comment.textContent = value;
     }
+    appendChild(currentElement, comment);
   } else {
     outsideWarn("hComment");
   }
