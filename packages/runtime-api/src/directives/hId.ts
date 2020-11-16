@@ -11,7 +11,7 @@ export function hId(value: string | (() => string)) {
   const currentElement = getCurrentElement();
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers()!;
+      const { updatedHandlers } = getLifecycleHandlers();
       effect(() => {
         setAttribute(currentElement, "id", value());
         updatedHandlers && callUpdated(updatedHandlers);

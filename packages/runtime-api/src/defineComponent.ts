@@ -20,7 +20,10 @@ import {
 } from "./lifecycle";
 import { mount } from "./render";
 
-interface ComponentOptions<P = Record<string, any>, S = Record<string, (props: object) => any>> {
+interface ComponentOptions<
+  P = Record<string, any>,
+  S = Record<string, (props: object) => any>
+> {
   props?: P;
   slots?: S;
   emit?(type: string, ...arg: any[]): any;
@@ -37,17 +40,20 @@ type ComponentStartTag = (...arg: any[]) => any;
 type ComponentEndTag = (...arg: any[]) => any;
 
 type Component<P = any, S = any> = [ComponentStartTag, ComponentEndTag] & {
-  mount: (options: MountOptions<P, S>) => any;
+  mount: (options: MountOptions<P, S> | string | Element) => any;
 };
 
 export function defineComponent<P, S>(
-  render: (options?: ComponentOptions<P, S>) => any
-): Component<P, S> {
+  render: (options: ComponentOptions<P, S>) => any
+): Component<P, S>;
+export function defineComponent<P, S>(render: (options: any) => any): Component<P, S> {
   let result: Component<P, S>;
 
   const startTag = () => {
     const container = getCurrentElement() || getFragment();
-    const startPlaceholder = createPlaceholder(`${render.name || "component"} start`);
+    const startPlaceholder = createPlaceholder(
+      `${render.name || "component"} start`
+    );
     appendChild(container, startPlaceholder);
     setSlots();
     setComponentProps();
@@ -79,7 +85,9 @@ export function defineComponent<P, S>(
     // 放在组件渲染完之后，以便让指令能获取到生命周期处理函数
     resetLifecycleHandlers();
 
-    const endPlaceholder: any = createPlaceholder(`${render.name || "component"} end`);
+    const endPlaceholder: any = createPlaceholder(
+      `${render.name || "component"} end`
+    );
     // 生命周期回调存储在占位符中，当 end 占位符从 DOM 中移出时
     // 就说明该组件已经被卸载。
     endPlaceholder[LIFECYCLE_KEYS.unmounted] = callUnmounted.bind(
@@ -95,7 +103,7 @@ export function defineComponent<P, S>(
 
   result = [startTag, endTag] as any;
 
-  result.mount = (options: MountOptions<P, S> | string): P => {
+  result.mount = (options: MountOptions<P, S> | string | Element): P => {
     if (isString(options) || options instanceof Element) {
       options = { target: options, props: reactive({}) as P };
     }

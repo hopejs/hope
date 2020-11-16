@@ -29,7 +29,7 @@ export function hProp(key: any, value: unknown | (() => unknown)) {
   const currentElement = getCurrentElement();
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers()!;
+      const { updatedHandlers } = getLifecycleHandlers();
       effect(() => {
         (currentElement as any)[key] = value();
         updatedHandlers && callUpdated(updatedHandlers);

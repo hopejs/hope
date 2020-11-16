@@ -10,7 +10,7 @@ export function hComment(value: string | (() => string)) {
   const comment = createComment("");
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers()!;
+      const { updatedHandlers } = getLifecycleHandlers();
       effect(() => {
         comment.textContent = value();
         updatedHandlers && callUpdated(updatedHandlers);

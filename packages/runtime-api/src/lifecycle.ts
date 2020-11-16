@@ -48,7 +48,7 @@ export function resetLifecycleHandlers() {
 }
 
 export function getLifecycleHandlers() {
-  return currentLifecycle;
+  return currentLifecycle || {} as Lifecycle;
 }
 
 export function callMounted(handlers: (() => void)[]) {

@@ -19,7 +19,7 @@ export function hShow(value: any | (() => any)) {
   const placeholder = createPlaceholder("hShow");
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers()!;
+      const { updatedHandlers } = getLifecycleHandlers();
       effect(() => {
         if (value()) {
           showElement(currentElement, cache, placeholder);

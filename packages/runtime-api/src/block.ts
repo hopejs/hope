@@ -22,7 +22,7 @@ export function block(range: () => void) {
   appendChild(container, end);
 
   const blockFragment = createBlockFragment();
-  const { updatedHandlers } = getLifecycleHandlers()!;
+  const { updatedHandlers } = getLifecycleHandlers();
   effect(() => {
     setBlockFragment(blockFragment);
     range();

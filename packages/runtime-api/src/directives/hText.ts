@@ -10,7 +10,7 @@ export function hText(value: string | (() => string)) {
   const textNode = createTextNode("");
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers()!;
+      const { updatedHandlers } = getLifecycleHandlers();
       effect(() => {
         textNode.textContent = value();
         updatedHandlers && callUpdated(updatedHandlers);

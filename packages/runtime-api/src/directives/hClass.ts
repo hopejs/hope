@@ -17,7 +17,7 @@ export function hClass(value: any) {
   const currentElement = getCurrentElement();
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers()!;
+      const { updatedHandlers } = getLifecycleHandlers();
       effect(() => {
         setAttribute(currentElement, "class", normalizeClass(value()));
         updatedHandlers && callUpdated(updatedHandlers);

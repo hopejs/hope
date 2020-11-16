@@ -11,7 +11,7 @@ export function hAttr(name: string, value: string | (() => string)) {
   const currentElement = getCurrentElement();
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers()!;
+      const { updatedHandlers } = getLifecycleHandlers();
       effect(() => {
         setAttribute(currentElement, name, value());
         updatedHandlers && callUpdated(updatedHandlers);
