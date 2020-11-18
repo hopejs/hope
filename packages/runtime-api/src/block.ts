@@ -8,9 +8,8 @@ import {
 import {
   BlockFragment,
   createBlockFragment,
-  getCurrentElement,
+  getContainer,
   getCurrntBlockFragment,
-  getFragment,
   HopeElement,
   resetBlockFragment,
   setBlockFragment,
@@ -20,8 +19,7 @@ import { callUpdated, getLifecycleHandlers, LIFECYCLE_KEYS } from "./lifecycle";
 export function block(range: () => void) {
   const start = createPlaceholder("block start");
   const end = createPlaceholder("block end");
-  const container =
-    getCurrentElement() || getCurrntBlockFragment() || getFragment();
+  const container = getContainer();
   appendChild(container, start);
   appendChild(container, end);
 
@@ -88,8 +86,8 @@ function remove(start: Node, end: Node, firstNode: Node | null) {
   remove(start, end, firstNode);
 }
 
-function stopEffects(el: HopeElement) {
-  if (!el._hope_effects) return;
-  el._hope_effects.forEach(stop);
-  el._hope_effects.length = 0;
+function stopEffects(node: HopeElement) {
+  if (!node._hope_effects) return;
+  node._hope_effects.forEach(stop);
+  node._hope_effects.length = 0;
 }

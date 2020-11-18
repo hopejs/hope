@@ -9,6 +9,7 @@ import {
   hSlot,
   mount,
   hOn,
+  block,
 } from "../src";
 
 describe("defineComponent", () => {
@@ -106,10 +107,33 @@ describe("defineComponent", () => {
     hOn("testClick", fn);
     $person();
 
+    const container = document.createElement("div");
+    mount(container);
+
     // @ts-ignore
     el.dispatchEvent(new CustomEvent("click"));
     expect(fn).toBeCalledTimes(1);
   });
 
   it("lifecycle", () => {});
+
+  it("block & component", () => {
+    const [com, $com] = defineComponent<any, any>(({ props }) => {
+      div();
+      hText(() => props.a);
+      $div();
+    });
+    block(() => {
+      div();
+      $div();
+      com();
+      hProp("a", () => "b");
+      $com();
+    });
+    const container = document.createElement("div");
+    mount(container);
+    expect(container.innerHTML).toBe(
+      `<!--block start--><div></div><!--component start--><div>b</div><!--component end--><!--block end-->`
+    );
+  });
 });

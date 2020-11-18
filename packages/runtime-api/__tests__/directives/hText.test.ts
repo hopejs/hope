@@ -1,6 +1,6 @@
-import { ref } from "@hopejs/reactivity";
-import { getCurrentElement } from "@hopejs/runtime-core";
-import { div, $div, hText } from "../../src";
+import { reactive } from "@hopejs/reactivity";
+import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
+import { div, $div, hText, block } from "../../src";
 
 describe("hText", () => {
   it("basic", () => {
@@ -11,7 +11,7 @@ describe("hText", () => {
   });
 
   it("reactivity", () => {
-    const content = ref("text");
+    const content = reactive({ value: "text" });
 
     div();
     hText(() => content.value);
@@ -21,5 +21,31 @@ describe("hText", () => {
     expect(el?.innerHTML).toBe(`text`);
     content.value = "123";
     expect(el?.innerHTML).toBe(`123`);
+  });
+
+  it("_hope_effects", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hText(() => "text");
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects?.length).toBe(1);
+  });
+
+  it("_hope_effects & no reactivity", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hText("text");
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects).toBe(undefined);
   });
 });

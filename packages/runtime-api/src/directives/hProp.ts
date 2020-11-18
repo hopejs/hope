@@ -1,6 +1,7 @@
 import { effect, reactive } from "@hopejs/reactivity";
 import { getCurrentElement } from "@hopejs/runtime-core";
 import { isFunction } from "@hopejs/shared";
+import { collectEffects } from "../block";
 import { callUpdated, getLifecycleHandlers } from "../lifecycle";
 import { outsideWarn } from "./outsideWarn";
 
@@ -30,10 +31,11 @@ export function hProp(key: any, value: unknown | (() => unknown)) {
   if (currentElement) {
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers();
-      effect(() => {
+      const ef = effect(() => {
         (currentElement as any)[key] = value();
         updatedHandlers && callUpdated(updatedHandlers);
       });
+      collectEffects(ef);
     } else {
       (currentElement as any)[key] = value;
     }
@@ -58,10 +60,11 @@ function processComponentProps(key: any, value: unknown | (() => unknown)) {
   if (isFunction(value)) {
     const { updatedHandlers } = getLifecycleHandlers()!;
     const props = componentProps;
-    effect(() => {
+    const ef = effect(() => {
       props![key] = value();
       updatedHandlers && callUpdated(updatedHandlers);
     });
+    collectEffects(ef);
   } else {
     componentProps![key] = value;
   }

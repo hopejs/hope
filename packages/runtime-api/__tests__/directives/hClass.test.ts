@@ -1,6 +1,6 @@
-import { getCurrentElement } from "@hopejs/runtime-core";
+import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
 import { reactive } from "@hopejs/reactivity";
-import { hClass, div, $div } from "../../src";
+import { hClass, div, $div, block } from "../../src";
 
 describe("hClass", () => {
   it("basic", () => {
@@ -61,5 +61,31 @@ describe("hClass", () => {
     hClass([{ some: false }, "thing"]);
     expect(getCurrentElement()?.outerHTML).toBe(`<div class="thing"></div>`);
     $div();
+  });
+
+  it("_hope_effects", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hClass(() => "name");
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects?.length).toBe(1);
+  });
+
+  it("_hope_effects & no reactivity", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hClass("name");
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects).toBe(undefined);
   });
 });

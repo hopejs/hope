@@ -1,6 +1,6 @@
-import { getCurrentElement } from "@hopejs/runtime-core";
+import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
 import { reactive } from "@hopejs/reactivity";
-import { hAttr, div, $div } from "../../src";
+import { hAttr, div, $div, block } from "../../src";
 
 describe("hAttr", () => {
   it("basic", () => {
@@ -21,5 +21,31 @@ describe("hAttr", () => {
 
     state.name = "b";
     expect(el?.outerHTML).toBe(`<div abc="b"></div>`);
+  });
+
+  it("_hope_effects", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hAttr("class", () => "name");
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects?.length).toBe(1);
+  });
+
+  it("_hope_effects & no reactivity", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hAttr("class", "name");
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects).toBe(undefined);
   });
 });

@@ -1,6 +1,6 @@
-import { getCurrentElement } from "@hopejs/runtime-core";
+import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
 import { reactive } from "@hopejs/reactivity";
-import { hComment, div, $div } from "../../src";
+import { hComment, div, $div, block } from "../../src";
 
 describe("hComment", () => {
   it("basic", () => {
@@ -21,5 +21,31 @@ describe("hComment", () => {
 
     state.name = "b";
     expect(el?.innerHTML).toBe(`<!--b-->`);
+  });
+
+  it("_hope_effects", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hComment(() => "name");
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects?.length).toBe(1);
+  });
+
+  it("_hope_effects & no reactivity", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hComment("name");
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects).toBe(undefined);
   });
 });

@@ -1,5 +1,5 @@
 import { appendChild, createPlaceholder } from "@hopejs/renderer";
-import { getCurrentElement, getFragment } from "@hopejs/runtime-core";
+import { getContainer, getCurrntBlockFragment } from "@hopejs/runtime-core";
 import { isString, isObject } from "@hopejs/shared";
 import { isReactive, reactive } from "@hopejs/reactivity";
 import { setComponentProps } from "./directives/hProp";
@@ -46,15 +46,18 @@ type Component<P = any, S = any> = [ComponentStartTag, ComponentEndTag] & {
 export function defineComponent<P, S>(
   render: (options: ComponentOptions<P, S>) => any
 ): Component<P, S>;
-export function defineComponent<P, S>(render: (options: any) => any): Component<P, S> {
+export function defineComponent<P, S>(
+  render: (options: any) => any
+): Component<P, S> {
   let result: Component<P, S>;
 
   const startTag = () => {
-    const container = getCurrentElement() || getFragment();
+    const container = getContainer();
     const startPlaceholder = createPlaceholder(
       `${render.name || "component"} start`
     );
     appendChild(container, startPlaceholder);
+    pushStartToBlockFragment(startPlaceholder);
     setSlots();
     setComponentProps();
     setComponentOn();
@@ -66,6 +69,8 @@ export function defineComponent<P, S>(render: (options: any) => any): Component<
       on?: Record<string, (...arg: any[]) => any>;
     } = {}
   ) => {
+    popStartFromBlockFragment();
+
     // 放在 end 标签，可以确保组件插槽中的
     // 属性更新时正确的调用组件的父组件的生命周期钩子
     setLifecycleHandlers();
@@ -94,7 +99,7 @@ export function defineComponent<P, S>(render: (options: any) => any): Component<
       null,
       lifecycle.unmountedHandlers!
     );
-    const container = getCurrentElement() || getFragment();
+    const container = getContainer();
     appendChild(container, endPlaceholder);
 
     // 调用已挂载钩子
@@ -122,4 +127,27 @@ export function defineComponent<P, S>(render: (options: any) => any): Component<
   };
 
   return result;
+}
+
+/**
+ * 把组件的 start 占位符 push 进 blockFragment 中
+ * 的 stack 中，用以当 block 的根元素是组件时，收集
+ * 组件的 effect。
+ * @param start
+ */
+function pushStartToBlockFragment(start: any) {
+  const blockFragment = getCurrntBlockFragment();
+  if (blockFragment) {
+    blockFragment._elementStack.push(start);
+  }
+}
+
+/**
+ * 及时清除掉之前添加的 start 占位符。
+ */
+function popStartFromBlockFragment() {
+  const blockFragment = getCurrntBlockFragment();
+  if (blockFragment) {
+    blockFragment._elementStack.pop();
+  }
 }

@@ -4,6 +4,7 @@ import { isFunction } from "@hopejs/shared";
 import { effect } from "@hopejs/reactivity";
 import { outsideWarn } from "./outsideWarn";
 import { callUpdated, getLifecycleHandlers } from "../lifecycle";
+import { collectEffects } from "../block";
 
 export function hText(value: string | (() => string)) {
   const currentElement = getCurrentElement();
@@ -11,10 +12,11 @@ export function hText(value: string | (() => string)) {
   if (currentElement) {
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers();
-      effect(() => {
+      const ef = effect(() => {
         textNode.textContent = value();
         updatedHandlers && callUpdated(updatedHandlers);
       });
+      collectEffects(ef);
     } else {
       textNode.textContent = value;
     }

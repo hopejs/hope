@@ -4,6 +4,7 @@ import { isFunction, normalizeStyle, stringifyStyle } from "@hopejs/shared";
 import { effect } from "@hopejs/reactivity";
 import { outsideWarn } from "./outsideWarn";
 import { callUpdated, getLifecycleHandlers } from "../lifecycle";
+import { collectEffects } from "../block";
 
 type CSSStyle<T = CSSStyleDeclaration> = {
   [P in keyof T]?: any;
@@ -18,7 +19,7 @@ export function hStyle(value: any) {
   if (currentElement) {
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers();
-      effect(() => {
+      const ef = effect(() => {
         setAttribute(
           currentElement,
           "style",
@@ -26,6 +27,7 @@ export function hStyle(value: any) {
         );
         updatedHandlers && callUpdated(updatedHandlers);
       });
+      collectEffects(ef);
     } else {
       setAttribute(
         currentElement,

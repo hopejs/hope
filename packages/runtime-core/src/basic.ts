@@ -87,6 +87,10 @@ export function getFragment() {
   return fragment;
 }
 
+export function getContainer() {
+  return getCurrentElement() || getCurrntBlockFragment() || getFragment();
+}
+
 function appendElement() {
   if (!currentElement) return;
   if (blockFragment) {

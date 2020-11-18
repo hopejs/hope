@@ -4,6 +4,7 @@ import { effect } from "@hopejs/reactivity";
 import { setAttribute } from "@hopejs/renderer";
 import { outsideWarn } from "./outsideWarn";
 import { callUpdated, getLifecycleHandlers } from "../lifecycle";
+import { collectEffects } from "../block";
 
 export function hId(value: string | (() => string)) {
   // TODO: 该指令不允许在组件中使用
@@ -12,10 +13,11 @@ export function hId(value: string | (() => string)) {
   if (currentElement) {
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers();
-      effect(() => {
+      const ef = effect(() => {
         setAttribute(currentElement, "id", value());
         updatedHandlers && callUpdated(updatedHandlers);
       });
+      collectEffects(ef);
     } else {
       setAttribute(currentElement, "id", value);
     }

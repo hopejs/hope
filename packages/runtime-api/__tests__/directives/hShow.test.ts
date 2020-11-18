@@ -1,5 +1,6 @@
-import { ref } from "@hopejs/reactivity";
-import { hShow, mount, div, $div } from "../../src";
+import { reactive } from "@hopejs/reactivity";
+import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
+import { hShow, mount, div, $div, block } from "../../src";
 
 describe("hShow", () => {
   it("basic", () => {
@@ -18,7 +19,7 @@ describe("hShow", () => {
   });
 
   it("reactivity", () => {
-    const show = ref(true);
+    const show = reactive({ value: true });
 
     div();
     hShow(() => show.value);
@@ -29,5 +30,47 @@ describe("hShow", () => {
 
     show.value = false;
     expect(container.innerHTML).toBe(`<!--hShow-->`);
+  });
+
+  it("nest element", () => {
+    const show = reactive({ value: false });
+
+    div();
+    hShow(() => show.value);
+    div();
+    $div();
+    $div();
+    const container = document.createElement("div");
+    mount(container);
+    expect(container.innerHTML).toBe(`<!--hShow-->`);
+
+    show.value = true;
+    expect(container.innerHTML).toBe(`<div><div></div></div>`);
+  });
+
+  it("_hope_effects", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hShow(() => true);
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects?.length).toBe(1);
+  });
+
+  it("_hope_effects & no reactivity", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hShow(true);
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects).toBe(undefined);
   });
 });

@@ -10,6 +10,7 @@ import { isFunction } from "@hopejs/shared";
 import { effect } from "@hopejs/reactivity";
 import { outsideWarn } from "./outsideWarn";
 import { callUpdated, getLifecycleHandlers } from "../lifecycle";
+import { collectEffects } from "../block";
 
 export function hShow(value: any | (() => any)) {
   // TODO: 该指令不允许在组件中使用
@@ -20,7 +21,7 @@ export function hShow(value: any | (() => any)) {
   if (currentElement) {
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers();
-      effect(() => {
+      const ef = effect(() => {
         if (value()) {
           showElement(currentElement, cache, placeholder);
         } else {
@@ -28,6 +29,7 @@ export function hShow(value: any | (() => any)) {
         }
         updatedHandlers && callUpdated(updatedHandlers);
       });
+      collectEffects(ef);
     } else {
       if (value) {
         showElement(currentElement, cache, placeholder);

@@ -1,6 +1,6 @@
-import { ref } from "@hopejs/reactivity";
-import { getCurrentElement } from "@hopejs/runtime-core";
-import { div, $div, hStyle } from "../../src";
+import { reactive } from "@hopejs/reactivity";
+import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
+import { div, $div, hStyle, block } from "../../src";
 
 describe("hStyle", () => {
   it("basic", () => {
@@ -24,7 +24,7 @@ describe("hStyle", () => {
   });
 
   it("reactivity", () => {
-    const color = ref("red");
+    const color = reactive({ value: "red" });
 
     div();
     hStyle(() => ({ color: color.value }));
@@ -34,5 +34,31 @@ describe("hStyle", () => {
 
     color.value = "blue";
     expect(el?.outerHTML).toBe(`<div style="color:blue;"></div>`);
+  });
+
+  it("_hope_effects", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hStyle(() => ({ color: "red" }));
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects?.length).toBe(1);
+  });
+
+  it("_hope_effects & no reactivity", () => {
+    let el: HopeElement;
+    block(() => {
+      div();
+      hStyle({ color: "red" });
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    // @ts-ignore
+    expect(el._hope_effects).toBe(undefined);
   });
 });
