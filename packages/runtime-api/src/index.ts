@@ -1,3 +1,5 @@
+export { nextTick } from "@hopejs/runtime-core";
+
 export * from "./tags";
 export * from "./render";
 

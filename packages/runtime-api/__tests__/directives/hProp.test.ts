@@ -3,7 +3,7 @@ import { reactive } from "@hopejs/reactivity";
 import { hProp, div, $div } from "../../src";
 
 describe("hProp", () => {
-  const KEY = "_hopejs_test_";
+  const KEY = "_hopejs_test";
 
   it("basic", () => {
     div();

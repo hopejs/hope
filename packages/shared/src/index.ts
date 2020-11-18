@@ -2,6 +2,7 @@ export {
   isString,
   isFunction,
   isObject,
+  isArray,
   normalizeClass,
   normalizeStyle,
   stringifyStyle,
