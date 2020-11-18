@@ -9,7 +9,7 @@ export type BlockFragment = DocumentFragment & {
   _elementStack: HopeElement[];
   _parent: BlockFragment | undefined;
 };
-export type HopeElement = Element & { _hope_effects?: ReactiveEffect<void>[] };
+export type HopeElement = Element & { _hope_effects?: Set<ReactiveEffect<void>> };
 
 let currentElement: HopeElement | undefined;
 const elementStack: Element[] = [];

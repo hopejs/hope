@@ -120,8 +120,8 @@ describe("block", () => {
       $div();
     });
     // @ts-ignore
-    expect(el2._hope_effects?.length).toBe(1);
+    expect(el2._hope_effects?.size).toBe(1);
     // @ts-ignore
-    expect(typeof el2._hope_effects[0]).toBe("function");
+    expect(typeof Array.from(el2._hope_effects)[0]).toBe("function");
   });
 });

@@ -73,7 +73,7 @@ describe("hClass", () => {
     });
 
     // @ts-ignore
-    expect(el._hope_effects?.length).toBe(1);
+    expect(el._hope_effects?.size).toBe(1);
   });
 
   it("_hope_effects & no reactivity", () => {

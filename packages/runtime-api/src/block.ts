@@ -56,8 +56,14 @@ function addEffectInToBlockRootElement(
   const blockRootElement = blockFragment._elementStack[0];
   if (blockRootElement) {
     (
-      blockRootElement._hope_effects || (blockRootElement._hope_effects = [])
-    ).push(effect);
+      blockRootElement._hope_effects ||
+      (blockRootElement._hope_effects = new Set())
+    ).add(effect);
+
+    // 保存依赖该 effect 的列表，当 effect 被 stop 时，清空列表。
+    (effect._hope_effects || (effect._hope_effects = [])).push(
+      blockRootElement._hope_effects
+    );
   }
   blockFragment._parent &&
     addEffectInToBlockRootElement(blockFragment._parent, effect);
@@ -87,7 +93,26 @@ function remove(start: Node, end: Node, firstNode: Node | null) {
 }
 
 function stopEffects(node: HopeElement) {
-  if (!node._hope_effects) return;
-  node._hope_effects.forEach(stop);
-  node._hope_effects.length = 0;
+  const effects = node._hope_effects;
+  if (!effects) return;
+  effects.forEach((effect) => {
+    stop(effect);
+
+    // 这个列表的最前面的，在视图中是嵌套最深的，
+    // 当前 block 的子 block 的列表应该直接被
+    // 清空，感觉这样性能会好些。。
+    let canClear = true;
+    effect._hope_effects!.forEach((collection) => {
+      if (collection === effects) {
+        canClear = false;
+        return;
+      }
+      if (canClear) {
+        collection.size && collection.clear();
+      } else {
+        collection.delete(effect);
+      }
+    });
+  });
+  effects.clear();
 }
