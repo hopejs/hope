@@ -136,4 +136,40 @@ describe("defineComponent", () => {
       `<!--block start--><div></div><!--component start--><div>b</div><!--component end--><!--block end-->`
     );
   });
+
+  it("nest block & component", () => {
+    const [com, $com] = defineComponent<any, any>(() => {
+      div();
+      $div();
+    });
+    block(() => {
+      div();
+      block(() => {
+        com();
+        $com();
+      });
+      $div();
+    });
+    const container1 = document.createElement("div");
+    mount(container1);
+    expect(container1.innerHTML).toBe(
+      `<!--block start--><div><!--block start--><!--component start--><div></div><!--component end--><!--block end--></div><!--block end-->`
+    );
+
+    block(() => {
+      div();
+      block(() => {
+        div();
+        $div();
+      });
+      com();
+      $com();
+      $div();
+    });
+    const container2 = document.createElement("div");
+    mount(container2);
+    expect(container2.innerHTML).toBe(
+      `<!--block start--><div><!--block start--><div></div><!--block end--><!--component start--><div></div><!--component end--></div><!--block end-->`
+    );
+  });
 });

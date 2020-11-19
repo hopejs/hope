@@ -14,7 +14,9 @@ export type BlockFragment = DocumentFragment & {
   // rootElement ，以便可以正常的收集 effect。
   _parentBlockRootElement: HopeElement;
 };
-export type HopeElement = Element & { _hope_effects?: Set<ReactiveEffect<void>> };
+export type HopeElement = Element & {
+  _hope_effects?: Set<ReactiveEffect<void>>;
+};
 
 let currentElement: HopeElement | undefined;
 const elementStack: Element[] = [];
@@ -81,11 +83,17 @@ export function setBlockFragment(value: BlockFragment) {
   value._parent || (value._parent = blockFragment);
   blockFragment = value;
   blockFragmentStack.push(value);
+  currentElement = undefined;
 }
 
 export function resetBlockFragment() {
   blockFragmentStack.pop();
   blockFragment = getLast(blockFragmentStack);
+  if (blockFragment) {
+    currentElement = getLast(blockFragment._elementStack);
+  } else {
+    currentElement = getLast(elementStack);
+  }
 }
 
 export function getFragment() {
