@@ -1,24 +1,23 @@
-import { appendChild, createPlaceholder } from "@hopejs/renderer";
-import { getContainer, getCurrntBlockFragment } from "@hopejs/runtime-core";
-import { isString, isObject } from "@hopejs/shared";
-import { isReactive, reactive } from "@hopejs/reactivity";
-import { setComponentProps } from "./directives/hProp";
+import { appendChild, createPlaceholder } from '@hopejs/renderer';
+import { getContainer, getCurrntBlockFragment } from '@hopejs/runtime-core';
+import { isString, isObject } from '@hopejs/shared';
+import { isReactive, reactive } from '@hopejs/reactivity';
+import { setComponentProps } from './directives/hProp';
 import {
   getComponentOn,
   resetComponentOn,
   setComponentOn,
-} from "./directives/hOn";
-import { getComponentProps, resetComponentProps } from "./directives/hProp";
-import { getSlots, resetSlots, setSlots } from "./directives/hSlot";
+} from './directives/hOn';
+import { getComponentProps, resetComponentProps } from './directives/hProp';
+import { getSlots, resetSlots, setSlots } from './directives/hSlot';
 import {
   callMounted,
-  callUnmounted,
   getLifecycleHandlers,
-  LIFECYCLE_KEYS,
   resetLifecycleHandlers,
   setLifecycleHandlers,
-} from "./lifecycle";
-import { mount } from "./render";
+} from './lifecycle';
+import { mount } from './render';
+import { collectUnmountedHook } from './block';
 
 interface ComponentOptions<
   P = Record<string, any>,
@@ -54,7 +53,7 @@ export function defineComponent<P, S>(
   const startTag = () => {
     const container = getContainer();
     const startPlaceholder = createPlaceholder(
-      `${render.name || "component"} start`
+      `${render.name || 'component'} start`
     );
     appendChild(container, startPlaceholder);
     pushStartToBlockFragment(startPlaceholder);
@@ -69,8 +68,6 @@ export function defineComponent<P, S>(
       on?: Record<string, (...arg: any[]) => any>;
     } = {}
   ) => {
-    popStartFromBlockFragment();
-
     // 放在 end 标签，可以确保组件插槽中的
     // 属性更新时正确的调用组件的父组件的生命周期钩子
     setLifecycleHandlers();
@@ -82,6 +79,11 @@ export function defineComponent<P, S>(
     const emit = (type: string, ...arg: any[]) => {
       on![type] && on![type](...arg);
     };
+
+    collectUnmountedHook(lifecycle.unmountedHandlers);
+    // 在 render 之前清理掉 start 占位符。
+    popStartFromBlockFragment();
+
     resetSlots();
     resetComponentProps();
     resetComponentOn();
@@ -91,13 +93,7 @@ export function defineComponent<P, S>(
     resetLifecycleHandlers();
 
     const endPlaceholder: any = createPlaceholder(
-      `${render.name || "component"} end`
-    );
-    // 生命周期回调存储在占位符中，当 end 占位符从 DOM 中移出时
-    // 就说明该组件已经被卸载。
-    endPlaceholder[LIFECYCLE_KEYS.unmounted] = callUnmounted.bind(
-      null,
-      lifecycle.unmountedHandlers!
+      `${render.name || 'component'} end`
     );
     const container = getContainer();
     appendChild(container, endPlaceholder);
@@ -132,7 +128,7 @@ export function defineComponent<P, S>(
 /**
  * 把组件的 start 占位符 push 进 blockFragment 中
  * 的 stack 中，用以当 block 的根元素是组件时，收集
- * 组件的 effect。
+ * 组件的 effect 和 hooks。
  * @param start
  */
 function pushStartToBlockFragment(start: any) {

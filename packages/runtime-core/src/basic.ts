@@ -1,6 +1,6 @@
-import { ReactiveEffect } from "@hopejs/reactivity";
-import { createElement, createFragment, appendChild } from "@hopejs/renderer";
-import { flushPostFlushCbs } from "./scheduler";
+import { ReactiveEffect } from '@hopejs/reactivity';
+import { createElement, createFragment, appendChild } from '@hopejs/renderer';
+import { flushPostFlushCbs } from './scheduler';
 
 /**
  * 标签元素中的静态属性参数
@@ -17,6 +17,7 @@ export type BlockFragment = DocumentFragment & {
 };
 export type HopeElement = Element & {
   _hope_effects?: Set<ReactiveEffect<void>>;
+  _h_unmounted?: Set<any[]>;
 };
 
 let currentElement: HopeElement | undefined;
@@ -62,7 +63,7 @@ export function end() {
 }
 
 export function mount(container: Element) {
-  container.innerHTML = "";
+  container.innerHTML = '';
   appendChild(container, fragment);
   flushPostFlushCbs();
 }
