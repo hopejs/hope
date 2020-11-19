@@ -8,6 +8,11 @@ export type StaticAttr = Record<string, string>;
 export type BlockFragment = DocumentFragment & {
   _elementStack: HopeElement[];
   _parent: BlockFragment | undefined;
+
+  // 在更新阶段，blockFragment._elementStack 中的元素
+  // 个数为 0 ，所以需要在子 fragment 中记录下父元素的
+  // rootElement ，以便可以正常的收集 effect。
+  _parentBlockRootElement: HopeElement;
 };
 export type HopeElement = Element & { _hope_effects?: Set<ReactiveEffect<void>> };
 
@@ -73,7 +78,7 @@ export function createBlockFragment() {
 }
 
 export function setBlockFragment(value: BlockFragment) {
-  value._parent = blockFragment;
+  value._parent || (value._parent = blockFragment);
   blockFragment = value;
   blockFragmentStack.push(value);
 }

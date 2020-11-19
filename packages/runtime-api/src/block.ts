@@ -51,9 +51,12 @@ export function collectEffects(effect: ReactiveEffect<void>) {
 
 function addEffectInToBlockRootElement(
   blockFragment: BlockFragment,
-  effect: ReactiveEffect<void>
+  effect: ReactiveEffect<void>,
+  childBlockFragment?: BlockFragment
 ) {
-  const blockRootElement = blockFragment._elementStack[0];
+  const blockRootElement =
+    blockFragment._elementStack[0] ||
+    childBlockFragment?._parentBlockRootElement;
   if (blockRootElement) {
     (
       blockRootElement._hope_effects ||
@@ -64,9 +67,12 @@ function addEffectInToBlockRootElement(
     (effect._hope_effects || (effect._hope_effects = [])).push(
       blockRootElement._hope_effects
     );
+
+    childBlockFragment &&
+      (childBlockFragment._parentBlockRootElement = blockRootElement);
   }
   blockFragment._parent &&
-    addEffectInToBlockRootElement(blockFragment._parent, effect);
+    addEffectInToBlockRootElement(blockFragment._parent, effect, blockFragment);
 }
 
 function insertBlockFragment(
@@ -108,6 +114,8 @@ function stopEffects(node: HopeElement) {
         return;
       }
       if (canClear) {
+        // TODO: 不确定这里的 clear 有没有必要！
+        // 如果不 clear ，不知道会不会造成循环引用？
         collection.size && collection.clear();
       } else {
         collection.delete(effect);
