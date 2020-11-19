@@ -1,10 +1,10 @@
-import { effect } from "@hopejs/reactivity";
-import { setAttribute } from "@hopejs/renderer";
-import { getCurrentElement } from "@hopejs/runtime-core";
-import { isFunction } from "@hopejs/shared";
-import { collectEffects } from "../block";
-import { callUpdated, getLifecycleHandlers } from "../lifecycle";
-import { outsideWarn } from "./outsideWarn";
+import { effect } from '@hopejs/reactivity';
+import { setAttribute } from '@hopejs/renderer';
+import { getCurrentElement, queueJob } from '@hopejs/runtime-core';
+import { isFunction } from '@hopejs/shared';
+import { collectEffects } from '../block';
+import { callUpdated, getLifecycleHandlers } from '../lifecycle';
+import { outsideWarn } from './outsideWarn';
 
 export function hAttr(name: string, value: string | (() => string)) {
   // TODO: 该指令不允许在组件中使用
@@ -13,15 +13,18 @@ export function hAttr(name: string, value: string | (() => string)) {
   if (currentElement) {
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers();
-      const ef = effect(() => {
-        setAttribute(currentElement, name, value());
-        updatedHandlers && callUpdated(updatedHandlers);
-      });
+      const ef = effect(
+        () => {
+          setAttribute(currentElement, name, value());
+          updatedHandlers && callUpdated(updatedHandlers);
+        },
+        { scheduler: queueJob }
+      );
       collectEffects(ef);
     } else {
       setAttribute(currentElement, name, value);
     }
   } else {
-    outsideWarn("hAttr");
+    outsideWarn('hAttr');
   }
 }

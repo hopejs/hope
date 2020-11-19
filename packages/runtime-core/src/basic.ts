@@ -1,5 +1,6 @@
 import { ReactiveEffect } from "@hopejs/reactivity";
 import { createElement, createFragment, appendChild } from "@hopejs/renderer";
+import { flushPostFlushCbs } from "./scheduler";
 
 /**
  * 标签元素中的静态属性参数
@@ -63,6 +64,7 @@ export function end() {
 export function mount(container: Element) {
   container.innerHTML = "";
   appendChild(container, fragment);
+  flushPostFlushCbs();
 }
 
 export function getCurrentElement() {

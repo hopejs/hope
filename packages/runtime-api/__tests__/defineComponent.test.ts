@@ -1,5 +1,5 @@
-import { reactive } from "@hopejs/reactivity";
-import { getCurrentElement } from "@hopejs/runtime-core";
+import { reactive } from '@hopejs/reactivity';
+import { getCurrentElement, nextTick } from '@hopejs/runtime-core';
 import {
   $div,
   defineComponent,
@@ -10,17 +10,20 @@ import {
   mount,
   hOn,
   block,
-} from "../src";
+  onMounted,
+  onUnmounted,
+  onUpdated,
+} from '../src';
 
-describe("defineComponent", () => {
-  it("basic", () => {
+describe('defineComponent', () => {
+  it('basic', () => {
     const [helloWorld, $helloWorld] = defineComponent(() => {
       div();
-      hText("Hello World");
+      hText('Hello World');
       $div();
     });
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     helloWorld();
     $helloWorld();
     mount(container);
@@ -29,22 +32,22 @@ describe("defineComponent", () => {
     );
   });
 
-  it("mount", () => {
+  it('mount', () => {
     const HelloWorld = defineComponent(() => {
       div();
-      hText("Hello Hope");
+      hText('Hello Hope');
       $div();
     });
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     HelloWorld.mount(container);
     expect(container.innerHTML).toBe(
       `<!--component start--><div>Hello Hope</div><!--component end-->`
     );
   });
 
-  it("props", () => {
-    const p = reactive({ name: "a" });
+  it('props', async () => {
+    const p = reactive({ name: 'a' });
     const [person, $person] = defineComponent<any, any>(({ props }) => {
       div();
       hText(() => props.name);
@@ -52,22 +55,23 @@ describe("defineComponent", () => {
     });
 
     person();
-    hProp("name", () => p.name);
+    hProp('name', () => p.name);
     $person();
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     expect(container.innerHTML).toBe(
       `<!--component start--><div>a</div><!--component end-->`
     );
 
-    p.name = "b";
+    p.name = 'b';
+    await nextTick();
     expect(container.innerHTML).toBe(
       `<!--component start--><div>b</div><!--component end-->`
     );
   });
 
-  it("slots", () => {
+  it('slots', () => {
     const [person, $person] = defineComponent<any, any>(({ slots }) => {
       div();
       slots.default();
@@ -75,25 +79,25 @@ describe("defineComponent", () => {
     });
 
     person();
-    hSlot("default", () => {
+    hSlot('default', () => {
       div();
       $div();
     });
     $person();
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     expect(container.innerHTML).toBe(
       `<!--component start--><div><div></div></div><!--component end-->`
     );
   });
 
-  it("emit", () => {
+  it('emit', () => {
     let el: Element;
     const [person, $person] = defineComponent<any, any>(({ emit }) => {
       div();
-      hOn("click", () => {
-        emit && emit("testClick", 123);
+      hOn('click', () => {
+        emit && emit('testClick', 123);
       });
       el = getCurrentElement()!;
       $div();
@@ -104,20 +108,78 @@ describe("defineComponent", () => {
     });
 
     person();
-    hOn("testClick", fn);
+    hOn('testClick', fn);
     $person();
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
 
     // @ts-ignore
-    el.dispatchEvent(new CustomEvent("click"));
+    el.dispatchEvent(new CustomEvent('click'));
     expect(fn).toBeCalledTimes(1);
   });
 
-  it("lifecycle", () => {});
+  it('lifecycle', async () => {
+    const mounted = jest.fn();
+    const unmounted = jest.fn();
+    const updated = jest.fn();
+    const state = reactive({ text: 'a', show: true });
 
-  it("block & component", () => {
+    const [com, $com] = defineComponent<any, any>(({ props }) => {
+      onMounted(mounted);
+      onUnmounted(unmounted);
+      onUpdated(updated);
+
+      div();
+      hText(() => props.text);
+      $div();
+    });
+
+    block(() => {
+      if (state.show) {
+        com();
+        hProp('text', () => state.text);
+        $com();
+      }
+    });
+
+    const container = document.createElement('div');
+    mount(container);
+    expect(container.innerHTML).toBe(
+      `<!--block start--><!--component start--><div>a</div><!--component end--><!--block end-->`
+    );
+    expect(mounted).toBeCalledTimes(1);
+    expect(unmounted).toBeCalledTimes(0);
+    expect(updated).toBeCalledTimes(1);
+
+    state.text = 'b';
+    await nextTick();
+    expect(container.innerHTML).toBe(
+      `<!--block start--><!--component start--><div>b</div><!--component end--><!--block end-->`
+    );
+    expect(mounted).toBeCalledTimes(1);
+    expect(unmounted).toBeCalledTimes(0);
+    expect(updated).toBeCalledTimes(2);
+
+    state.text = 'c';
+    state.text = 'd';
+    await nextTick();
+    expect(container.innerHTML).toBe(
+      `<!--block start--><!--component start--><div>d</div><!--component end--><!--block end-->`
+    );
+    expect(mounted).toBeCalledTimes(1);
+    expect(unmounted).toBeCalledTimes(0);
+    expect(updated).toBeCalledTimes(3);
+
+    state.show = false;
+    await nextTick();
+    expect(container.innerHTML).toBe(`<!--block start--><!--block end-->`);
+    expect(mounted).toBeCalledTimes(1);
+    expect(unmounted).toBeCalledTimes(1);
+    expect(updated).toBeCalledTimes(3);
+  });
+
+  it('block & component', () => {
     const [com, $com] = defineComponent<any, any>(({ props }) => {
       div();
       hText(() => props.a);
@@ -127,17 +189,17 @@ describe("defineComponent", () => {
       div();
       $div();
       com();
-      hProp("a", () => "b");
+      hProp('a', () => 'b');
       $com();
     });
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     expect(container.innerHTML).toBe(
       `<!--block start--><div></div><!--component start--><div>b</div><!--component end--><!--block end-->`
     );
   });
 
-  it("nest block & component", () => {
+  it('nest block & component', () => {
     const [com, $com] = defineComponent<any, any>(() => {
       div();
       $div();
@@ -150,7 +212,7 @@ describe("defineComponent", () => {
       });
       $div();
     });
-    const container1 = document.createElement("div");
+    const container1 = document.createElement('div');
     mount(container1);
     expect(container1.innerHTML).toBe(
       `<!--block start--><div><!--block start--><!--component start--><div></div><!--component end--><!--block end--></div><!--block end-->`
@@ -166,7 +228,7 @@ describe("defineComponent", () => {
       $com();
       $div();
     });
-    const container2 = document.createElement("div");
+    const container2 = document.createElement('div');
     mount(container2);
     expect(container2.innerHTML).toBe(
       `<!--block start--><div><!--block start--><div></div><!--block end--><!--component start--><div></div><!--component end--></div><!--block end-->`

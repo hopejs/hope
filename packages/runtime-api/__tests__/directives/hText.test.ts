@@ -1,17 +1,17 @@
-import { reactive } from "@hopejs/reactivity";
-import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
-import { div, $div, hText, block } from "../../src";
+import { reactive } from '@hopejs/reactivity';
+import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
+import { div, $div, hText, block } from '../../src';
 
-describe("hText", () => {
-  it("basic", () => {
+describe('hText', () => {
+  it('basic', () => {
     div();
-    hText("text");
+    hText('text');
     expect(getCurrentElement()?.innerHTML).toBe(`text`);
     $div();
   });
 
-  it("reactivity", () => {
-    const content = reactive({ value: "text" });
+  it('reactivity', async () => {
+    const content = reactive({ value: 'text' });
 
     div();
     hText(() => content.value);
@@ -19,15 +19,16 @@ describe("hText", () => {
     $div();
 
     expect(el?.innerHTML).toBe(`text`);
-    content.value = "123";
+    content.value = '123';
+    await nextTick();
     expect(el?.innerHTML).toBe(`123`);
   });
 
-  it("_hope_effects", () => {
+  it('_hope_effects', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hText(() => "text");
+      hText(() => 'text');
       el = getCurrentElement()!;
       $div();
     });
@@ -36,11 +37,11 @@ describe("hText", () => {
     expect(el._hope_effects?.size).toBe(1);
   });
 
-  it("_hope_effects & no reactivity", () => {
+  it('_hope_effects & no reactivity', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hText("text");
+      hText('text');
       el = getCurrentElement()!;
       $div();
     });

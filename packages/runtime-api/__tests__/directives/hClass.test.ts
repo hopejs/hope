@@ -1,17 +1,17 @@
-import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
-import { reactive } from "@hopejs/reactivity";
-import { hClass, div, $div, block } from "../../src";
+import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
+import { reactive } from '@hopejs/reactivity';
+import { hClass, div, $div, block } from '../../src';
 
-describe("hClass", () => {
-  it("basic", () => {
+describe('hClass', () => {
+  it('basic', () => {
     div();
-    hClass("some");
+    hClass('some');
     expect(getCurrentElement()?.outerHTML).toBe(`<div class="some"></div>`);
     $div();
   });
 
-  it("reactivity", () => {
-    const state = reactive({ name: "a" });
+  it('reactivity', async () => {
+    const state = reactive({ name: 'a' });
 
     div();
     hClass(() => state.name);
@@ -19,11 +19,12 @@ describe("hClass", () => {
     expect(el?.outerHTML).toBe(`<div class="a"></div>`);
     $div();
 
-    state.name = "b";
+    state.name = 'b';
+    await nextTick();
     expect(el?.outerHTML).toBe(`<div class="b"></div>`);
   });
 
-  it("object", () => {
+  it('object', () => {
     div();
     hClass({ some: true });
     expect(getCurrentElement()?.outerHTML).toBe(`<div class="some"></div>`);
@@ -35,39 +36,39 @@ describe("hClass", () => {
     $div();
   });
 
-  it("array", () => {
+  it('array', () => {
     div();
-    hClass(["some"]);
+    hClass(['some']);
     expect(getCurrentElement()?.outerHTML).toBe(`<div class="some"></div>`);
     $div();
 
     div();
-    hClass(["some", "thing"]);
+    hClass(['some', 'thing']);
     expect(getCurrentElement()?.outerHTML).toBe(
       `<div class="some thing"></div>`
     );
     $div();
   });
 
-  it("object & array", () => {
+  it('object & array', () => {
     div();
-    hClass([{ some: true }, "thing"]);
+    hClass([{ some: true }, 'thing']);
     expect(getCurrentElement()?.outerHTML).toBe(
       `<div class="some thing"></div>`
     );
     $div();
 
     div();
-    hClass([{ some: false }, "thing"]);
+    hClass([{ some: false }, 'thing']);
     expect(getCurrentElement()?.outerHTML).toBe(`<div class="thing"></div>`);
     $div();
   });
 
-  it("_hope_effects", () => {
+  it('_hope_effects', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hClass(() => "name");
+      hClass(() => 'name');
       el = getCurrentElement()!;
       $div();
     });
@@ -76,11 +77,11 @@ describe("hClass", () => {
     expect(el._hope_effects?.size).toBe(1);
   });
 
-  it("_hope_effects & no reactivity", () => {
+  it('_hope_effects & no reactivity', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hClass("name");
+      hClass('name');
       el = getCurrentElement()!;
       $div();
     });

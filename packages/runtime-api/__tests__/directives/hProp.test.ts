@@ -2,12 +2,13 @@ import {
   getCurrentElement,
   getCurrntBlockFragment,
   HopeElement,
-} from "@hopejs/runtime-core";
-import { reactive } from "@hopejs/reactivity";
-import { hProp, div, $div, block, defineComponent } from "../../src";
+  nextTick,
+} from '@hopejs/runtime-core';
+import { reactive } from '@hopejs/reactivity';
+import { hProp, div, $div, block, defineComponent } from '../../src';
 
-describe("hProp", () => {
-  const KEY = "_hopejs_test";
+describe('hProp', () => {
+  const KEY = '_hopejs_test';
   const [testComponent, $testComponent] = defineComponent<any, any>(
     ({ props }) => {
       div();
@@ -15,16 +16,16 @@ describe("hProp", () => {
     }
   );
 
-  it("basic", () => {
+  it('basic', () => {
     div();
-    hProp(KEY, "123");
+    hProp(KEY, '123');
     // @ts-ignore
     expect(getCurrentElement()[KEY]).toBe(`123`);
     $div();
   });
 
-  it("reactivity", () => {
-    const state = reactive({ name: "a" });
+  it('reactivity', async () => {
+    const state = reactive({ name: 'a' });
 
     div();
     hProp(KEY, () => state.name);
@@ -33,16 +34,17 @@ describe("hProp", () => {
     expect(el[KEY]).toBe(`a`);
     $div();
 
-    state.name = "b";
+    state.name = 'b';
+    await nextTick();
     // @ts-ignore
     expect(el[KEY]).toBe(`b`);
   });
 
-  it("_hope_effects", () => {
+  it('_hope_effects', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hProp(KEY, () => "name");
+      hProp(KEY, () => 'name');
       el = getCurrentElement()!;
       $div();
     });
@@ -51,11 +53,11 @@ describe("hProp", () => {
     expect(el._hope_effects?.size).toBe(1);
   });
 
-  it("_hope_effects & no reactivity", () => {
+  it('_hope_effects & no reactivity', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hProp(KEY, "name");
+      hProp(KEY, 'name');
       el = getCurrentElement()!;
       $div();
     });
@@ -64,13 +66,12 @@ describe("hProp", () => {
     expect(el._hope_effects).toBe(undefined);
   });
 
-  it("_hope_effects & with component", () => {
+  it('_hope_effects & with component', () => {
     let startPlaceholder: HopeElement;
     block(() => {
       testComponent();
-      hProp("a", () => "name");
-      startPlaceholder = getCurrntBlockFragment()
-        ?._elementStack[0]!;
+      hProp('a', () => 'name');
+      startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
       $testComponent();
     });
 
@@ -78,13 +79,12 @@ describe("hProp", () => {
     expect(startPlaceholder._hope_effects?.size).toBe(1);
   });
 
-  it("_hope_effects & no reactivity & with component", () => {
+  it('_hope_effects & no reactivity & with component', () => {
     let startPlaceholder: HopeElement;
     block(() => {
       testComponent();
-      hProp("b", "name");
-      startPlaceholder = getCurrntBlockFragment()
-        ?._elementStack[0]!;
+      hProp('b', 'name');
+      startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
       $testComponent();
     });
 

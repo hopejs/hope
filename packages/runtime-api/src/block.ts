@@ -1,37 +1,41 @@
-import { effect, ReactiveEffect, stop } from "@hopejs/reactivity";
+import { effect, ReactiveEffect, stop } from '@hopejs/reactivity';
 import {
   appendChild,
   createPlaceholder,
   insertBefore,
   removeChild,
-} from "@hopejs/renderer";
+} from '@hopejs/renderer';
 import {
   BlockFragment,
   createBlockFragment,
   getContainer,
   getCurrntBlockFragment,
   HopeElement,
+  queueJob,
   resetBlockFragment,
   setBlockFragment,
-} from "@hopejs/runtime-core";
-import { callUpdated, getLifecycleHandlers, LIFECYCLE_KEYS } from "./lifecycle";
+} from '@hopejs/runtime-core';
+import { callUpdated, getLifecycleHandlers, LIFECYCLE_KEYS } from './lifecycle';
 
 export function block(range: () => void) {
-  const start = createPlaceholder("block start");
-  const end = createPlaceholder("block end");
+  const start = createPlaceholder('block start');
+  const end = createPlaceholder('block end');
   const container = getContainer();
   appendChild(container, start);
   appendChild(container, end);
 
   const blockFragment = createBlockFragment();
   const { updatedHandlers } = getLifecycleHandlers();
-  const ef = effect(() => {
-    setBlockFragment(blockFragment);
-    range();
-    resetBlockFragment();
-    insertBlockFragment(blockFragment, start, end);
-    updatedHandlers && callUpdated(updatedHandlers);
-  });
+  const ef = effect(
+    () => {
+      setBlockFragment(blockFragment);
+      range();
+      resetBlockFragment();
+      insertBlockFragment(blockFragment, start, end);
+      updatedHandlers && callUpdated(updatedHandlers);
+    },
+    { scheduler: queueJob }
+  );
   collectEffects(ef);
 }
 

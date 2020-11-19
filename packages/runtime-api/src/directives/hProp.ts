@@ -1,9 +1,9 @@
-import { effect, reactive } from "@hopejs/reactivity";
-import { getCurrentElement } from "@hopejs/runtime-core";
-import { isFunction } from "@hopejs/shared";
-import { collectEffects } from "../block";
-import { callUpdated, getLifecycleHandlers } from "../lifecycle";
-import { outsideWarn } from "./outsideWarn";
+import { effect, reactive } from '@hopejs/reactivity';
+import { getCurrentElement, queueJob } from '@hopejs/runtime-core';
+import { isFunction } from '@hopejs/shared';
+import { collectEffects } from '../block';
+import { callUpdated, getLifecycleHandlers } from '../lifecycle';
+import { outsideWarn } from './outsideWarn';
 
 let componentProps: Record<string, any> | null;
 
@@ -31,16 +31,19 @@ export function hProp(key: any, value: unknown | (() => unknown)) {
   if (currentElement) {
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers();
-      const ef = effect(() => {
-        (currentElement as any)[key] = value();
-        updatedHandlers && callUpdated(updatedHandlers);
-      });
+      const ef = effect(
+        () => {
+          (currentElement as any)[key] = value();
+          updatedHandlers && callUpdated(updatedHandlers);
+        },
+        { scheduler: queueJob }
+      );
       collectEffects(ef);
     } else {
       (currentElement as any)[key] = value;
     }
   } else {
-    outsideWarn("hProp");
+    outsideWarn('hProp');
   }
 }
 
@@ -60,10 +63,13 @@ function processComponentProps(key: any, value: unknown | (() => unknown)) {
   if (isFunction(value)) {
     const { updatedHandlers } = getLifecycleHandlers()!;
     const props = componentProps;
-    const ef = effect(() => {
-      props![key] = value();
-      updatedHandlers && callUpdated(updatedHandlers);
-    });
+    const ef = effect(
+      () => {
+        props![key] = value();
+        updatedHandlers && callUpdated(updatedHandlers);
+      },
+      { scheduler: queueJob }
+    );
     collectEffects(ef);
   } else {
     componentProps![key] = value;

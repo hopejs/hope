@@ -1,10 +1,10 @@
-import { setAttribute } from "@hopejs/renderer";
-import { getCurrentElement } from "@hopejs/runtime-core";
-import { isFunction, normalizeClass } from "@hopejs/shared";
-import { effect } from "@hopejs/reactivity";
-import { outsideWarn } from "./outsideWarn";
-import { callUpdated, getLifecycleHandlers } from "../lifecycle";
-import { collectEffects } from "../block";
+import { setAttribute } from '@hopejs/renderer';
+import { getCurrentElement, queueJob } from '@hopejs/runtime-core';
+import { isFunction, normalizeClass } from '@hopejs/shared';
+import { effect } from '@hopejs/reactivity';
+import { outsideWarn } from './outsideWarn';
+import { callUpdated, getLifecycleHandlers } from '../lifecycle';
+import { collectEffects } from '../block';
 
 type ClassObject = Record<string, any>;
 type ClassArray = (string | ClassObject)[];
@@ -19,15 +19,18 @@ export function hClass(value: any) {
   if (currentElement) {
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers();
-      const ef = effect(() => {
-        setAttribute(currentElement, "class", normalizeClass(value()));
-        updatedHandlers && callUpdated(updatedHandlers);
-      });
+      const ef = effect(
+        () => {
+          setAttribute(currentElement, 'class', normalizeClass(value()));
+          updatedHandlers && callUpdated(updatedHandlers);
+        },
+        { scheduler: queueJob }
+      );
       collectEffects(ef);
     } else {
-      setAttribute(currentElement, "class", normalizeClass(value));
+      setAttribute(currentElement, 'class', normalizeClass(value));
     }
   } else {
-    outsideWarn("hClass");
+    outsideWarn('hClass');
   }
 }

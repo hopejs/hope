@@ -1,3 +1,4 @@
+import { queuePostFlushCb, SchedulerCbs } from "@hopejs/runtime-core";
 import { logWarn } from "@hopejs/shared";
 
 interface Lifecycle {
@@ -48,17 +49,17 @@ export function resetLifecycleHandlers() {
 }
 
 export function getLifecycleHandlers() {
-  return currentLifecycle || {} as Lifecycle;
+  return currentLifecycle || ({} as Lifecycle);
 }
 
-export function callMounted(handlers: (() => void)[]) {
-  console.log("mounted");
+export function callMounted(handlers: SchedulerCbs) {
+  queuePostFlushCb(handlers);
 }
 
-export function callUnmounted(handlers: (() => void)[]) {
-  console.log("unmounted");
+export function callUnmounted(handlers: SchedulerCbs) {
+  queuePostFlushCb(handlers);
 }
 
-export function callUpdated(handlers: (() => void)[]) {
-  console.log("updated");
+export function callUpdated(handlers: SchedulerCbs) {
+  queuePostFlushCb(handlers);
 }

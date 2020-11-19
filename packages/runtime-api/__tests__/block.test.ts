@@ -1,9 +1,9 @@
-import { reactive } from "@hopejs/reactivity";
-import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
-import { $div, $span, block, div, hText, mount, span } from "../src";
+import { reactive } from '@hopejs/reactivity';
+import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
+import { $div, $span, block, div, hText, mount, span } from '../src';
 
-describe("block", () => {
-  it("basic", () => {
+describe('block', () => {
+  it('basic', async () => {
     const state = reactive({
       toggle: true,
     });
@@ -11,27 +11,28 @@ describe("block", () => {
     block(() => {
       if (state.toggle) {
         div();
-        hText("1");
+        hText('1');
         $div();
       } else {
         span();
-        hText("2");
+        hText('2');
         $span();
       }
     });
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     expect(container.innerHTML).toBe(
-      "<!--block start--><div>1</div><!--block end-->"
+      '<!--block start--><div>1</div><!--block end-->'
     );
     state.toggle = false;
+    await nextTick();
     expect(container.innerHTML).toBe(
-      "<!--block start--><span>2</span><!--block end-->"
+      '<!--block start--><span>2</span><!--block end-->'
     );
   });
 
-  it("nest element", () => {
+  it('nest element', () => {
     block(() => {
       div();
       div();
@@ -39,14 +40,14 @@ describe("block", () => {
       $div();
     });
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     expect(container.innerHTML).toBe(
       `<!--block start--><div><div></div></div><!--block end-->`
     );
   });
 
-  it("nest block", () => {
+  it('nest block', () => {
     block(() => {
       block(() => {
         div();
@@ -54,14 +55,14 @@ describe("block", () => {
       });
     });
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     expect(container.innerHTML).toBe(
       `<!--block start--><!--block start--><div></div><!--block end--><!--block end-->`
     );
   });
 
-  it("nest block & nest element", () => {
+  it('nest block & nest element', () => {
     block(() => {
       div();
       block(() => {
@@ -71,7 +72,7 @@ describe("block", () => {
       $div();
     });
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     expect(container.innerHTML).toBe(
       `<!--block start--><div><!--block start--><div></div><!--block end--></div><!--block end-->`
@@ -88,14 +89,14 @@ describe("block", () => {
       });
     });
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     expect(container.innerHTML).toBe(
       `<!--block start--><div></div><!--block start--><div></div><!--block end--><!--block end-->`
     );
-  })
+  });
 
-  it("_hope_effects", () => {
+  it('_hope_effects', () => {
     let el: HopeElement;
     block(() => {
       div();
@@ -122,6 +123,6 @@ describe("block", () => {
     // @ts-ignore
     expect(el2._hope_effects?.size).toBe(1);
     // @ts-ignore
-    expect(typeof Array.from(el2._hope_effects)[0]).toBe("function");
+    expect(typeof Array.from(el2._hope_effects)[0]).toBe('function');
   });
 });

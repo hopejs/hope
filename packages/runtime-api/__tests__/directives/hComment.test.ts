@@ -1,17 +1,17 @@
-import { getCurrentElement, HopeElement } from "@hopejs/runtime-core";
-import { reactive } from "@hopejs/reactivity";
-import { hComment, div, $div, block } from "../../src";
+import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
+import { reactive } from '@hopejs/reactivity';
+import { hComment, div, $div, block } from '../../src';
 
-describe("hComment", () => {
-  it("basic", () => {
+describe('hComment', () => {
+  it('basic', () => {
     div();
-    hComment("");
-    expect(getCurrentElement()?.innerHTML).toBe("<!---->");
+    hComment('');
+    expect(getCurrentElement()?.innerHTML).toBe('<!---->');
     $div();
   });
 
-  it("reactivity", () => {
-    const state = reactive({ name: "a" });
+  it('reactivity', async () => {
+    const state = reactive({ name: 'a' });
 
     div();
     hComment(() => state.name);
@@ -19,15 +19,16 @@ describe("hComment", () => {
     expect(el?.innerHTML).toBe(`<!--a-->`);
     $div();
 
-    state.name = "b";
+    state.name = 'b';
+    await nextTick();
     expect(el?.innerHTML).toBe(`<!--b-->`);
   });
 
-  it("_hope_effects", () => {
+  it('_hope_effects', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hComment(() => "name");
+      hComment(() => 'name');
       el = getCurrentElement()!;
       $div();
     });
@@ -36,11 +37,11 @@ describe("hComment", () => {
     expect(el._hope_effects?.size).toBe(1);
   });
 
-  it("_hope_effects & no reactivity", () => {
+  it('_hope_effects & no reactivity', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hComment("name");
+      hComment('name');
       el = getCurrentElement()!;
       $div();
     });

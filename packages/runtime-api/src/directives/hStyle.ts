@@ -1,10 +1,10 @@
-import { setAttribute } from "@hopejs/renderer";
-import { getCurrentElement } from "@hopejs/runtime-core";
-import { isFunction, normalizeStyle, stringifyStyle } from "@hopejs/shared";
-import { effect } from "@hopejs/reactivity";
-import { outsideWarn } from "./outsideWarn";
-import { callUpdated, getLifecycleHandlers } from "../lifecycle";
-import { collectEffects } from "../block";
+import { setAttribute } from '@hopejs/renderer';
+import { getCurrentElement, queueJob } from '@hopejs/runtime-core';
+import { isFunction, normalizeStyle, stringifyStyle } from '@hopejs/shared';
+import { effect } from '@hopejs/reactivity';
+import { outsideWarn } from './outsideWarn';
+import { callUpdated, getLifecycleHandlers } from '../lifecycle';
+import { collectEffects } from '../block';
 
 type CSSStyle<T = CSSStyleDeclaration> = {
   [P in keyof T]?: any;
@@ -19,23 +19,26 @@ export function hStyle(value: any) {
   if (currentElement) {
     if (isFunction(value)) {
       const { updatedHandlers } = getLifecycleHandlers();
-      const ef = effect(() => {
-        setAttribute(
-          currentElement,
-          "style",
-          stringifyStyle(normalizeStyle(value()))
-        );
-        updatedHandlers && callUpdated(updatedHandlers);
-      });
+      const ef = effect(
+        () => {
+          setAttribute(
+            currentElement,
+            'style',
+            stringifyStyle(normalizeStyle(value()))
+          );
+          updatedHandlers && callUpdated(updatedHandlers);
+        },
+        { scheduler: queueJob }
+      );
       collectEffects(ef);
     } else {
       setAttribute(
         currentElement,
-        "style",
+        'style',
         stringifyStyle(normalizeStyle(value))
       );
     }
   } else {
-    outsideWarn("hStyle");
+    outsideWarn('hStyle');
   }
 }
