@@ -1,4 +1,4 @@
-import { isArray } from "@hopejs/shared";
+import { isArray } from '@hopejs/shared';
 
 export interface SchedulerJob {
   (): void;
@@ -15,18 +15,12 @@ let isFlushPending = false;
 const queue: SchedulerJob[] = [];
 let flushIndex = 0;
 
-const pendingPreFlushCbs: SchedulerCb[] = [];
-let activePreFlushCbs: SchedulerCb[] | null = null;
-let preFlushIndex = 0;
-
 const pendingPostFlushCbs: SchedulerCb[] = [];
 let activePostFlushCbs: SchedulerCb[] | null = null;
 let postFlushIndex = 0;
 
 const resolvedPromise: Promise<any> = Promise.resolve();
 let currentFlushPromise: Promise<void> | null = null;
-
-let currentPreFlushParentJob: SchedulerJob | null = null;
 
 const RECURSION_LIMIT = 100;
 type CountMap = Map<SchedulerJob | SchedulerCb, number>;
@@ -44,12 +38,11 @@ export function queueJob(job: SchedulerJob) {
   // allow it recursively trigger itself - it is the user's responsibility to
   // ensure it doesn't end up in an infinite loop.
   if (
-    (!queue.length ||
-      !queue.includes(
-        job,
-        isFlushing && job.allowRecurse ? flushIndex + 1 : flushIndex
-      )) &&
-    job !== currentPreFlushParentJob
+    !queue.length ||
+    !queue.includes(
+      job,
+      isFlushing && job.allowRecurse ? flushIndex + 1 : flushIndex
+    )
   ) {
     queue.push(job);
     queueFlush();
@@ -95,41 +88,8 @@ function queueCb(
   queueFlush();
 }
 
-export function queuePreFlushCb(cb: SchedulerCb) {
-  queueCb(cb, activePreFlushCbs, pendingPreFlushCbs, preFlushIndex);
-}
-
 export function queuePostFlushCb(cb: SchedulerCbs) {
   queueCb(cb, activePostFlushCbs, pendingPostFlushCbs, postFlushIndex);
-}
-
-export function flushPreFlushCbs(
-  seen?: CountMap,
-  parentJob: SchedulerJob | null = null
-) {
-  if (pendingPreFlushCbs.length) {
-    currentPreFlushParentJob = parentJob;
-    activePreFlushCbs = [...new Set(pendingPreFlushCbs)];
-    pendingPreFlushCbs.length = 0;
-    if (__DEV__) {
-      seen = seen || new Map();
-    }
-    for (
-      preFlushIndex = 0;
-      preFlushIndex < activePreFlushCbs.length;
-      preFlushIndex++
-    ) {
-      if (__DEV__) {
-        checkRecursiveUpdates(seen!, activePreFlushCbs[preFlushIndex]);
-      }
-      activePreFlushCbs[preFlushIndex]();
-    }
-    activePreFlushCbs = null;
-    preFlushIndex = 0;
-    currentPreFlushParentJob = null;
-    // recursively flush until it drains
-    flushPreFlushCbs(seen, parentJob);
-  }
 }
 
 export function flushPostFlushCbs(seen?: CountMap) {
@@ -171,8 +131,6 @@ function flushJobs(seen?: CountMap) {
   if (__DEV__) {
     seen = seen || new Map();
   }
-
-  flushPreFlushCbs(seen);
 
   queue.sort((a, b) => getId(a) - getId(b));
 
