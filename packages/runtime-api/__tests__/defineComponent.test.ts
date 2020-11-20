@@ -10,9 +10,6 @@ import {
   mount,
   hOn,
   block,
-  onMounted,
-  onUnmounted,
-  onUpdated,
 } from '../src';
 
 describe('defineComponent', () => {
@@ -117,66 +114,6 @@ describe('defineComponent', () => {
     // @ts-ignore
     el.dispatchEvent(new CustomEvent('click'));
     expect(fn).toBeCalledTimes(1);
-  });
-
-  it('lifecycle', async () => {
-    const mounted = jest.fn();
-    const unmounted = jest.fn();
-    const updated = jest.fn();
-    const state = reactive({ text: 'a', show: true });
-
-    const [com, $com] = defineComponent<any, any>(({ props }) => {
-      onMounted(mounted);
-      onUnmounted(unmounted);
-      onUpdated(updated);
-
-      div();
-      hText(() => props.text);
-      $div();
-    });
-
-    block(() => {
-      if (state.show) {
-        com();
-        hProp('text', () => state.text);
-        $com();
-      }
-    });
-
-    const container = document.createElement('div');
-    mount(container);
-    expect(container.innerHTML).toBe(
-      `<!--block start--><!--component start--><div>a</div><!--component end--><!--block end-->`
-    );
-    expect(mounted).toBeCalledTimes(1);
-    expect(unmounted).toBeCalledTimes(0);
-    expect(updated).toBeCalledTimes(1);
-
-    state.text = 'b';
-    await nextTick();
-    expect(container.innerHTML).toBe(
-      `<!--block start--><!--component start--><div>b</div><!--component end--><!--block end-->`
-    );
-    expect(mounted).toBeCalledTimes(1);
-    expect(unmounted).toBeCalledTimes(0);
-    expect(updated).toBeCalledTimes(2);
-
-    state.text = 'c';
-    state.text = 'd';
-    await nextTick();
-    expect(container.innerHTML).toBe(
-      `<!--block start--><!--component start--><div>d</div><!--component end--><!--block end-->`
-    );
-    expect(mounted).toBeCalledTimes(1);
-    expect(unmounted).toBeCalledTimes(0);
-    expect(updated).toBeCalledTimes(3);
-
-    state.show = false;
-    await nextTick();
-    expect(container.innerHTML).toBe(`<!--block start--><!--block end-->`);
-    expect(mounted).toBeCalledTimes(1);
-    expect(unmounted).toBeCalledTimes(1);
-    expect(updated).toBeCalledTimes(3);
   });
 
   it('block & component', () => {

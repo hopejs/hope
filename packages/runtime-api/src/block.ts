@@ -106,7 +106,8 @@ function insertBlockFragment(
 function remove(start: Node, end: Node, firstNode: Node | null) {
   end = firstNode || end;
   const next: any = start.nextSibling;
-  if (next === end) return;
+  // next 可能已经被 remove。
+  if (!next || next === end) return;
 
   stopEffects(next);
   // 调用组件的卸载钩子

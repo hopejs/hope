@@ -35,8 +35,8 @@ type MountOptions<P, S> = {
   on?: Record<string, (...arg: any[]) => any>;
 };
 
-type ComponentStartTag = (...arg: any[]) => any;
-type ComponentEndTag = (...arg: any[]) => any;
+export type ComponentStartTag = (...arg: any[]) => any;
+export type ComponentEndTag = (...arg: any[]) => any;
 
 type Component<P = any, S = any> = [ComponentStartTag, ComponentEndTag] & {
   mount: (options: MountOptions<P, S> | string | Element) => any;
