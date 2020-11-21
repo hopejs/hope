@@ -18,21 +18,21 @@ export const LIFECYCLE_KEYS = {
 };
 
 export function onMounted(handler: () => any) {
-  if (!currentLifecycle) return logWarn(`onMounted ${COMMON_WARN}`);
-  currentLifecycle.mountedHandlers &&
-    currentLifecycle.mountedHandlers.push(handler);
+  if (!inComponent()) return logWarn(`onMounted ${COMMON_WARN}`);
+  currentLifecycle!.mountedHandlers &&
+    currentLifecycle!.mountedHandlers.push(handler);
 }
 
 export function onUnmounted(handler: () => any) {
-  if (!currentLifecycle) return logWarn(`onUnmounted ${COMMON_WARN}`);
-  currentLifecycle.unmountedHandlers &&
-    currentLifecycle.unmountedHandlers.push(handler);
+  if (!inComponent()) return logWarn(`onUnmounted ${COMMON_WARN}`);
+  currentLifecycle!.unmountedHandlers &&
+    currentLifecycle!.unmountedHandlers.push(handler);
 }
 
 export function onUpdated(handler: () => any) {
-  if (!currentLifecycle) return logWarn(`onUpdated ${COMMON_WARN}`);
-  currentLifecycle.updatedHandlers &&
-    currentLifecycle.updatedHandlers.push(handler);
+  if (!inComponent()) return logWarn(`onUpdated ${COMMON_WARN}`);
+  currentLifecycle!.updatedHandlers &&
+    currentLifecycle!.updatedHandlers.push(handler);
 }
 
 export function setLifecycleHandlers() {
@@ -62,4 +62,11 @@ export function callUnmounted(handlers: SchedulerCbs) {
 
 export function callUpdated(handlers: SchedulerCbs) {
   queuePostFlushCb(handlers);
+}
+
+/**
+ * 当前是否在组件中。
+ */
+export function inComponent(): boolean {
+  return !!currentLifecycle;
 }

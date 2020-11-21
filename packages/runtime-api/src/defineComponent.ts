@@ -42,6 +42,15 @@ type Component<P = any, S = any> = [ComponentStartTag, ComponentEndTag] & {
   mount: (options: MountOptions<P, S> | string | Element) => any;
 };
 
+// style id
+// 每渲染一次组件就会自增一下
+let sid = 0;
+const sidStack: number[] = [];
+
+// component id
+let cid = 0;
+const cidStack: number[] = [];
+
 export function defineComponent<P, S>(
   render: (options: ComponentOptions<P, S>) => any
 ): Component<P, S>;
@@ -50,6 +59,7 @@ export function defineComponent<P, S>(
 ): Component<P, S> {
   let result: Component<P, S>;
 
+  cid++;
   const startTag = () => {
     const container = getContainer();
     const startPlaceholder = createPlaceholder(
@@ -61,6 +71,8 @@ export function defineComponent<P, S>(
     setComponentProps();
     setComponentOn();
   };
+  startTag.cid = cid;
+
   const endTag = (
     options: {
       props?: P;
@@ -71,6 +83,10 @@ export function defineComponent<P, S>(
     // 放在 end 标签，可以确保组件插槽中的
     // 属性更新时正确的调用组件的父组件的生命周期钩子
     setLifecycleHandlers();
+
+    sid++;
+    sidStack.push(sid);
+    cidStack.push(startTag.cid);
 
     const props: P = options.props || (getComponentProps() as any);
     const slots: S = options.slots || (getSlots() as any);
@@ -88,6 +104,8 @@ export function defineComponent<P, S>(
     resetComponentProps();
     resetComponentOn();
     render({ props, slots, emit });
+    cidStack.pop();
+    sidStack.pop();
 
     // 放在组件渲染完之后，以便让指令能获取到生命周期处理函数
     resetLifecycleHandlers();
@@ -123,6 +141,24 @@ export function defineComponent<P, S>(
   };
 
   return result;
+}
+
+/**s
+ * 获取组件实例的 sid,
+ * 相同组件不同实例之间 sid 不相同
+ */
+export function getCurrentSid() {
+  const sid = sidStack[sidStack.length - 1];
+  return sid ? `h-sid-${sid}` : undefined;
+}
+
+/**
+ * 获取组件 cid,
+ * 相同组件不同实例之间 cid 相同
+ */
+export function getCurrentCid() {
+  const cid = cidStack[cidStack.length - 1];
+  return cid ? `h-cid-${cid}` : undefined;
 }
 
 /**

@@ -16,7 +16,8 @@ export { hComment } from './directives/hComment';
 export { hSlot } from './directives/hSlot';
 
 // block 可以让结构性变化变成可响应式的
-export * from './block';
+export { block } from './block';
+export { style } from './style';
 
 export {
   defineComponent,

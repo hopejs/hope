@@ -21,14 +21,14 @@ export function hClass(value: any) {
       const { updatedHandlers } = getLifecycleHandlers();
       const ef = effect(
         () => {
-          setAttribute(currentElement, 'class', normalizeClass(value()));
+          setAttribute(currentElement, 'class', normalizeClass(value()) || undefined);
           updatedHandlers && callUpdated(updatedHandlers);
         },
         { scheduler: queueJob }
       );
       collectEffects(ef);
     } else {
-      setAttribute(currentElement, 'class', normalizeClass(value));
+      setAttribute(currentElement, 'class', normalizeClass(value) || undefined);
     }
   } else {
     outsideWarn('hClass');
