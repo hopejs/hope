@@ -1,4 +1,4 @@
-import { setAttribute } from '@hopejs/renderer/src';
+import { setAttribute } from '@hopejs/renderer';
 import {
   StaticAttr,
   start,

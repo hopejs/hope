@@ -1,5 +1,5 @@
-import { queuePostFlushCb, SchedulerCbs } from "@hopejs/runtime-core";
-import { logWarn } from "@hopejs/shared";
+import { queuePostFlushCb, SchedulerCbs } from '@hopejs/runtime-core';
+import { logWarn } from '@hopejs/shared';
 
 interface Lifecycle {
   mountedHandlers: any[];
@@ -10,17 +10,19 @@ interface Lifecycle {
 let currentLifecycle: Lifecycle | undefined;
 let stack: Lifecycle[] = [];
 
-const COMMON_WARN = "应该在定义组件的时候，写在组件定义中。";
+const COMMON_WARN = '应该在定义组件的时候，写在组件定义中。';
 export const LIFECYCLE_KEYS = {
-  mounted: "_h_mounted",
-  unmounted: "_h_unmounted",
-  updated: "_h_updated",
+  mounted: '_h_mounted',
+  unmounted: '_h_unmounted',
+  updated: '_h_updated',
 };
 
 export function onMounted(handler: () => any) {
   if (!inComponent()) return logWarn(`onMounted ${COMMON_WARN}`);
   currentLifecycle!.mountedHandlers &&
     currentLifecycle!.mountedHandlers.push(handler);
+  // 调用已挂载钩子
+  callMounted(handler);
 }
 
 export function onUnmounted(handler: () => any) {
@@ -33,6 +35,8 @@ export function onUpdated(handler: () => any) {
   if (!inComponent()) return logWarn(`onUpdated ${COMMON_WARN}`);
   currentLifecycle!.updatedHandlers &&
     currentLifecycle!.updatedHandlers.push(handler);
+  // 一开始调用一次更新钩子
+  callUpdated(handler);
 }
 
 export function setLifecycleHandlers() {

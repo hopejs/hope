@@ -11,7 +11,6 @@ import {
 import { getComponentProps, resetComponentProps } from './directives/hProp';
 import { getSlots, resetSlots, setSlots } from './directives/hSlot';
 import {
-  callMounted,
   getLifecycleHandlers,
   resetLifecycleHandlers,
   setLifecycleHandlers,
@@ -127,9 +126,6 @@ export function defineComponent<P, S>(
     );
     const container = getContainer();
     appendChild(container, endPlaceholder);
-
-    // 调用已挂载钩子
-    callMounted(lifecycle.mountedHandlers!);
   };
 
   result = [startTag, endTag] as any;
