@@ -9,8 +9,13 @@ import { queueJob } from '@hopejs/runtime-core';
 import { isFunction, isString, logError, logWarn } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
 import { collectEffects } from './block';
-import { getCurrentCid, getCurrentSid } from './defineComponent';
-import { inComponent, onUnmounted } from './lifecycle';
+import { getCurrentCid, getCurrentSid, pushUseId } from './defineComponent';
+import {
+  callUpdated,
+  getLifecycleHandlers,
+  inComponent,
+  onUnmounted,
+} from './lifecycle';
 
 type StyleText = Text & { _hopejs_style_count?: number };
 
@@ -38,6 +43,7 @@ export function style(value: any) {
       ? textNode._hopejs_style_count!++
       : addNewText(cid, transformCss(value, cid));
 
+    pushUseId(cid);
     // 组件卸载时，删除样式文本
     onUnmounted(() => {
       removeText(cid);
@@ -48,14 +54,17 @@ export function style(value: any) {
       logError('组件中只允许调用一次 style 方法。');
       return;
     }
+    const { updatedHandlers } = getLifecycleHandlers();
     const textNode = addNewText(sid);
     const ef = effect(
       () => {
         textNode.data = transformCss(value(), sid);
+        updatedHandlers && callUpdated(updatedHandlers);
       },
       { scheduler: queueJob }
     );
     collectEffects(ef);
+    pushUseId(sid);
 
     // 组件卸载时，删除样式文本
     onUnmounted(() => {

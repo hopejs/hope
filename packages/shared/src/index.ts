@@ -8,6 +8,10 @@ export {
   stringifyStyle,
 } from "@vue/shared";
 
+export function getLast<T>(stack: T[]): T | undefined {
+  return stack[stack.length - 1];
+}
+
 export function logError(err: string) {
   console.error(`[Hope error]: ${err}`);
 }

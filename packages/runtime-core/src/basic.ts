@@ -1,5 +1,6 @@
 import { ReactiveEffect } from '@hopejs/reactivity';
 import { createElement, createFragment, appendChild } from '@hopejs/renderer';
+import { getLast } from '@hopejs/shared';
 import { flushPostFlushCbs } from './scheduler';
 
 /**
@@ -55,7 +56,7 @@ export function end() {
   if (blockFragment) {
     const stack = blockFragment._elementStack;
     stack.pop();
-    currentElement = getLast(stack);
+    currentElement = getBlockCurrentParent(stack);
   } else {
     elementStack.pop();
     currentElement = getLast(elementStack);
@@ -116,19 +117,34 @@ function appendElement() {
   if (!elementStack.length) {
     appendChild(fragment, currentElement);
   } else {
-    appendChild(getLast(elementStack), currentElement);
+    appendChild(getLast(elementStack)!, currentElement);
   }
-}
-
-function getLast(stack: any[]) {
-  return stack[stack.length - 1];
 }
 
 function appendBlockElement() {
   const stack = blockFragment!._elementStack;
-  if (!stack.length) {
-    appendChild(blockFragment!, currentElement!);
+  const parent = getBlockCurrentParent(stack);
+  if (parent) {
+    appendChild(parent, currentElement!);
   } else {
-    appendChild(getLast(stack), currentElement!);
+    appendChild(blockFragment!, currentElement!);
   }
+}
+
+/**
+ * 获取在 block 中新生成的元素的父元素，
+ * 注意当存在组件时，会往 stack 中 push
+ * 一个占位符节点，用以保存 effect 和 生命周期
+ * 钩子，该节点不能作为父节点，所以要判断一下。
+ * @param stack
+ */
+function getBlockCurrentParent(stack: Node[]) {
+  let length = stack.length;
+  while (length--) {
+    const el = stack[length];
+    if (el instanceof Element) {
+      return el;
+    }
+  }
+  return undefined;
 }

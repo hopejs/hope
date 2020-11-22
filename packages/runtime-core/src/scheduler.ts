@@ -85,7 +85,6 @@ function queueCb(
     // we can skip duplicate check here to improve perf
     pendingQueue.push(...cb);
   }
-  queueFlush();
 }
 
 export function queuePostFlushCb(cb: SchedulerCbs) {

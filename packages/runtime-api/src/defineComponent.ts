@@ -1,6 +1,6 @@
 import { appendChild, createPlaceholder } from '@hopejs/renderer';
 import { getContainer, getCurrntBlockFragment } from '@hopejs/runtime-core';
-import { isString, isObject } from '@hopejs/shared';
+import { isString, isObject, getLast } from '@hopejs/shared';
 import { isReactive, reactive } from '@hopejs/reactivity';
 import { setComponentProps } from './directives/hProp';
 import {
@@ -51,6 +51,12 @@ const sidStack: number[] = [];
 let cid = 0;
 const cidStack: number[] = [];
 
+// 用于确定元素的 scopeId
+const useIdStack: string[] = [];
+const componentScopeIdStack: {
+  _queueAddScope: Function[];
+}[] = [];
+
 export function defineComponent<P, S>(
   render: (options: ComponentOptions<P, S>) => any
 ): Component<P, S>;
@@ -87,6 +93,7 @@ export function defineComponent<P, S>(
     sid++;
     sidStack.push(sid);
     cidStack.push(startTag.cid);
+    componentScopeIdStack.push({ _queueAddScope: [] });
 
     const props: P = options.props || (getComponentProps() as any);
     const slots: S = options.slots || (getSlots() as any);
@@ -97,15 +104,20 @@ export function defineComponent<P, S>(
     };
 
     collectUnmountedHook(lifecycle.unmountedHandlers);
-    // 在 render 之前清理掉 start 占位符。
-    popStartFromBlockFragment();
 
     resetSlots();
     resetComponentProps();
     resetComponentOn();
     render({ props, slots, emit });
+    popStartFromBlockFragment();
+    if (!isStyleCalled()) {
+      pushUseId('');
+    }
+    flushQueueAddScope();
+    componentScopeIdStack.pop();
     cidStack.pop();
     sidStack.pop();
+    useIdStack.pop();
 
     // 放在组件渲染完之后，以便让指令能获取到生命周期处理函数
     resetLifecycleHandlers();
@@ -143,12 +155,12 @@ export function defineComponent<P, S>(
   return result;
 }
 
-/**s
+/**
  * 获取组件实例的 sid,
  * 相同组件不同实例之间 sid 不相同
  */
 export function getCurrentSid() {
-  const sid = sidStack[sidStack.length - 1];
+  const sid = getLast(sidStack);
   return sid ? `h-sid-${sid}` : undefined;
 }
 
@@ -157,8 +169,37 @@ export function getCurrentSid() {
  * 相同组件不同实例之间 cid 相同
  */
 export function getCurrentCid() {
-  const cid = cidStack[cidStack.length - 1];
+  const cid = getLast(cidStack);
   return cid ? `h-cid-${cid}` : undefined;
+}
+
+export function pushUseId(id: string) {
+  useIdStack.push(id);
+}
+
+export function getCurrentUseId() {
+  return getLast(useIdStack);
+}
+
+export function getCurrentComponentScopeId() {
+  return getLast(componentScopeIdStack);
+}
+
+/**
+ * 开始执行添加 scopeId 的活动
+ */
+function flushQueueAddScope() {
+  getCurrentComponentScopeId()!._queueAddScope.forEach((job) => {
+    job(getCurrentUseId());
+  });
+}
+
+/**
+ * 检测当前组件是否使用了 style 函数设置样式。
+ */
+function isStyleCalled() {
+  const useId = getCurrentUseId();
+  return useId === getCurrentCid() || useId === getCurrentSid();
 }
 
 /**
