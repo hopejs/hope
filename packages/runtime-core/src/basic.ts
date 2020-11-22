@@ -1,6 +1,6 @@
 import { ReactiveEffect } from '@hopejs/reactivity';
 import { createElement, createFragment, appendChild } from '@hopejs/renderer';
-import { getLast } from '@hopejs/shared';
+import { getLast, isElement } from '@hopejs/shared';
 import { flushPostFlushCbs } from './scheduler';
 
 /**
@@ -142,7 +142,7 @@ function getBlockCurrentParent(stack: Node[]) {
   let length = stack.length;
   while (length--) {
     const el = stack[length];
-    if (el instanceof Element) {
+    if (isElement(el)) {
       return el;
     }
   }

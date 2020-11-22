@@ -1,4 +1,4 @@
-import { isString, logError } from "@hopejs/shared";
+import { isElement, isString, logError } from "@hopejs/shared";
 import { mount as coreMount } from "@hopejs/runtime-core";
 import { querySelector } from "@hopejs/renderer";
 
@@ -14,7 +14,7 @@ function normalizeContainer(container: string | Element): Element | null {
       logError(`找不到以 ${container} 为选择器的元素！`);
     }
     return result;
-  } else if (container instanceof Element) {
+  } else if (isElement(container)) {
     return container;
   }
   logError("组件只能挂载到有效的元素容器中。");

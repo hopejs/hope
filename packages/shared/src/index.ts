@@ -8,6 +8,10 @@ export {
   stringifyStyle,
 } from "@vue/shared";
 
+export function isElement(value: any): value is Element {
+  return value instanceof Element;
+}
+
 export function getLast<T>(stack: T[]): T | undefined {
   return stack[stack.length - 1];
 }

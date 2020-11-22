@@ -1,6 +1,6 @@
 import { appendChild, createPlaceholder } from '@hopejs/renderer';
 import { getContainer, getCurrntBlockFragment } from '@hopejs/runtime-core';
-import { isString, isObject, getLast } from '@hopejs/shared';
+import { isString, isObject, getLast, isElement } from '@hopejs/shared';
 import { isReactive, reactive } from '@hopejs/reactivity';
 import { setComponentProps } from './directives/hProp';
 import {
@@ -135,7 +135,7 @@ export function defineComponent<P, S>(
   result = [startTag, endTag] as any;
 
   result.mount = (options: MountOptions<P, S> | string | Element): P => {
-    if (isString(options) || options instanceof Element) {
+    if (isString(options) || isElement(options)) {
       options = { target: options, props: reactive({}) as P };
     }
 
