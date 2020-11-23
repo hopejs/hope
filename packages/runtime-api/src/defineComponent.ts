@@ -3,6 +3,9 @@ import {
   getContainer,
   getCurrntBlockFragment,
   collectUnmountedHook,
+  setLifecycleHandlers,
+  getLifecycleHandlers,
+  resetLifecycleHandlers,
 } from '@hopejs/runtime-core';
 import { isString, isObject, getLast, isElement } from '@hopejs/shared';
 import { isReactive, reactive } from '@hopejs/reactivity';
@@ -17,11 +20,6 @@ import {
   setComponentProps,
 } from './directives/hProp';
 import { getSlots, resetSlots, setSlots } from './directives/hSlot';
-import {
-  getLifecycleHandlers,
-  resetLifecycleHandlers,
-  setLifecycleHandlers,
-} from './lifecycle';
 import { mount } from './render';
 
 interface ComponentOptions<

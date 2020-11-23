@@ -3,11 +3,12 @@ import {
   getCurrentElement,
   queueJob,
   collectEffects,
+  getLifecycleHandlers,
+  callUpdated,
 } from '@hopejs/runtime-core';
 import { isFunction, normalizeClass } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
 import { outsideWarn } from './outsideWarn';
-import { callUpdated, getLifecycleHandlers } from '../lifecycle';
 
 type ClassObject = Record<string, any>;
 type ClassArray = (string | ClassObject)[];

@@ -3,11 +3,12 @@ import {
   getCurrentElement,
   queueJob,
   collectEffects,
+  getLifecycleHandlers,
+  callUpdated,
 } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
 import { outsideWarn } from './outsideWarn';
-import { callUpdated, getLifecycleHandlers } from '../lifecycle';
 
 export function hText(value: string | (() => string)) {
   const currentElement = getCurrentElement();

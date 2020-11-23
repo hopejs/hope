@@ -6,16 +6,17 @@ import {
   removeChild,
 } from '@hopejs/renderer';
 import {
+  callUpdated,
   collectEffects,
   createBlockFragment,
   getContainer,
+  getLifecycleHandlers,
   HopeElement,
   queueJob,
   queuePostFlushCb,
   resetBlockFragment,
   setBlockFragment,
 } from '@hopejs/runtime-core';
-import { callUpdated, getLifecycleHandlers } from './lifecycle';
 
 export function block(range: () => void) {
   const start = createPlaceholder('block start');

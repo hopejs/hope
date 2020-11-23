@@ -2,12 +2,13 @@ import {
   getCurrentElement,
   queueJob,
   collectEffects,
+  getLifecycleHandlers,
+  callUpdated,
 } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
 import { setAttribute } from '@hopejs/renderer';
 import { outsideWarn } from './outsideWarn';
-import { callUpdated, getLifecycleHandlers } from '../lifecycle';
 
 export function hId(value: string | (() => string)) {
   // TODO: 该指令不允许在组件中使用

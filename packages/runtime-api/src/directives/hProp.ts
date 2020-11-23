@@ -3,9 +3,10 @@ import {
   getCurrentElement,
   queueJob,
   collectEffects,
+  getLifecycleHandlers,
+  callUpdated,
 } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
-import { callUpdated, getLifecycleHandlers } from '../lifecycle';
 import { outsideWarn } from './outsideWarn';
 
 let componentProps: Record<string, any> | null;

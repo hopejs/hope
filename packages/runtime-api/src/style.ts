@@ -5,16 +5,17 @@ import {
   getHead,
   removeChild,
 } from '@hopejs/renderer';
-import { queueJob, collectEffects } from '@hopejs/runtime-core';
+import {
+  queueJob,
+  collectEffects,
+  inComponent,
+  getLifecycleHandlers,
+  callUpdated,
+} from '@hopejs/runtime-core';
 import { isFunction, isString, logError, logWarn } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
 import { getCurrentCid, getCurrentSid, pushUseId } from './defineComponent';
-import {
-  callUpdated,
-  getLifecycleHandlers,
-  inComponent,
-  onUnmounted,
-} from './lifecycle';
+import { onUnmounted } from './lifecycle';
 
 type StyleText = Text & { _hopejs_style_count?: number };
 
