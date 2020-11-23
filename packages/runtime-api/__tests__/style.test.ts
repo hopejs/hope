@@ -59,6 +59,18 @@ describe('style', () => {
     expect(styleEl?.outerHTML).toBe(
       `<style>.container[h-sid-1]{ width: 200px; height: 100px; }.container[h-cid-2]{ width: 100px; height: 100px; }</style>`
     );
+
+    // 当组件的 style 不是响应式时，其 scopeId 应该使用 cid，
+    // 且多次使用时样式列表中应该只有一个关于 cid 的样式。
+    com();
+    $com();
+    com();
+    $com();
+    mount(document.body);
+    // 因为已经存在 h-cid-2 的样式，所以保持不变
+    expect(styleEl?.outerHTML).toBe(
+      `<style>.container[h-sid-1]{ width: 200px; height: 100px; }.container[h-cid-2]{ width: 100px; height: 100px; }</style>`
+    );
   });
 
   it('with block', async () => {
@@ -90,16 +102,16 @@ describe('style', () => {
     });
     mount(document.body);
     // @ts-ignore
-    expect(el.outerHTML).toBe(`<div class="container" h-sid-3=""></div>`);
+    expect(el.outerHTML).toBe(`<div class="container" h-sid-5=""></div>`);
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-sid-3]{ width: 100px; height: 100px; }</style>`
+      `<style>.container[h-sid-5]{ width: 100px; height: 100px; }</style>`
     );
     expect(updated).toBeCalledTimes(1);
 
     state.width = 200;
     await nextTick();
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-sid-3]{ width: 200px; height: 100px; }</style>`
+      `<style>.container[h-sid-5]{ width: 200px; height: 100px; }</style>`
     );
     expect(updated).toBeCalledTimes(2);
 
@@ -152,15 +164,15 @@ describe('style', () => {
     mount(document.body);
     const styleEl = document.querySelector('style');
     // @ts-ignore
-    expect(el.outerHTML).toBe(`<div h-sid-5=""></div>`);
+    expect(el.outerHTML).toBe(`<div h-sid-7=""></div>`);
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-cid-4]{ width: 100px; height: 100px; }.container[h-sid-5]{ width: 100px; height: 100px; }</style>`
+      `<style>.container[h-cid-4]{ width: 100px; height: 100px; }.container[h-sid-7]{ width: 100px; height: 100px; }</style>`
     );
 
     state.width = 200;
     await nextTick();
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-cid-4]{ width: 100px; height: 100px; }.container[h-sid-5]{ width: 200px; height: 100px; }</style>`
+      `<style>.container[h-cid-4]{ width: 100px; height: 100px; }.container[h-sid-7]{ width: 200px; height: 100px; }</style>`
     );
   });
 });
