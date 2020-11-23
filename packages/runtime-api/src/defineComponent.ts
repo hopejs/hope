@@ -21,6 +21,7 @@ import {
 } from './directives/hProp';
 import { getSlots, resetSlots, setSlots } from './directives/hSlot';
 import { mount } from './render';
+import { setComponentScopeId } from './tags';
 
 interface ComponentOptions<
   P = Record<string, any>,
@@ -111,6 +112,7 @@ export function defineComponent<P, S>(
     resetSlots();
     resetComponentProps();
     resetComponentOn();
+    setComponentScopeId(getCurrentComponentScopeId());
     render({ props, slots, emit });
     popStartFromBlockFragment();
     if (!isStyleCalled()) {
@@ -118,6 +120,7 @@ export function defineComponent<P, S>(
     }
     flushQueueAddScope();
     componentScopeIdStack.pop();
+    setComponentScopeId(getCurrentComponentScopeId());
     cidStack.pop();
     sidStack.pop();
     useIdStack.pop();
@@ -181,7 +184,7 @@ export function getCurrentUseId() {
   return getLast(useIdStack);
 }
 
-export function getCurrentComponentScopeId() {
+function getCurrentComponentScopeId() {
   return getLast(componentScopeIdStack);
 }
 
