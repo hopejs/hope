@@ -11,11 +11,6 @@ let currentLifecycle: Lifecycle | undefined;
 let stack: Lifecycle[] = [];
 
 const COMMON_WARN = '应该在定义组件的时候，写在组件定义中。';
-export const LIFECYCLE_KEYS = {
-  mounted: '_h_mounted',
-  unmounted: '_h_unmounted',
-  updated: '_h_updated',
-};
 
 export function onMounted(handler: () => any) {
   if (!inComponent()) return logWarn(`onMounted ${COMMON_WARN}`);

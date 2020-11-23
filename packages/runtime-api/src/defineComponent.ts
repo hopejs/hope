@@ -1,14 +1,21 @@
 import { appendChild, createPlaceholder } from '@hopejs/renderer';
-import { getContainer, getCurrntBlockFragment } from '@hopejs/runtime-core';
+import {
+  getContainer,
+  getCurrntBlockFragment,
+  collectUnmountedHook,
+} from '@hopejs/runtime-core';
 import { isString, isObject, getLast, isElement } from '@hopejs/shared';
 import { isReactive, reactive } from '@hopejs/reactivity';
-import { setComponentProps } from './directives/hProp';
 import {
   getComponentOn,
   resetComponentOn,
   setComponentOn,
 } from './directives/hOn';
-import { getComponentProps, resetComponentProps } from './directives/hProp';
+import {
+  getComponentProps,
+  resetComponentProps,
+  setComponentProps,
+} from './directives/hProp';
 import { getSlots, resetSlots, setSlots } from './directives/hSlot';
 import {
   getLifecycleHandlers,
@@ -16,7 +23,6 @@ import {
   setLifecycleHandlers,
 } from './lifecycle';
 import { mount } from './render';
-import { collectUnmountedHook } from './block';
 
 interface ComponentOptions<
   P = Record<string, any>,

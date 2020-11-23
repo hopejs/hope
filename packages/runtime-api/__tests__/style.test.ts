@@ -1,5 +1,5 @@
 import { getCurrentElement, mount, nextTick } from '@hopejs/runtime-core';
-import { reactive } from '@vue/reactivity';
+import { reactive } from '@hopejs/reactivity';
 import {
   $div,
   block,

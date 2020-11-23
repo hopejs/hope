@@ -1,8 +1,11 @@
 import { effect } from '@hopejs/reactivity';
 import { setAttribute } from '@hopejs/renderer';
-import { getCurrentElement, queueJob } from '@hopejs/runtime-core';
+import {
+  getCurrentElement,
+  queueJob,
+  collectEffects,
+} from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
-import { collectEffects } from '../block';
 import { callUpdated, getLifecycleHandlers } from '../lifecycle';
 import { outsideWarn } from './outsideWarn';
 

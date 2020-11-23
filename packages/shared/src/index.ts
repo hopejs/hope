@@ -23,3 +23,9 @@ export function logError(err: string) {
 export function logWarn(warn: string) {
   console.warn(`[Hope warn]: ${warn}`);
 }
+
+export const LIFECYCLE_KEYS = {
+  mounted: '_h_mounted',
+  unmounted: '_h_unmounted',
+  updated: '_h_updated',
+};

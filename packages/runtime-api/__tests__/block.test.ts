@@ -32,6 +32,51 @@ describe('block', () => {
     );
   });
 
+  it('reactivity & remove', async () => {
+    let el: Element;
+    const state = reactive({
+      show: true,
+      text: 'a',
+    });
+
+    block(() => {
+      if (state.show) {
+        div();
+        hText(() => state.text);
+        el = getCurrentElement()!;
+        $div();
+      }
+    });
+    const container = document.createElement('div');
+    mount(container);
+
+    expect(container.innerHTML).toBe(
+      `<!--block start--><div>a</div><!--block end-->`
+    );
+    // @ts-ignore
+    expect(el.outerHTML).toBe(`<div>a</div>`);
+
+    state.text = 'b';
+    await nextTick();
+    expect(container.innerHTML).toBe(
+      `<!--block start--><div>b</div><!--block end-->`
+    );
+    // @ts-ignore
+    expect(el.outerHTML).toBe(`<div>b</div>`);
+
+    state.show = false;
+    await nextTick();
+    expect(container.innerHTML).toBe(`<!--block start--><!--block end-->`);
+    // @ts-ignore
+    expect(el.outerHTML).toBe(`<div>b</div>`);
+
+    // 已经 remove 的元素不应该再被响应
+    state.text = 'c';
+    await nextTick();
+    // @ts-ignore
+    expect(el.outerHTML).toBe(`<div>b</div>`);
+  });
+
   it('nest element', () => {
     block(() => {
       div();

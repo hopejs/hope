@@ -5,12 +5,11 @@ import {
   insertBefore,
   removeChild,
 } from '@hopejs/renderer';
-import { getCurrentElement, queueJob } from '@hopejs/runtime-core';
+import { getCurrentElement, queueJob, collectEffects } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
 import { outsideWarn } from './outsideWarn';
 import { callUpdated, getLifecycleHandlers } from '../lifecycle';
-import { collectEffects } from '../block';
 
 export function hShow(value: any | (() => any)) {
   // TODO: 该指令不允许在组件中使用

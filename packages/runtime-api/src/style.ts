@@ -5,10 +5,9 @@ import {
   getHead,
   removeChild,
 } from '@hopejs/renderer';
-import { queueJob } from '@hopejs/runtime-core';
+import { queueJob, collectEffects } from '@hopejs/runtime-core';
 import { isFunction, isString, logError, logWarn } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
-import { collectEffects } from './block';
 import { getCurrentCid, getCurrentSid, pushUseId } from './defineComponent';
 import {
   callUpdated,

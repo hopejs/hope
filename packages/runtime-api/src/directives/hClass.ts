@@ -1,10 +1,13 @@
 import { setAttribute } from '@hopejs/renderer';
-import { getCurrentElement, queueJob } from '@hopejs/runtime-core';
+import {
+  getCurrentElement,
+  queueJob,
+  collectEffects,
+} from '@hopejs/runtime-core';
 import { isFunction, normalizeClass } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
 import { outsideWarn } from './outsideWarn';
 import { callUpdated, getLifecycleHandlers } from '../lifecycle';
-import { collectEffects } from '../block';
 
 type ClassObject = Record<string, any>;
 type ClassArray = (string | ClassObject)[];
@@ -21,7 +24,11 @@ export function hClass(value: any) {
       const { updatedHandlers } = getLifecycleHandlers();
       const ef = effect(
         () => {
-          setAttribute(currentElement, 'class', normalizeClass(value()) || undefined);
+          setAttribute(
+            currentElement,
+            'class',
+            normalizeClass(value()) || undefined
+          );
           updatedHandlers && callUpdated(updatedHandlers);
         },
         { scheduler: queueJob }
