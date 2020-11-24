@@ -12,7 +12,13 @@ import {
   getLifecycleHandlers,
   callUpdated,
 } from '@hopejs/runtime-core';
-import { isFunction, isString, logError, logWarn } from '@hopejs/shared';
+import {
+  getScopeIdVersion,
+  isFunction,
+  isString,
+  logError,
+  logWarn,
+} from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
 import { getCurrentCid, getCurrentSid, pushUseId } from './defineComponent';
 import { onUnmounted } from './lifecycle';
@@ -92,10 +98,10 @@ function removeText(cidOrSid: string) {
 }
 
 /**
- * 为 css 样式文本加上属性选择器，
- * 属性选择器的值是 cid 或者 sid。
+ * 为 css 样式文本加上作用域 ID，
+ * 作用域 ID 的值是 cid 或者 sid。
  * @param value
  */
-function transformCss(value: string, id: string) {
-  return value.replace(/\s*{/g, `[${id}]{`);
+function transformCss(value: string, scopeId: string) {
+  return getScopeIdVersion(value, scopeId);
 }
