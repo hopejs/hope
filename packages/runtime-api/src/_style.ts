@@ -6,12 +6,13 @@ import {
 import { isString, stringifyStyle } from '@hopejs/shared';
 import { inComponent } from '@hopejs/runtime-core';
 import {
-  getCurrentCid,
+  getCurrentSid,
   getCurrentComponentDynamicCss,
   getCurrentComponentStaticCss,
   setAMethodForAddCss,
   setAMethodForGetStyleElement,
   setCurrentComponentStaticCss,
+  getCurrentDid,
 } from './defineComponent';
 
 export function addCssRule(
@@ -28,24 +29,26 @@ export function addCssRule(
   setAMethodForAddCss(addCssRuleListToStyleSheet);
   setAMethodForGetStyleElement(getStyleElementByComponentId);
 
-  const componentId = getCurrentCid()!;
-  const dynamicCss = getCurrentComponentDynamicCss();
+  const staticId = getCurrentSid()!;
+  const dynamicId = getCurrentDid()!;
   let staticCss = getCurrentComponentStaticCss() || '';
-  const { selector: se, staticStyle, dynamicStyle } = createCssRule(
-    selector,
-    style,
-    componentId
-  );
+  const {
+    staticSelector,
+    dynamicSelector,
+    staticStyle,
+    dynamicStyle,
+  } = createCssRule(selector, style, staticId, dynamicId);
 
-  staticCss += `${se}${
+  staticCss += `${staticSelector}${
     isString(staticStyle)
       ? staticStyle
       : `{${stringifyStyle(staticStyle as any)}}`
   }`;
   setCurrentComponentStaticCss(staticCss);
-  dynamicStyle &&
-    dynamicCss.push({
-      selector: se,
+  if (dynamicStyle && dynamicStyle._hasStyle) {
+    getCurrentComponentDynamicCss().push({
+      selector: dynamicSelector,
       dynamicStyle,
     });
+  }
 }

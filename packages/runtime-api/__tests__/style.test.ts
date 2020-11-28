@@ -29,14 +29,14 @@ describe('style', () => {
     mount(document.body);
     const styleEl = document.querySelector('style');
     // @ts-ignore
-    expect(el.outerHTML).toBe(`<div class="container" h-sid-1=""></div>`);
+    expect(el.outerHTML).toBe(`<div class="container" h-did-1=""></div>`);
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-sid-1]{ width: 100px; height: 100px; }</style>`
+      `<style type=\"text/css\">{}.container[h-did-1]{ width: 100px; height: 100px; }</style>`
     );
     state.width = 200;
     await nextTick();
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-sid-1]{ width: 200px; height: 100px; }</style>`
+      `<style>.container[h-did-1]{ width: 200px; height: 100px; }</style>`
     );
   });
 
@@ -55,9 +55,9 @@ describe('style', () => {
     mount(document.body);
     const styleEl = document.querySelector('style');
     // @ts-ignore
-    expect(el.outerHTML).toBe(`<div h-cid-2=""></div>`);
+    expect(el.outerHTML).toBe(`<div h-sid-2=""></div>`);
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-sid-1]{ width: 200px; height: 100px; }.container[h-cid-2]{ width: 100px; height: 100px; }</style>`
+      `<style>.container[h-did-1]{ width: 200px; height: 100px; }.container[h-sid-2]{ width: 100px; height: 100px; }</style>`
     );
 
     // 当组件的 style 不是响应式时，其 scopeId 应该使用 cid，
@@ -69,7 +69,7 @@ describe('style', () => {
     mount(document.body);
     // 因为已经存在 h-cid-2 的样式，所以保持不变
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-sid-1]{ width: 200px; height: 100px; }.container[h-cid-2]{ width: 100px; height: 100px; }</style>`
+      `<style>.container[h-did-1]{ width: 200px; height: 100px; }.container[h-sid-2]{ width: 100px; height: 100px; }</style>`
     );
   });
 
@@ -102,16 +102,16 @@ describe('style', () => {
     });
     mount(document.body);
     // @ts-ignore
-    expect(el.outerHTML).toBe(`<div class="container" h-sid-5=""></div>`);
+    expect(el.outerHTML).toBe(`<div class="container" h-did-5=""></div>`);
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-sid-5]{ width: 100px; height: 100px; }</style>`
+      `<style>.container[h-did-5]{ width: 100px; height: 100px; }</style>`
     );
     expect(updated).toBeCalledTimes(1);
 
     state.width = 200;
     await nextTick();
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-sid-5]{ width: 200px; height: 100px; }</style>`
+      `<style>.container[h-did-5]{ width: 200px; height: 100px; }</style>`
     );
     expect(updated).toBeCalledTimes(2);
 
@@ -142,9 +142,9 @@ describe('style', () => {
     mount(document.body);
     const styleEl = document.querySelector('style');
     // @ts-ignore
-    expect(el.outerHTML).toBe(`<div h-cid-4=""></div>`);
+    expect(el.outerHTML).toBe(`<div h-sid-4=""></div>`);
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-cid-4]{ width: 100px; height: 100px; }</style>`
+      `<style>.container[h-sid-4]{ width: 100px; height: 100px; }</style>`
     );
   });
 
@@ -164,15 +164,15 @@ describe('style', () => {
     mount(document.body);
     const styleEl = document.querySelector('style');
     // @ts-ignore
-    expect(el.outerHTML).toBe(`<div h-sid-7=""></div>`);
+    expect(el.outerHTML).toBe(`<div h-did-7=""></div>`);
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-cid-4]{ width: 100px; height: 100px; }.container[h-sid-7]{ width: 100px; height: 100px; }</style>`
+      `<style>.container[h-sid-4]{ width: 100px; height: 100px; }.container[h-did-7]{ width: 100px; height: 100px; }</style>`
     );
 
     state.width = 200;
     await nextTick();
     expect(styleEl?.outerHTML).toBe(
-      `<style>.container[h-cid-4]{ width: 100px; height: 100px; }.container[h-sid-7]{ width: 200px; height: 100px; }</style>`
+      `<style>.container[h-sid-4]{ width: 100px; height: 100px; }.container[h-did-7]{ width: 200px; height: 100px; }</style>`
     );
   });
 });

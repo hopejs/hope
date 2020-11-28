@@ -1,4 +1,4 @@
-import { appendChild, createPlaceholder } from '@hopejs/renderer';
+import { appendChild, createPlaceholder, removeChild } from '@hopejs/renderer';
 import {
   getContainer,
   getCurrntBlockFragment,
@@ -21,7 +21,8 @@ import {
 } from './directives/hProp';
 import { getSlots, resetSlots, setSlots } from './directives/hSlot';
 import { mount } from './render';
-import { setComponentScopeId } from './tags';
+import { setQueueAddScopeId } from './tags';
+import { onUnmounted } from './lifecycle';
 
 interface ComponentOptions<
   P = Record<string, any>,
@@ -46,24 +47,21 @@ type Component<P = any, S = any> = [ComponentStartTag, ComponentEndTag] & {
   mount: (options: MountOptions<P, S> | string | Element) => any;
 };
 
-// style id
+// dynamic id，用于动态样式
 // 每渲染一次组件就会自增一下
+let did = 0;
+const didStack: number[] = [];
+
+// static id，用于静态样式
 let sid = 0;
 const sidStack: number[] = [];
 
-// component id
-let cid = 0;
-const cidStack: number[] = [];
-
-// 用于确定元素的 scopeId
-const useIdStack: string[] = [];
-const componentScopeIdStack: {
-  _queueAddScope: Function[];
-}[] = [];
+const stackForAddScopeIdForComponent: Function[][] = [];
 
 export interface DynamicCssRule {
   selector: string;
   dynamicStyle: CSSStyleDeclaration;
+  cssRule?: CSSStyleRule | CSSKeyframeRule;
 }
 
 // 存放组件的静态 css
@@ -88,7 +86,7 @@ export function defineComponent<P, S>(
 ): Component<P, S> {
   let result: Component<P, S>;
 
-  cid++;
+  sid++;
   const startTag = () => {
     const container = getContainer();
     const startPlaceholder = createPlaceholder(
@@ -100,7 +98,7 @@ export function defineComponent<P, S>(
     setComponentProps();
     setComponentOn();
   };
-  startTag.cid = cid;
+  startTag.sid = sid;
 
   const endTag = (
     options: {
@@ -113,10 +111,23 @@ export function defineComponent<P, S>(
     // 属性更新时正确的调用组件的父组件的生命周期钩子
     setLifecycleHandlers();
 
-    sid++;
-    sidStack.push(sid);
-    cidStack.push(startTag.cid);
-    componentScopeIdStack.push({ _queueAddScope: [] });
+    did++;
+    didStack.push(did);
+    sidStack.push(startTag.sid);
+    stackForAddScopeIdForComponent.push([]);
+
+    const currentSid = getCurrentSid();
+    // 组件卸载时，remove 掉之前添加的 style 标签
+    onUnmounted(() => {
+      if (getStyleElementByComponentId) {
+        const styleEl: any = getStyleElementByComponentId(currentSid!);
+        if (!--styleEl._hopejs_count) {
+          removeChild(styleEl);
+        } else {
+          deleteDynamicCssRule();
+        }
+      }
+    });
 
     const props: P = options.props || (getComponentProps() as any);
     const slots: S = options.slots || (getSlots() as any);
@@ -131,18 +142,18 @@ export function defineComponent<P, S>(
     resetSlots();
     resetComponentProps();
     resetComponentOn();
-    setComponentScopeId(getCurrentComponentScopeId());
+    setQueueAddScopeId(getCurrentQueueToAddScopeId());
     render({ props, slots, emit });
     popStartFromBlockFragment();
-    if (!isStyleCalled()) {
-      pushUseId('');
-    }
-    flushQueueAddScope();
-    componentScopeIdStack.pop();
-    setComponentScopeId(getCurrentComponentScopeId());
-    cidStack.pop();
+    flushQueueToAddScope();
+    stackForAddScopeIdForComponent.pop();
+    setQueueAddScopeId(getCurrentQueueToAddScopeId());
+
+    addCssRuleListToStyleSheet &&
+      addCssRuleListToStyleSheet(getCurrentComponentStaticCss(), currentSid!);
+    addDynamicCssRule();
+    didStack.pop();
     sidStack.pop();
-    useIdStack.pop();
 
     // 放在组件渲染完之后，以便让指令能获取到生命周期处理函数
     resetLifecycleHandlers();
@@ -178,42 +189,34 @@ export function defineComponent<P, S>(
 }
 
 /**
- * 获取组件实例的 sid,
- * 相同组件不同实例之间 sid 不相同
+ * 获取组件实例的 did,
+ * 相同组件不同实例之间 did 不相同
+ */
+export function getCurrentDid() {
+  const did = getLast(didStack);
+  return did ? `h-did-${did}` : undefined;
+}
+
+/**
+ * 获取组件 sid,
+ * 相同组件不同实例之间 sid 相同
  */
 export function getCurrentSid() {
   const sid = getLast(sidStack);
   return sid ? `h-sid-${sid}` : undefined;
 }
 
-/**
- * 获取组件 cid,
- * 相同组件不同实例之间 cid 相同
- */
-export function getCurrentCid() {
-  const cid = getLast(cidStack);
-  return cid ? `h-cid-${cid}` : undefined;
-}
-
-export function pushUseId(id: string) {
-  useIdStack.push(id);
-}
-
-export function getCurrentUseId() {
-  return getLast(useIdStack);
-}
-
 export function getCurrentComponentStaticCss() {
-  return componentStaticCss[getCurrentCid()!];
+  return componentStaticCss[getCurrentSid()!];
 }
 
 export function setCurrentComponentStaticCss(cssText: string) {
-  componentStaticCss[getCurrentCid()!] = cssText;
+  componentStaticCss[getCurrentSid()!] = cssText;
 }
 
 export function getCurrentComponentDynamicCss() {
-  const cid = getCurrentCid()!;
-  return componentDynamicCss[cid] || (componentDynamicCss[cid] = []);
+  const did = getCurrentDid()!;
+  return componentDynamicCss[did] || (componentDynamicCss[did] = []);
 }
 
 export function setAMethodForAddCss(
@@ -230,25 +233,39 @@ export function setAMethodForGetStyleElement(
   getStyleElementByComponentId = method;
 }
 
-function getCurrentComponentScopeId() {
-  return getLast(componentScopeIdStack);
+/**
+ * 添加组件的动态样式到组件样式表
+ */
+function addDynamicCssRule(dynamicCssRules: DynamicCssRule[]) {}
+
+function deleteDynamicCssRule() {}
+
+/**
+ * 当前组件是否含有静态 css
+ */
+function hasStaticCss() {
+  return !!componentStaticCss[getCurrentSid()!];
+}
+
+/**
+ * 当前组件是否含有动态 css
+ */
+function hasDynamicCss() {
+  return !!componentDynamicCss[getCurrentDid()!];
+}
+
+function getCurrentQueueToAddScopeId() {
+  return getLast(stackForAddScopeIdForComponent);
 }
 
 /**
  * 开始执行添加 scopeId 的活动
  */
-function flushQueueAddScope() {
-  getCurrentComponentScopeId()!._queueAddScope.forEach((job) => {
-    job(getCurrentUseId());
+function flushQueueToAddScope() {
+  getCurrentQueueToAddScopeId()!.forEach((job) => {
+    hasStaticCss() && job(getCurrentSid());
+    hasDynamicCss() && job(getCurrentDid());
   });
-}
-
-/**
- * 检测当前组件是否使用了 style 函数设置样式。
- */
-function isStyleCalled() {
-  const useId = getCurrentUseId();
-  return useId === getCurrentCid() || useId === getCurrentSid();
 }
 
 /**

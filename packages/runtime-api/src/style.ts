@@ -21,7 +21,7 @@ import {
   logWarn,
 } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
-import { getCurrentCid, getCurrentSid, pushUseId } from './defineComponent';
+import { getCurrentSid, getCurrentDid, pushUseId } from './defineComponent';
 import { onUnmounted } from './lifecycle';
 
 type StyleText = Text & { _hopejs_style_count?: number };
@@ -45,7 +45,7 @@ export function style(value: any) {
   }
 
   if (isString(value)) {
-    const cid = getCurrentCid()!;
+    const cid = getCurrentSid()!;
     const textNode = styleTexts[cid];
     textNode
       ? textNode._hopejs_style_count!++
@@ -57,7 +57,7 @@ export function style(value: any) {
       removeText(cid);
     });
   } else if (isFunction(value)) {
-    const sid = getCurrentSid()!;
+    const sid = getCurrentDid()!;
     if (sid in styleTexts) {
       logError('组件中只允许调用一次 style 方法。');
       return;

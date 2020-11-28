@@ -6,11 +6,10 @@ import {
   getCurrentElement,
 } from '@hopejs/runtime-core';
 
-export type ComponentScopeId = {
-  _queueAddScope: Function[];
-};
+// 存放添加 scopeId 的函数
+export type QueueAddScopeId = Function[];
 
-let componentScopeId: ComponentScopeId | undefined;
+let queueAddScopeId: QueueAddScopeId | undefined;
 
 export function div(attr?: StaticAttr) {
   start('div', attr);
@@ -30,16 +29,16 @@ export function $span() {
   end();
 }
 
-export function setComponentScopeId(value: ComponentScopeId | undefined) {
-  componentScopeId = value;
+export function setQueueAddScopeId(value: QueueAddScopeId | undefined) {
+  queueAddScopeId = value;
 }
 
 function addScopeId() {
-  if (!componentScopeId) return;
+  if (!queueAddScopeId) return;
   const el = getCurrentElement();
   // 添加到一个队列，延迟执行，目的是为了在定义组件时
   // style 函数可以在组件中的任何位置使用。
-  componentScopeId._queueAddScope.push((scopeId: string) => {
+  queueAddScopeId.push((scopeId: string) => {
     scopeId && setAttribute(el!, scopeId, '');
   });
 }

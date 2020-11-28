@@ -66,7 +66,7 @@ export function end() {
 export function mount(container: Element) {
   container.innerHTML = '';
   appendChild(container, fragment);
-  flushPostFlushCbs();
+  setTimeout(flushPostFlushCbs);
 }
 
 export function getCurrentElement() {

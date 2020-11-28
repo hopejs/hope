@@ -6,25 +6,35 @@ import {
 } from '@hopejs/renderer';
 import { addScopeForSelector, isFunction, isString } from '@hopejs/shared';
 
-const componentStyles: Record<string, HTMLStyleElement> = {};
+type DynamicStyle = CSSStyleDeclaration & {
+  _hasStyle: boolean;
+};
+type HopejsStyleElement = HTMLStyleElement & { _hopejs_count: number };
+
+const componentStyles: Record<string, HopejsStyleElement> = {};
 
 export function addCssRuleListToStyleSheet(
   cssText: string,
   componentId: string
 ) {
-  if (componentStyles[componentId]) return;
+  const styleEl = componentStyles[componentId];
+  if (styleEl) {
+    styleEl._hopejs_count++;
+    return;
+  }
   componentStyles[componentId] = createStyleElement(cssText);
 }
 
 export function createCssRule(
   selector: string,
   style: CSSStyleDeclaration | string,
-  scopeId: string
+  staticId: string,
+  dynamicId: string
 ) {
-  selector = addScopeForSelector(selector, scopeId);
   const { staticStyle, dynamicStyle } = processStyle(style);
   return {
-    selector,
+    staticSelector: addScopeForSelector(selector, staticId),
+    dynamicSelector: addScopeForSelector(selector, dynamicId),
     staticStyle,
     dynamicStyle,
   };
@@ -47,7 +57,11 @@ export function getStyleElementByComponentId(componentId: string) {
 
 function createStyleElement(cssText: string) {
   const node = createTextNode(cssText);
-  const style = createElement('style');
+  const style = createElement('style') as HopejsStyleElement;
+  // 表示组件总共创建了多少次实例，
+  // 当所有实例都卸载时就 remove
+  // 掉该 style 元素。
+  style._hopejs_count = 1;
   appendChild(style, node);
   appendChild(getHead(), style);
   return style;
@@ -59,9 +73,10 @@ function createStyleElement(cssText: string) {
  */
 function processStyle(style: CSSStyleDeclaration | string) {
   if (isString(style)) return { staticStyle: style };
-  const dynamicStyle = {} as CSSStyleDeclaration;
+  const dynamicStyle = {} as DynamicStyle;
   Object.keys(style).forEach((key: any) => {
     if (isFunction(style[key])) {
+      dynamicStyle._hasStyle || (dynamicStyle._hasStyle = true);
       dynamicStyle[key] = style[key];
       delete style[key];
     }
