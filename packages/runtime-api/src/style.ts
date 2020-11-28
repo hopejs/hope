@@ -4,6 +4,7 @@ import {
   createTextNode,
   getHead,
   removeChild,
+  setAttribute,
 } from '@hopejs/renderer';
 import {
   queueJob,
@@ -26,6 +27,7 @@ import { onUnmounted } from './lifecycle';
 type StyleText = Text & { _hopejs_style_count?: number };
 
 const styleElement = createElement('style');
+setAttribute(styleElement, 'type', 'text/css');
 const styleTexts: Record<string, StyleText> = {};
 let isMounted = false;
 

@@ -61,6 +61,25 @@ const componentScopeIdStack: {
   _queueAddScope: Function[];
 }[] = [];
 
+export interface DynamicCssRule {
+  selector: string;
+  dynamicStyle: CSSStyleDeclaration;
+}
+
+// 存放组件的静态 css
+const componentStaticCss: Record<string, string> = {};
+// 存放组件的动态 css
+const componentDynamicCss: Record<string, DynamicCssRule[]> = {};
+
+// 这两个函数存在于 @hopejs/style-sheet 模块，
+// 但我不想让 defineComponent 文件依赖它，所以需要在外部设置该值。
+let addCssRuleListToStyleSheet:
+  | ((cssText: string, componentId: string) => void)
+  | undefined;
+let getStyleElementByComponentId:
+  | ((componentId: string) => HTMLStyleElement)
+  | undefined;
+
 export function defineComponent<P, S>(
   render: (options: ComponentOptions<P, S>) => any
 ): Component<P, S>;
@@ -182,6 +201,33 @@ export function pushUseId(id: string) {
 
 export function getCurrentUseId() {
   return getLast(useIdStack);
+}
+
+export function getCurrentComponentStaticCss() {
+  return componentStaticCss[getCurrentCid()!];
+}
+
+export function setCurrentComponentStaticCss(cssText: string) {
+  componentStaticCss[getCurrentCid()!] = cssText;
+}
+
+export function getCurrentComponentDynamicCss() {
+  const cid = getCurrentCid()!;
+  return componentDynamicCss[cid] || (componentDynamicCss[cid] = []);
+}
+
+export function setAMethodForAddCss(
+  method: (cssText: string, componentId: string) => void
+) {
+  if (addCssRuleListToStyleSheet) return;
+  addCssRuleListToStyleSheet = method;
+}
+
+export function setAMethodForGetStyleElement(
+  method: (componentId: string) => HTMLStyleElement
+) {
+  if (getStyleElementByComponentId) return;
+  getStyleElementByComponentId = method;
 }
 
 function getCurrentComponentScopeId() {

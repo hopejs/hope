@@ -1,0 +1,14 @@
+{
+  "name": "@hopejs/style-sheet",
+  "version": "0.0.1",
+  "description": "@hopejs/style-sheet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "hopejs"
+  ],
+  "author": "张中合",
+  "license": "MIT"
+}

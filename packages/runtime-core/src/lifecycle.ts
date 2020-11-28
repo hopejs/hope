@@ -39,7 +39,7 @@ export function callUpdated(handlers: SchedulerCbs) {
 }
 
 /**
- * 当前是否在组件中。
+ * 当前是否运行在组件中。
  */
 export function inComponent(): boolean {
   return !!currentLifecycle;
