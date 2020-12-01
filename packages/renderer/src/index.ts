@@ -11,3 +11,4 @@ export * from './createTextNode';
 export * from './createPlaceholder';
 export * from './querySelector';
 export * from './getHead';
+export * from './getDocument';
