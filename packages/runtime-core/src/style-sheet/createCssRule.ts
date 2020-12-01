@@ -1,9 +1,17 @@
+import { getStyleSheet } from './getStyleSheet';
+
 type CssGroup = CSSStyleSheet | CSSMediaRule | CSSKeyframesRule | undefined;
 
 let group: CssGroup;
 
-export function createCssRule(selector: string, style: string) {
-  if (!group) return;
+export function createCssRule(
+  selector: string,
+  style: string,
+  componentId?: string
+) {
+  if (!group && componentId) {
+    group = getStyleSheet(componentId);
+  }
   const cssText = selector + style;
   if (group instanceof CSSStyleSheet || group instanceof CSSMediaRule) {
     const lenght = group.cssRules.length;
@@ -12,7 +20,7 @@ export function createCssRule(selector: string, style: string) {
   }
   if (group instanceof CSSKeyframesRule) {
     group.appendRule(cssText);
-    return group.findRule(selector) as CSSKeyframeRule;
+    return group.findRule(selector);
   }
 }
 

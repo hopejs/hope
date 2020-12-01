@@ -1,4 +1,4 @@
-import { appendChild, createPlaceholder } from '@hopejs/renderer';
+import { appendChild, createPlaceholder, removeChild } from '@hopejs/renderer';
 import {
   getContainer,
   getCurrntBlockFragment,
@@ -21,7 +21,9 @@ import {
 } from './directives/hProp';
 import { getSlots, resetSlots, setSlots } from './directives/hSlot';
 import { mount } from './render';
-import { setComponentScopeId } from './tags';
+import { setQueueAddScope } from './tags';
+import { getStyleElement, hasDynamicStyle, hasStaticStyle } from './_style';
+import { onUnmounted } from './lifecycle';
 
 interface ComponentOptions<
   P = Record<string, any>,
@@ -55,11 +57,7 @@ const dsidStack: number[] = [];
 let cid = 0;
 const cidStack: number[] = [];
 
-// 用于确定元素的 scopeId
-const useIdStack: string[] = [];
-const componentScopeIdStack: {
-  _queueAddScope: Function[];
-}[] = [];
+const stackForAddScope: Function[][] = [];
 
 export function defineComponent<P, S>(
   render: (options: ComponentOptions<P, S>) => any
@@ -68,6 +66,9 @@ export function defineComponent<P, S>(
   render: (options: any) => any
 ): Component<P, S> {
   let result: Component<P, S>;
+
+  // 记录组件实例个数
+  let count = 0;
 
   cid++;
   const startTag = () => {
@@ -97,7 +98,7 @@ export function defineComponent<P, S>(
     dsid++;
     dsidStack.push(dsid);
     cidStack.push(startTag.cid);
-    componentScopeIdStack.push({ _queueAddScope: [] });
+    stackForAddScope.push([]);
 
     const props: P = options.props || (getComponentProps() as any);
     const slots: S = options.slots || (getSlots() as any);
@@ -112,18 +113,25 @@ export function defineComponent<P, S>(
     resetSlots();
     resetComponentProps();
     resetComponentOn();
-    setComponentScopeId(getCurrentComponentScopeId());
+    setQueueAddScope(getCurrentQueueAddScope());
+
+    // 页面中没有该组件时，remove 掉相关 style 元素
+    const componentId = getCurrentCid()!;
+    onUnmounted(() => {
+      if (--count === 0) {
+        const styleEl = getStyleElement(componentId);
+        styleEl && removeChild(styleEl);
+      }
+    });
+
     render({ props, slots, emit });
+
     popStartFromBlockFragment();
-    if (!isStyleCalled()) {
-      pushUseId('');
-    }
     flushQueueAddScope();
-    componentScopeIdStack.pop();
-    setComponentScopeId(getCurrentComponentScopeId());
+    stackForAddScope.pop();
+    setQueueAddScope(getCurrentQueueAddScope());
     cidStack.pop();
     dsidStack.pop();
-    useIdStack.pop();
 
     // 放在组件渲染完之后，以便让指令能获取到生命周期处理函数
     resetLifecycleHandlers();
@@ -133,6 +141,8 @@ export function defineComponent<P, S>(
     );
     const container = getContainer();
     appendChild(container, endPlaceholder);
+
+    count++;
   };
 
   result = [startTag, endTag] as any;
@@ -159,12 +169,12 @@ export function defineComponent<P, S>(
 }
 
 /**
- * 获取组件实例的 sid,
- * 相同组件不同实例之间 sid 不相同
+ * 获取组件实例的 dynamic style id,
+ * 相同组件不同实例之间 dynamic style id 不相同
  */
 export function getCurrentDsid() {
-  const sid = getLast(dsidStack);
-  return sid ? `h-sid-${sid}` : undefined;
+  const dsid = getLast(dsidStack);
+  return dsid ? `h-dsid-${dsid}` : undefined;
 }
 
 /**
@@ -176,33 +186,19 @@ export function getCurrentCid() {
   return cid ? `h-cid-${cid}` : undefined;
 }
 
-export function pushUseId(id: string) {
-  useIdStack.push(id);
-}
-
-export function getCurrentUseId() {
-  return getLast(useIdStack);
-}
-
-function getCurrentComponentScopeId() {
-  return getLast(componentScopeIdStack);
+function getCurrentQueueAddScope() {
+  return getLast(stackForAddScope);
 }
 
 /**
  * 开始执行添加 scopeId 的活动
  */
 function flushQueueAddScope() {
-  getCurrentComponentScopeId()!._queueAddScope.forEach((job) => {
-    job(getCurrentUseId());
+  getCurrentQueueAddScope()!.forEach((job) => {
+    const cid = getCurrentCid()!;
+    hasStaticStyle(cid) && job(cid);
+    hasDynamicStyle(cid) && job(getCurrentDsid());
   });
-}
-
-/**
- * 检测当前组件是否使用了 style 函数设置样式。
- */
-function isStyleCalled() {
-  const useId = getCurrentUseId();
-  return useId === getCurrentCid() || useId === getCurrentDsid();
 }
 
 /**
