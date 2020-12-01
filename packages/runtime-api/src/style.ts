@@ -20,7 +20,7 @@ import {
   logWarn,
 } from '@hopejs/shared';
 import { effect } from '@hopejs/reactivity';
-import { getCurrentCid, getCurrentSid, pushUseId } from './defineComponent';
+import { getCurrentCid, getCurrentDsid, pushUseId } from './defineComponent';
 import { onUnmounted } from './lifecycle';
 
 type StyleText = Text & { _hopejs_style_count?: number };
@@ -55,26 +55,26 @@ export function style(value: any) {
       removeText(cid);
     });
   } else if (isFunction(value)) {
-    const sid = getCurrentSid()!;
-    if (sid in styleTexts) {
+    const dsid = getCurrentDsid()!;
+    if (dsid in styleTexts) {
       logError('组件中只允许调用一次 style 方法。');
       return;
     }
     const { updatedHandlers } = getLifecycleHandlers();
-    const textNode = addNewText(sid);
+    const textNode = addNewText(dsid);
     const ef = effect(
       () => {
-        textNode.data = transformCss(value(), sid);
+        textNode.data = transformCss(value(), dsid);
         updatedHandlers && callUpdated(updatedHandlers);
       },
       { scheduler: queueJob }
     );
     collectEffects(ef);
-    pushUseId(sid);
+    pushUseId(dsid);
 
     // 组件卸载时，删除样式文本
     onUnmounted(() => {
-      removeText(sid);
+      removeText(dsid);
     });
   } else {
     logError(`参数[${value}]不合法，应该为字符串或一个返回字符串的函数。`);

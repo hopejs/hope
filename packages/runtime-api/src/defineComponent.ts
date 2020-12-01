@@ -46,10 +46,10 @@ type Component<P = any, S = any> = [ComponentStartTag, ComponentEndTag] & {
   mount: (options: MountOptions<P, S> | string | Element) => any;
 };
 
-// style id
+// dynamic style id
 // 每渲染一次组件就会自增一下
-let sid = 0;
-const sidStack: number[] = [];
+let dsid = 0;
+const dsidStack: number[] = [];
 
 // component id
 let cid = 0;
@@ -94,8 +94,8 @@ export function defineComponent<P, S>(
     // 属性更新时正确的调用组件的父组件的生命周期钩子
     setLifecycleHandlers();
 
-    sid++;
-    sidStack.push(sid);
+    dsid++;
+    dsidStack.push(dsid);
     cidStack.push(startTag.cid);
     componentScopeIdStack.push({ _queueAddScope: [] });
 
@@ -122,7 +122,7 @@ export function defineComponent<P, S>(
     componentScopeIdStack.pop();
     setComponentScopeId(getCurrentComponentScopeId());
     cidStack.pop();
-    sidStack.pop();
+    dsidStack.pop();
     useIdStack.pop();
 
     // 放在组件渲染完之后，以便让指令能获取到生命周期处理函数
@@ -162,8 +162,8 @@ export function defineComponent<P, S>(
  * 获取组件实例的 sid,
  * 相同组件不同实例之间 sid 不相同
  */
-export function getCurrentSid() {
-  const sid = getLast(sidStack);
+export function getCurrentDsid() {
+  const sid = getLast(dsidStack);
   return sid ? `h-sid-${sid}` : undefined;
 }
 
@@ -202,7 +202,7 @@ function flushQueueAddScope() {
  */
 function isStyleCalled() {
   const useId = getCurrentUseId();
-  return useId === getCurrentCid() || useId === getCurrentSid();
+  return useId === getCurrentCid() || useId === getCurrentDsid();
 }
 
 /**
