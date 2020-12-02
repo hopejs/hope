@@ -6,6 +6,9 @@ import {
   setLifecycleHandlers,
   getLifecycleHandlers,
   resetLifecycleHandlers,
+  getStyleElement,
+  deleteStyleElement,
+  resetGroup,
 } from '@hopejs/runtime-core';
 import { isString, isObject, getLast, isElement } from '@hopejs/shared';
 import { isReactive, reactive } from '@hopejs/reactivity';
@@ -22,7 +25,6 @@ import {
 import { getSlots, resetSlots, setSlots } from './directives/hSlot';
 import { mount } from './render';
 import { setQueueAddScope } from './tags';
-import { getStyleElement, hasDynamicStyle, hasStaticStyle } from './_style';
 import { onUnmounted } from './lifecycle';
 
 interface ComponentOptions<
@@ -59,6 +61,14 @@ const cidStack: number[] = [];
 
 const stackForAddScope: Function[][] = [];
 
+const styleTypes: Record<
+  string,
+  Record<'hasDynamic' | 'hasStatic', boolean>
+> = {};
+
+// 记录某一个组件的实例个数
+const componentInstanceCount: Record<string, number> = {};
+
 export function defineComponent<P, S>(
   render: (options: ComponentOptions<P, S>) => any
 ): Component<P, S>;
@@ -66,9 +76,6 @@ export function defineComponent<P, S>(
   render: (options: any) => any
 ): Component<P, S> {
   let result: Component<P, S>;
-
-  // 记录组件实例个数
-  let count = 0;
 
   cid++;
   const startTag = () => {
@@ -118,13 +125,18 @@ export function defineComponent<P, S>(
     // 页面中没有该组件时，remove 掉相关 style 元素
     const componentId = getCurrentCid()!;
     onUnmounted(() => {
-      if (--count === 0) {
+      if (--componentInstanceCount[componentId] === 0) {
         const styleEl = getStyleElement(componentId);
         styleEl && removeChild(styleEl);
+        deleteStyleElement(componentId);
+        delete componentInstanceCount[componentId];
       }
     });
 
     render({ props, slots, emit });
+
+    // 保证下一个组件渲染时，会生成新的 style 元素
+    resetGroup();
 
     popStartFromBlockFragment();
     flushQueueAddScope();
@@ -142,7 +154,7 @@ export function defineComponent<P, S>(
     const container = getContainer();
     appendChild(container, endPlaceholder);
 
-    count++;
+    incrementComponentInstanceCount(componentId);
   };
 
   result = [startTag, endTag] as any;
@@ -186,6 +198,43 @@ export function getCurrentCid() {
   return cid ? `h-cid-${cid}` : undefined;
 }
 
+export function setHasDynamic(value: boolean) {
+  const componentId = getCurrentCid()!;
+  (
+    styleTypes[componentId] ||
+    (styleTypes[componentId] = { hasDynamic: false, hasStatic: false })
+  ).hasDynamic = value;
+}
+
+export function setHasStatic(value: boolean) {
+  const componentId = getCurrentCid()!;
+  (
+    styleTypes[componentId] ||
+    (styleTypes[componentId] = { hasDynamic: false, hasStatic: false })
+  ).hasStatic = value;
+}
+
+export function getComponentInstanceCount(componentId: string) {
+  return componentInstanceCount[componentId];
+}
+
+function incrementComponentInstanceCount(cid: string) {
+  if (cid in componentInstanceCount) {
+    return componentInstanceCount[cid]++;
+  }
+  componentInstanceCount[cid] = 1;
+}
+
+function hasDynamicStyle() {
+  const styleType = styleTypes[getCurrentCid()!];
+  return styleType ? styleType.hasDynamic : false;
+}
+
+function hasStaticStyle() {
+  const styleType = styleTypes[getCurrentCid()!];
+  return styleType ? styleType.hasStatic : false;
+}
+
 function getCurrentQueueAddScope() {
   return getLast(stackForAddScope);
 }
@@ -196,8 +245,8 @@ function getCurrentQueueAddScope() {
 function flushQueueAddScope() {
   getCurrentQueueAddScope()!.forEach((job) => {
     const cid = getCurrentCid()!;
-    hasStaticStyle(cid) && job(cid);
-    hasDynamicStyle(cid) && job(getCurrentDsid());
+    hasStaticStyle() && job(cid);
+    hasDynamicStyle() && job(getCurrentDsid());
   });
 }
 

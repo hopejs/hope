@@ -1,6 +1,6 @@
 export { nextTick } from '@hopejs/runtime-core';
 
-export * from './tags';
+export { div, $div, span, $span } from './tags';
 export * from './render';
 
 // 指令
@@ -17,7 +17,8 @@ export { hSlot } from './directives/hSlot';
 
 // block 可以让结构性变化变成可响应式的
 export { block } from './block';
-export { style } from './style';
+
+export { addCssRule as s, keyframes, media } from './style';
 
 export {
   defineComponent,

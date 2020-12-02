@@ -27,17 +27,23 @@ export function getStyleSheet(componentId: string) {
   logError('获取 StyleSheet 失败！');
 }
 
-export function getStyleElement(componentId: string): HTMLStyleElement | undefined {
+export function getStyleElement(
+  componentId: string
+): HTMLStyleElement | undefined {
   return styleElements[componentId];
 }
 
+export function deleteStyleElement(componentId: string) {
+  delete styleElements[componentId];
+}
+
 function registerStyleElement(componentId: string, target?: Element) {
-  if (!styleElements[componentId]) {
-    const styleEl = createStyleElement();
-    (target || getHead()).appendChild(styleEl);
-    return (styleElements[componentId] = styleEl);
+  if (styleElements[componentId]) {
+    return styleElements[componentId];
   }
-  return styleElements[componentId];
+  const styleEl = createStyleElement();
+  (target || getHead()).appendChild(styleEl);
+  return (styleElements[componentId] = styleEl);
 }
 
 function createStyleElement() {

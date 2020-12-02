@@ -15,6 +15,10 @@ export {
   setGroup,
   resetGroup,
 } from './style-sheet/createCssRule';
-export { getStyleSheet, getStyleElement } from './style-sheet/getStyleSheet';
+export {
+  getStyleSheet,
+  getStyleElement,
+  deleteStyleElement,
+} from './style-sheet/getStyleSheet';
 export { keyframes } from './style-sheet/keyframes';
 export { media } from './style-sheet/media';

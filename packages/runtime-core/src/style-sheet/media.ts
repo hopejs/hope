@@ -7,7 +7,9 @@ export function media(
   block: () => void
 ) {
   setGroup(getStyleSheet(componentId));
-  setGroup(createCssRule('@media' + condition, '{}') as CSSMediaRule);
+  const mediaRule = createCssRule('@media' + condition, '{}') as CSSMediaRule;
+  setGroup(mediaRule);
   block();
   resetGroup();
+  return mediaRule;
 }
