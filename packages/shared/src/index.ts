@@ -8,6 +8,10 @@ export {
   stringifyStyle,
 } from '@vue/shared';
 
+export function isNumber(value: any): value is number {
+  return typeof value === 'number';
+}
+
 export function isElement(value: any): value is Element {
   return value instanceof Element;
 }

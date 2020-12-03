@@ -5,6 +5,7 @@ export {
   nextTick,
   queueJob,
   queuePostFlushCb,
+  flushPostFlushCbs,
   SchedulerCbs,
   SchedulerJob,
 } from './scheduler';

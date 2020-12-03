@@ -69,6 +69,8 @@ const styleTypes: Record<
 // 记录某一个组件的实例个数
 const componentInstanceCount: Record<string, number> = {};
 
+const componentCssRuleId: Record<string, number | undefined> = {};
+
 export function defineComponent<P, S>(
   render: (options: ComponentOptions<P, S>) => any
 ): Component<P, S>;
@@ -133,6 +135,7 @@ export function defineComponent<P, S>(
       }
     });
 
+    componentCssRuleId[componentId] = 0;
     render({ props, slots, emit });
 
     // 保证下一个组件渲染时，会生成新的 style 元素
@@ -216,6 +219,14 @@ export function setHasStatic(value: boolean) {
 
 export function getComponentInstanceCount(componentId: string) {
   return componentInstanceCount[componentId];
+}
+
+export function getComponentCssRuleId(componentId: string) {
+  return componentCssRuleId[componentId];
+}
+
+export function incrementComponentCssRuleId(componentId: string) {
+  componentCssRuleId[componentId]!++;
 }
 
 function incrementComponentInstanceCount(cid: string) {
