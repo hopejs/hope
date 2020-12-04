@@ -8,7 +8,6 @@ import {
   resetLifecycleHandlers,
   getStyleElement,
   deleteStyleElement,
-  resetGroup,
 } from '@hopejs/runtime-core';
 import { isString, isObject, getLast, isElement } from '@hopejs/shared';
 import { isReactive, reactive } from '@hopejs/reactivity';
@@ -137,9 +136,6 @@ export function defineComponent<P, S>(
 
     componentCssRuleId[componentId] = 0;
     render({ props, slots, emit });
-
-    // 保证下一个组件渲染时，会生成新的 style 元素
-    resetGroup();
 
     popStartFromBlockFragment();
     flushQueueAddScope();

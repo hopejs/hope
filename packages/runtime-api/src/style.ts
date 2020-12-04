@@ -6,7 +6,6 @@ import {
 } from '@hopejs/runtime-core';
 import {
   addScopeForSelector,
-  getLast,
   isFunction,
   logWarn,
   stringifyStyle,
@@ -50,10 +49,10 @@ export function addCssRule(
     ? isDynamicObj[cssRuleId]
     : (isDynamicObj[cssRuleId] = isDynamic(style));
 
-  const groupId = getLast(stackGroupId);
-  if (groupId !== undefined && !isDynamicObj[groupId]) {
-    isDynamicObj[groupId] = isDynamicVar;
-  }
+  // 有可能是嵌套 group，比如嵌套的 @media
+  stackGroupId.forEach((groupId) => {
+    isDynamicObj[groupId] || (isDynamicObj[groupId] = isDynamicVar);
+  });
 
   if (isDynamicVar) {
     setHasDynamic(true);

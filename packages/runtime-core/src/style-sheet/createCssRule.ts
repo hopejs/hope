@@ -1,14 +1,16 @@
+import { getLast } from '@hopejs/shared';
 import { getStyleSheet } from './getStyleSheet';
 
 type CssGroup = CSSStyleSheet | CSSMediaRule | CSSKeyframesRule | undefined;
 
-let group: CssGroup;
+let stackGroups: CssGroup[] = [];
 
 export function createCssRule(
   selector: string,
   style: string,
-  componentId?: string
+  componentId: string
 ) {
+  let group = getLast(stackGroups);
   if (!group && componentId) {
     group = getStyleSheet(componentId);
   }
@@ -25,9 +27,9 @@ export function createCssRule(
 }
 
 export function setGroup(v: CssGroup) {
-  group = v;
+  stackGroups.push(v);
 }
 
 export function resetGroup() {
-  group = undefined;
+  stackGroups.pop();
 }
