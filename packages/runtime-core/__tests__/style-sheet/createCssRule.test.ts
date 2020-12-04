@@ -1,7 +1,7 @@
-import { createCssRule } from '../../src/style-sheet/createCssRule';
+import { createCssRule } from '../../src';
 
 describe('createCssRule', () => {
-  const cid = 'cid';
+  const cid = 'cid-createCssRule';
 
   it('basic', () => {
     const cssRule = createCssRule('.class-name', '{}', cid);
