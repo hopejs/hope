@@ -3,6 +3,7 @@ import {
   createTextNode,
   getDocument,
   getHead,
+  setAttribute,
 } from '@hopejs/renderer';
 import { logError } from '@hopejs/shared';
 
@@ -48,6 +49,7 @@ function registerStyleElement(componentId: string, target?: Element) {
 
 function createStyleElement() {
   const style = createElement('style');
+  setAttribute(style, 'type', 'text/css');
   const textNode = createTextNode('');
   // Avoid Edge bug where empty style elements don't create sheets
   // (from styled-components)

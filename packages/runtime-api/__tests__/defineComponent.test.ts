@@ -1,5 +1,6 @@
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement, nextTick } from '@hopejs/runtime-core';
+import { delay } from '@hopejs/shared';
 import {
   $div,
   defineComponent,
@@ -13,7 +14,7 @@ import {
 } from '../src';
 
 describe('defineComponent', () => {
-  it('basic', () => {
+  it('basic', async () => {
     const [helloWorld, $helloWorld] = defineComponent(() => {
       div();
       hText('Hello World');
@@ -24,12 +25,13 @@ describe('defineComponent', () => {
     helloWorld();
     $helloWorld();
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       `<!--component start--><div>Hello World</div><!--component end-->`
     );
   });
 
-  it('mount', () => {
+  it('mount', async () => {
     const HelloWorld = defineComponent(() => {
       div();
       hText('Hello Hope');
@@ -38,6 +40,7 @@ describe('defineComponent', () => {
 
     const container = document.createElement('div');
     HelloWorld.mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       `<!--component start--><div>Hello Hope</div><!--component end-->`
     );
@@ -57,6 +60,7 @@ describe('defineComponent', () => {
 
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       `<!--component start--><div>a</div><!--component end-->`
     );
@@ -68,7 +72,7 @@ describe('defineComponent', () => {
     );
   });
 
-  it('slots', () => {
+  it('slots', async () => {
     const [person, $person] = defineComponent<any, any>(({ slots }) => {
       div();
       slots.default();
@@ -84,12 +88,13 @@ describe('defineComponent', () => {
 
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       `<!--component start--><div><div></div></div><!--component end-->`
     );
   });
 
-  it('emit', () => {
+  it('emit', async () => {
     let el: Element;
     const [person, $person] = defineComponent<any, any>(({ emit }) => {
       div();
@@ -110,13 +115,14 @@ describe('defineComponent', () => {
 
     const container = document.createElement('div');
     mount(container);
+    await delay();
 
     // @ts-ignore
     el.dispatchEvent(new CustomEvent('click'));
     expect(fn).toBeCalledTimes(1);
   });
 
-  it('block & component', () => {
+  it('block & component', async () => {
     const [com, $com] = defineComponent<any, any>(({ props }) => {
       div();
       hText(() => props.a);
@@ -131,12 +137,13 @@ describe('defineComponent', () => {
     });
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       `<!--block start--><div></div><!--component start--><div>b</div><!--component end--><!--block end-->`
     );
   });
 
-  it('nest block & component', () => {
+  it('nest block & component', async () => {
     const [com, $com] = defineComponent<any, any>(() => {
       div();
       $div();
@@ -151,6 +158,7 @@ describe('defineComponent', () => {
     });
     const container1 = document.createElement('div');
     mount(container1);
+    await delay();
     expect(container1.innerHTML).toBe(
       `<!--block start--><div><!--block start--><!--component start--><div></div><!--component end--><!--block end--></div><!--block end-->`
     );
@@ -167,6 +175,7 @@ describe('defineComponent', () => {
     });
     const container2 = document.createElement('div');
     mount(container2);
+    await delay();
     expect(container2.innerHTML).toBe(
       `<!--block start--><div><!--block start--><div></div><!--block end--><!--component start--><div></div><!--component end--></div><!--block end-->`
     );

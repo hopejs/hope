@@ -8,6 +8,12 @@ export {
   stringifyStyle,
 } from '@vue/shared';
 
+export function delay(time?: number) {
+  return new Promise((res) => {
+    setTimeout(res, time);
+  });
+}
+
 export function isNumber(value: any): value is number {
   return typeof value === 'number';
 }

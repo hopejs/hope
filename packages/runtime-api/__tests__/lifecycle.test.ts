@@ -1,4 +1,5 @@
 import { reactive } from '@hopejs/reactivity';
+import { delay } from '@hopejs/shared';
 import {
   $div,
   block,
@@ -38,6 +39,7 @@ describe('lifecycle', () => {
 
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(mounted).toBeCalledTimes(1);
     expect(unmounted).toBeCalledTimes(0);
     expect(updated).toBeCalledTimes(1);

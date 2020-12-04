@@ -1,5 +1,6 @@
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
+import { delay } from '@hopejs/shared';
 import { $div, $span, block, div, hText, mount, span } from '../src';
 
 describe('block', () => {
@@ -22,6 +23,7 @@ describe('block', () => {
 
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       '<!--block start--><div>1</div><!--block end-->'
     );
@@ -49,6 +51,7 @@ describe('block', () => {
     });
     const container = document.createElement('div');
     mount(container);
+    await delay();
 
     expect(container.innerHTML).toBe(
       `<!--block start--><div>a</div><!--block end-->`
@@ -77,7 +80,7 @@ describe('block', () => {
     expect(el.outerHTML).toBe(`<div>b</div>`);
   });
 
-  it('nest element', () => {
+  it('nest element', async () => {
     block(() => {
       div();
       div();
@@ -87,12 +90,13 @@ describe('block', () => {
 
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       `<!--block start--><div><div></div></div><!--block end-->`
     );
   });
 
-  it('nest block', () => {
+  it('nest block', async () => {
     block(() => {
       block(() => {
         div();
@@ -102,12 +106,13 @@ describe('block', () => {
 
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       `<!--block start--><!--block start--><div></div><!--block end--><!--block end-->`
     );
   });
 
-  it('nest block & nest element', () => {
+  it('nest block & nest element', async () => {
     block(() => {
       div();
       block(() => {
@@ -119,12 +124,13 @@ describe('block', () => {
 
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       `<!--block start--><div><!--block start--><div></div><!--block end--></div><!--block end-->`
     );
   });
 
-  it('nest block & not nest element', () => {
+  it('nest block & not nest element', async () => {
     block(() => {
       div();
       $div();
@@ -136,6 +142,7 @@ describe('block', () => {
 
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(
       `<!--block start--><div></div><!--block start--><div></div><!--block end--><!--block end-->`
     );

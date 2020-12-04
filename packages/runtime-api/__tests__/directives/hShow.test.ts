@@ -1,20 +1,23 @@
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
+import { delay } from '@hopejs/shared';
 import { hShow, mount, div, $div, block } from '../../src';
 
 describe('hShow', () => {
-  it('basic', () => {
+  it('basic', async () => {
     div();
     hShow(true);
     $div();
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(`<div></div>`);
 
     div();
     hShow(false);
     $div();
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(`<!--hShow-->`);
   });
 
@@ -26,6 +29,7 @@ describe('hShow', () => {
     $div();
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(`<div></div>`);
 
     show.value = false;
@@ -43,6 +47,7 @@ describe('hShow', () => {
     $div();
     const container = document.createElement('div');
     mount(container);
+    await delay();
     expect(container.innerHTML).toBe(`<!--hShow-->`);
 
     show.value = true;
