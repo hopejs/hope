@@ -217,12 +217,22 @@ export function getComponentInstanceCount(componentId: string) {
   return componentInstanceCount[componentId];
 }
 
-export function getComponentCssRuleId(componentId: string) {
+export function getComponentCssRuleId(
+  componentId: string,
+  groupId?: (number | string)[]
+) {
+  if (groupId && groupId.length) {
+    return groupId.join('-') + '-' + componentCssRuleId[componentId];
+  }
   return componentCssRuleId[componentId];
 }
 
 export function incrementComponentCssRuleId(componentId: string) {
   componentCssRuleId[componentId]!++;
+}
+
+export function setComponentCssRuleId(componentId: string, value: number) {
+  componentCssRuleId[componentId] = value;
 }
 
 function incrementComponentInstanceCount(cid: string) {

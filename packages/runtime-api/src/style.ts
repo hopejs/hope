@@ -18,6 +18,7 @@ import {
   getCurrentCid,
   getCurrentDsid,
   incrementComponentCssRuleId,
+  setComponentCssRuleId,
   setHasDynamic,
   setHasStatic,
 } from './defineComponent';
@@ -27,7 +28,7 @@ const isDynamicOfComponentCssRule: Record<
   Record<string, boolean | undefined> | undefined
 > = {};
 
-const stackGroupId: number[] = [];
+const stackGroupId: (number | string)[] = [];
 let isKeyFrames = false;
 
 export function addCssRule(
@@ -41,7 +42,7 @@ export function addCssRule(
     return;
   }
 
-  const cssRuleId = getComponentCssRuleId(componentId)!;
+  const cssRuleId = getComponentCssRuleId(componentId, stackGroupId)!;
   incrementComponentCssRuleId(componentId);
 
   const isDynamicObj = getCurrentIsDynamicObject(componentId);
@@ -50,9 +51,11 @@ export function addCssRule(
     : (isDynamicObj[cssRuleId] = isDynamic(style));
 
   // 有可能是嵌套 group，比如嵌套的 @media
-  stackGroupId.forEach((groupId) => {
-    isDynamicObj[groupId] || (isDynamicObj[groupId] = isDynamicVar);
-  });
+  stackGroupId.reduce((id, current) => {
+    const result = id ? `${id}-${current}` : current;
+    isDynamicObj[result] || (isDynamicObj[result] = isDynamicVar);
+    return result;
+  }, '');
 
   if (isDynamicVar) {
     setHasDynamic(true);
@@ -83,8 +86,11 @@ export function keyframes(block: () => void) {
     logWarn('keyframes 函数只能在组件中使用，若要设置全局样式请使用普通 css');
     return result;
   }
-  const cssKeyframesRuleId = getComponentCssRuleId(componentId)!;
-  incrementComponentCssRuleId(componentId);
+  const cssKeyframesRuleId = getComponentCssRuleId(
+    componentId,
+    stackGroupId
+  ) as number;
+  setComponentCssRuleId(componentId, 0);
 
   stackGroupId.push(cssKeyframesRuleId);
   const isDynamicObj = getCurrentIsDynamicObject(componentId);
@@ -99,7 +105,8 @@ export function keyframes(block: () => void) {
     keyframesFromCore(componentId, block, firstName);
     result = firstName;
   }
-  stackGroupId.pop();
+  setComponentCssRuleId(componentId, stackGroupId.pop() as number);
+  incrementComponentCssRuleId(componentId);
   isKeyFrames = false;
   return result;
 }
@@ -111,8 +118,11 @@ export function media(condition: string, block: () => void) {
       'media 函数只能在组件中使用，若要设置全局样式请使用普通 css'
     );
   }
-  const cssMediaRuleId = getComponentCssRuleId(componentId)!;
-  incrementComponentCssRuleId(componentId);
+  const cssMediaRuleId = getComponentCssRuleId(
+    componentId,
+    stackGroupId
+  ) as number;
+  setComponentCssRuleId(componentId, 0);
 
   stackGroupId.push(cssMediaRuleId);
   const isDynamicObj = getCurrentIsDynamicObject(componentId);
@@ -122,7 +132,8 @@ export function media(condition: string, block: () => void) {
   } else {
     mediaFromCore(componentId, condition, block);
   }
-  stackGroupId.pop();
+  setComponentCssRuleId(componentId, stackGroupId.pop() as number);
+  incrementComponentCssRuleId(componentId);
 }
 
 function getCurrentIsDynamicObject(componentId: string) {
