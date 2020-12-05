@@ -1,3 +1,16 @@
+enum CssRuleTypes {
+  CHARSET_RULE = 2,
+  FONT_FACE_RULE = 5,
+  IMPORT_RULE = 3,
+  KEYFRAMES_RULE = 7,
+  KEYFRAME_RULE = 8,
+  MEDIA_RULE = 4,
+  NAMESPACE_RULE = 10,
+  PAGE_RULE = 6,
+  STYLE_RULE = 1,
+  SUPPORTS_RULE = 12,
+}
+
 export {
   isString,
   isFunction,
@@ -7,6 +20,20 @@ export {
   normalizeStyle,
   stringifyStyle,
 } from '@vue/shared';
+
+export function isMediaRule(value: any): value is CSSMediaRule {
+  if (value.type === CssRuleTypes.MEDIA_RULE) return true;
+  return false;
+}
+export function isKeyframesRule(value: any): value is CSSKeyframesRule {
+  if (value.type === CssRuleTypes.KEYFRAMES_RULE) return true;
+  return false;
+}
+
+export function isStyleSheet(value: any): value is CSSStyleSheet {
+  if (value instanceof CSSStyleSheet) return true;
+  return false;
+}
 
 export function delay(time?: number) {
   return new Promise((res) => {

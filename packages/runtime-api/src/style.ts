@@ -23,6 +23,8 @@ import {
   setHasStatic,
 } from './defineComponent';
 
+type Functional<T> = { [P in keyof T]?: T[P] | (() => T[P]) | undefined };
+
 const isDynamicOfComponentCssRule: Record<
   string,
   Record<string, boolean | undefined> | undefined
@@ -33,7 +35,7 @@ let isKeyFrames = false;
 
 export function addCssRule(
   selector: string,
-  style: Partial<CSSStyleDeclaration>
+  style: Functional<CSSStyleDeclaration>
 ) {
   const componentId = getCurrentCid();
 
@@ -143,7 +145,7 @@ function getCurrentIsDynamicObject(componentId: string) {
   );
 }
 
-function isDynamic(style: Partial<CSSStyleDeclaration>) {
+function isDynamic(style: Functional<CSSStyleDeclaration>) {
   const keys = Object.keys(style);
   for (let i = 0; i < keys.length; i++) {
     if (isFunction(style[keys[i] as any])) {
@@ -155,7 +157,7 @@ function isDynamic(style: Partial<CSSStyleDeclaration>) {
 
 function setCssRule(
   cssRule: CSSStyleRule | CSSKeyframeRule,
-  style: Partial<CSSStyleDeclaration>
+  style: Functional<CSSStyleDeclaration>
 ) {
   const cssRuleStyle = cssRule.style;
   Object.keys(style).forEach((key) => {

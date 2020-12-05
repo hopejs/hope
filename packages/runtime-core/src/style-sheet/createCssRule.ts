@@ -1,4 +1,9 @@
-import { getLast } from '@hopejs/shared';
+import {
+  getLast,
+  isKeyframesRule,
+  isMediaRule,
+  isStyleSheet,
+} from '@hopejs/shared';
 import { getStyleSheet } from './getStyleSheet';
 
 type CssGroup = CSSStyleSheet | CSSMediaRule | CSSKeyframesRule | undefined;
@@ -15,12 +20,12 @@ export function createCssRule(
     group = getStyleSheet(componentId);
   }
   const cssText = selector + style;
-  if (group instanceof CSSStyleSheet || group instanceof CSSMediaRule) {
+  if (isStyleSheet(group) || isMediaRule(group)) {
     const lenght = group.cssRules.length;
     group.insertRule(cssText, lenght);
     return group.cssRules[lenght];
   }
-  if (group instanceof CSSKeyframesRule) {
+  if (isKeyframesRule(group)) {
     group.appendRule(cssText);
     return group.findRule(selector);
   }
