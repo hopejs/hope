@@ -38,6 +38,10 @@ export function callUpdated(handlers: SchedulerCbs) {
   queuePostFlushCb(handlers);
 }
 
+export function callElementUnmounted(handlers: SchedulerCbs) {
+  queuePostFlushCb(handlers);
+}
+
 /**
  * 当前是否在组件中。
  */

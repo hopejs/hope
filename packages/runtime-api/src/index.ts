@@ -27,4 +27,9 @@ export {
 } from './defineComponent';
 
 // 组件的生命周期钩子
-export { onMounted, onUnmounted, onUpdated } from './lifecycle';
+export {
+  onMounted,
+  onUnmounted,
+  onUpdated,
+  onElementUnmounted,
+} from './lifecycle';

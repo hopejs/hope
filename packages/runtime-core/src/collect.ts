@@ -11,27 +11,27 @@ import { BlockFragment, getCurrntBlockFragment } from './basic';
  * @param effect
  */
 export function collectEffects(effect: ReactiveEffect<void>) {
-  const blockFragment = getCurrntBlockFragment();
-  if (!blockFragment) return;
-  addSomethingInToBlockRootElement(blockFragment, '_hope_effects', effect);
+  addSomethingInToBlockRootElement('_hope_effects', effect);
 }
 
-export function collectUnmountedHook(hooks: any[]) {
-  const blockFragment = getCurrntBlockFragment();
-  if (!blockFragment) return;
-  addSomethingInToBlockRootElement(
-    blockFragment,
-    LIFECYCLE_KEYS.unmounted,
-    hooks
-  );
+export function collectElementUnmountedHook(hook: () => any) {
+  addSomethingInToBlockRootElement(LIFECYCLE_KEYS.elementUnmounted, hook);
+}
+
+export function collectUnmountedHook(hooks: (() => any)[]) {
+  addSomethingInToBlockRootElement(LIFECYCLE_KEYS.unmounted, hooks);
 }
 
 function addSomethingInToBlockRootElement(
-  blockFragment: BlockFragment,
   key: string,
   something: any,
+  blockFragment = getCurrntBlockFragment(),
   childBlockFragment?: BlockFragment
 ) {
+  if (!blockFragment) return;
+
+  // 每个 block 应该保存下父 block 的 rootElement，
+  // 以便在更新的时候能够获取到正确的 rootElement。
   const blockRootElement: any =
     blockFragment._elementStack[0] ||
     childBlockFragment?._parentBlockRootElement;
@@ -48,9 +48,9 @@ function addSomethingInToBlockRootElement(
   }
   blockFragment._parent &&
     addSomethingInToBlockRootElement(
-      blockFragment._parent,
       key,
       something,
+      blockFragment._parent,
       blockFragment
     );
 }

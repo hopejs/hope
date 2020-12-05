@@ -1,6 +1,7 @@
 import {
   callMounted,
   callUpdated,
+  collectElementUnmountedHook,
   getLifecycleHandlers,
   inComponent,
 } from '@hopejs/runtime-core';
@@ -31,4 +32,8 @@ export function onUpdated(handler: () => any) {
     currentLifecycle!.updatedHandlers.push(handler);
   // 一开始调用一次更新钩子
   callUpdated(handler);
+}
+
+export function onElementUnmounted(handler: () => any) {
+  collectElementUnmountedHook(handler);
 }

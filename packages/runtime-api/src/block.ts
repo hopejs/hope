@@ -6,6 +6,8 @@ import {
   removeChild,
 } from '@hopejs/renderer';
 import {
+  callElementUnmounted,
+  callUnmounted,
   callUpdated,
   collectEffects,
   createBlockFragment,
@@ -13,10 +15,10 @@ import {
   getLifecycleHandlers,
   HopeElement,
   queueJob,
-  queuePostFlushCb,
   resetBlockFragment,
   setBlockFragment,
 } from '@hopejs/runtime-core';
+import { LIFECYCLE_KEYS } from '@hopejs/shared';
 
 export function block(range: () => void) {
   const start = createPlaceholder('block start');
@@ -57,6 +59,8 @@ function remove(start: Node, end: Node, firstNode: Node | null) {
   if (!next || next === end) return;
 
   stopEffects(next);
+  // 调用元素的卸载钩子
+  invokeElementUnmountedHooks(next);
   // 调用组件的卸载钩子
   invokeUnmountedHooks(next);
 
@@ -65,18 +69,27 @@ function remove(start: Node, end: Node, firstNode: Node | null) {
 }
 
 function invokeUnmountedHooks(node: HopeElement) {
-  const hooks = node._h_unmounted;
-  if (!hooks) return;
-  destroy(hooks, '_h_unmounted', queuePostFlushCb);
+  destroy(
+    node[LIFECYCLE_KEYS.unmounted]!,
+    LIFECYCLE_KEYS.unmounted,
+    callUnmounted
+  );
+}
+
+function invokeElementUnmountedHooks(node: HopeElement) {
+  destroy(
+    node[LIFECYCLE_KEYS.elementUnmounted]!,
+    LIFECYCLE_KEYS.elementUnmounted,
+    callElementUnmounted
+  );
 }
 
 function stopEffects(node: HopeElement) {
-  const effects = node._hope_effects;
-  if (!effects) return;
-  destroy(effects, '_hope_effects', stop);
+  destroy(node._hope_effects!, '_hope_effects', stop);
 }
 
 function destroy(list: Set<any>, key: string, operator: Function) {
+  if (!list) return;
   list.forEach((some) => {
     operator(some);
 

@@ -1,6 +1,6 @@
 import { ReactiveEffect } from '@hopejs/reactivity';
 import { createElement, createFragment, appendChild } from '@hopejs/renderer';
-import { getLast, isElement } from '@hopejs/shared';
+import { getLast, isElement, LIFECYCLE_KEYS } from '@hopejs/shared';
 
 /**
  * 标签元素中的静态属性参数
@@ -17,7 +17,8 @@ export type BlockFragment = DocumentFragment & {
 };
 export type HopeElement = Element & {
   _hope_effects?: Set<ReactiveEffect<void>>;
-  _h_unmounted?: Set<any[]>;
+  [LIFECYCLE_KEYS.unmounted]?: Set<(() => any)[]>;
+  [LIFECYCLE_KEYS.elementUnmounted]?: Set<(() => any)[]>;
 };
 
 let currentElement: HopeElement | undefined;

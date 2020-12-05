@@ -11,6 +11,7 @@ import {
   hText,
   mount,
   nextTick,
+  onElementUnmounted,
   onMounted,
   onUnmounted,
   onUpdated,
@@ -23,6 +24,8 @@ describe('lifecycle', () => {
     const mounted = jest.fn();
     const unmounted = jest.fn();
     const updated = jest.fn();
+    // 元素的卸载钩子
+    const elementUnmounted = jest.fn();
     const state = reactive({ text: 'a', show: true });
 
     const [com, $com] = defineComponent<any, any>(({ props }) => {
@@ -32,6 +35,8 @@ describe('lifecycle', () => {
 
       div();
       hText(() => props.text);
+      // 需放在元素的开始标签和结束标签之间
+      onElementUnmounted(elementUnmounted);
       $div();
     });
 
@@ -43,12 +48,14 @@ describe('lifecycle', () => {
     expect(mounted).toBeCalledTimes(1);
     expect(unmounted).toBeCalledTimes(0);
     expect(updated).toBeCalledTimes(1);
+    expect(elementUnmounted).toBeCalledTimes(0);
 
     state.text = 'b';
     await nextTick();
     expect(mounted).toBeCalledTimes(1);
     expect(unmounted).toBeCalledTimes(0);
     expect(updated).toBeCalledTimes(2);
+    expect(elementUnmounted).toBeCalledTimes(0);
 
     state.text = 'c';
     state.text = 'd';
@@ -56,12 +63,28 @@ describe('lifecycle', () => {
     expect(mounted).toBeCalledTimes(1);
     expect(unmounted).toBeCalledTimes(0);
     expect(updated).toBeCalledTimes(3);
+    expect(elementUnmounted).toBeCalledTimes(0);
 
     state.show = false;
     await nextTick();
     expect(mounted).toBeCalledTimes(1);
     expect(unmounted).toBeCalledTimes(1);
     expect(updated).toBeCalledTimes(3);
+    expect(elementUnmounted).toBeCalledTimes(1);
+
+    state.show = true;
+    await nextTick();
+    expect(mounted).toBeCalledTimes(2);
+    expect(unmounted).toBeCalledTimes(1);
+    expect(updated).toBeCalledTimes(4);
+    expect(elementUnmounted).toBeCalledTimes(1);
+
+    state.show = false;
+    await nextTick();
+    expect(mounted).toBeCalledTimes(2);
+    expect(unmounted).toBeCalledTimes(2);
+    expect(updated).toBeCalledTimes(4);
+    expect(elementUnmounted).toBeCalledTimes(2);
   };
 
   it('basic', async () => {

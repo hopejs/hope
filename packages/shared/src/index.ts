@@ -1,4 +1,4 @@
-enum CssRuleTypes {
+enum CSSRULE_TYPES {
   CHARSET_RULE = 2,
   FONT_FACE_RULE = 5,
   IMPORT_RULE = 3,
@@ -9,6 +9,13 @@ enum CssRuleTypes {
   PAGE_RULE = 6,
   STYLE_RULE = 1,
   SUPPORTS_RULE = 12,
+}
+
+export enum LIFECYCLE_KEYS {
+  mounted = '_h_mounted',
+  unmounted = '_h_unmounted',
+  updated = '_h_updated',
+  elementUnmounted = '_h_element_unmounted',
 }
 
 export {
@@ -22,11 +29,11 @@ export {
 } from '@vue/shared';
 
 export function isMediaRule(value: any): value is CSSMediaRule {
-  if (value.type === CssRuleTypes.MEDIA_RULE) return true;
+  if (value.type === CSSRULE_TYPES.MEDIA_RULE) return true;
   return false;
 }
 export function isKeyframesRule(value: any): value is CSSKeyframesRule {
-  if (value.type === CssRuleTypes.KEYFRAMES_RULE) return true;
+  if (value.type === CSSRULE_TYPES.KEYFRAMES_RULE) return true;
   return false;
 }
 
@@ -60,12 +67,6 @@ export function logError(err: string) {
 export function logWarn(warn: string) {
   console.warn(`[Hope warn]: ${warn}`);
 }
-
-export const LIFECYCLE_KEYS = {
-  mounted: '_h_mounted',
-  unmounted: '_h_unmounted',
-  updated: '_h_updated',
-};
 
 /**
  * 将一个 css 文件中的选择器替换为带有指定 scopeId 的版本
