@@ -1,6 +1,6 @@
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
-import { delay } from '@hopejs/shared';
+import { delay, LIFECYCLE_KEYS } from '@hopejs/shared';
 import { $div, $span, block, div, hText, mount, span } from '../src';
 
 describe('block', () => {
@@ -148,7 +148,7 @@ describe('block', () => {
     );
   });
 
-  it('_hope_effects', () => {
+  it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
       div();
@@ -160,7 +160,7 @@ describe('block', () => {
       });
     });
     // @ts-ignore
-    expect(el._hope_effects).toBe(undefined);
+    expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
 
     let el2: HopeElement;
     block(() => {
@@ -173,8 +173,10 @@ describe('block', () => {
       $div();
     });
     // @ts-ignore
-    expect(el2._hope_effects?.size).toBe(1);
+    expect(el2[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
     // @ts-ignore
-    expect(typeof Array.from(el2._hope_effects)[0]).toBe('function');
+    expect(typeof Array.from(el2[LIFECYCLE_KEYS.elementUnmounted])[0]).toBe(
+      'function'
+    );
   });
 });

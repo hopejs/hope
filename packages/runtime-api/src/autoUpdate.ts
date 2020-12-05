@@ -1,10 +1,10 @@
-import { effect } from '@hopejs/reactivity';
+import { effect, stop } from '@hopejs/reactivity';
 import {
   callUpdated,
-  collectEffects,
   getLifecycleHandlers,
   queueJob,
 } from '@hopejs/runtime-core';
+import { onElementUnmounted } from './lifecycle';
 
 export function autoUpdate(block: () => any) {
   const { updatedHandlers } = getLifecycleHandlers();
@@ -15,5 +15,5 @@ export function autoUpdate(block: () => any) {
     },
     { scheduler: queueJob }
   );
-  collectEffects(ef);
+  onElementUnmounted(() => stop(ef));
 }

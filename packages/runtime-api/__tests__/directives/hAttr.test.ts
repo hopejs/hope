@@ -1,6 +1,7 @@
 import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
 import { reactive } from '@hopejs/reactivity';
 import { hAttr, div, $div, block } from '../../src';
+import { LIFECYCLE_KEYS } from '@hopejs/shared';
 
 describe('hAttr', () => {
   it('basic', () => {
@@ -24,7 +25,7 @@ describe('hAttr', () => {
     expect(el?.outerHTML).toBe(`<div abc="b"></div>`);
   });
 
-  it('_hope_effects', () => {
+  it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
       div();
@@ -34,10 +35,10 @@ describe('hAttr', () => {
     });
 
     // @ts-ignore
-    expect(el._hope_effects?.size).toBe(1);
+    expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
   });
 
-  it('_hope_effects & no reactivity', () => {
+  it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
     block(() => {
       div();
@@ -47,6 +48,6 @@ describe('hAttr', () => {
     });
 
     // @ts-ignore
-    expect(el._hope_effects).toBe(undefined);
+    expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
   });
 });

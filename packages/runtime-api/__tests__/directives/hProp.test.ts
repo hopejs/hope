@@ -6,6 +6,7 @@ import {
 } from '@hopejs/runtime-core';
 import { reactive } from '@hopejs/reactivity';
 import { hProp, div, $div, block, defineComponent } from '../../src';
+import { LIFECYCLE_KEYS } from '@hopejs/shared';
 
 describe('hProp', () => {
   const KEY = '_hopejs_test';
@@ -40,7 +41,7 @@ describe('hProp', () => {
     expect(el[KEY]).toBe(`b`);
   });
 
-  it('_hope_effects', () => {
+  it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
       div();
@@ -50,10 +51,10 @@ describe('hProp', () => {
     });
 
     // @ts-ignore
-    expect(el._hope_effects?.size).toBe(1);
+    expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
   });
 
-  it('_hope_effects & no reactivity', () => {
+  it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
     block(() => {
       div();
@@ -63,10 +64,10 @@ describe('hProp', () => {
     });
 
     // @ts-ignore
-    expect(el._hope_effects).toBe(undefined);
+    expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
   });
 
-  it('_hope_effects & with component', () => {
+  it('elementUnmounted & with component', () => {
     let startPlaceholder: HopeElement;
     block(() => {
       testComponent();
@@ -76,10 +77,10 @@ describe('hProp', () => {
     });
 
     // @ts-ignore
-    expect(startPlaceholder._hope_effects?.size).toBe(1);
+    expect(startPlaceholder[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
   });
 
-  it('_hope_effects & no reactivity & with component', () => {
+  it('elementUnmounted & no reactivity & with component', () => {
     let startPlaceholder: HopeElement;
     block(() => {
       testComponent();
@@ -89,6 +90,6 @@ describe('hProp', () => {
     });
 
     // @ts-ignore
-    expect(startPlaceholder._hope_effects).toBe(undefined);
+    expect(startPlaceholder[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
   });
 });

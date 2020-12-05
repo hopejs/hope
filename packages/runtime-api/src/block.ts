@@ -1,4 +1,3 @@
-import { stop } from '@hopejs/reactivity';
 import {
   appendChild,
   createPlaceholder,
@@ -50,7 +49,6 @@ function remove(start: Node, end: Node, firstNode: Node | null) {
   // next 可能已经被 remove。
   if (!next || next === end) return;
 
-  stopEffects(next);
   // 调用元素的卸载钩子
   invokeElementUnmountedHooks(next);
   // 调用组件的卸载钩子
@@ -74,8 +72,4 @@ function invokeElementUnmountedHooks(node: HopeElement) {
     LIFECYCLE_KEYS.elementUnmounted,
     callElementUnmounted
   );
-}
-
-function stopEffects(node: HopeElement) {
-  destroy(node._hope_effects!, '_hope_effects', stop);
 }

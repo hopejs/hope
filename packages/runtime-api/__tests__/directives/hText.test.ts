@@ -1,5 +1,6 @@
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
+import { LIFECYCLE_KEYS } from '@hopejs/shared';
 import { div, $div, hText, block } from '../../src';
 
 describe('hText', () => {
@@ -24,7 +25,7 @@ describe('hText', () => {
     expect(el?.innerHTML).toBe(`123`);
   });
 
-  it('_hope_effects', () => {
+  it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
       div();
@@ -34,10 +35,10 @@ describe('hText', () => {
     });
 
     // @ts-ignore
-    expect(el._hope_effects?.size).toBe(1);
+    expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
   });
 
-  it('_hope_effects & no reactivity', () => {
+  it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
     block(() => {
       div();
@@ -47,6 +48,6 @@ describe('hText', () => {
     });
 
     // @ts-ignore
-    expect(el._hope_effects).toBe(undefined);
+    expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
   });
 });

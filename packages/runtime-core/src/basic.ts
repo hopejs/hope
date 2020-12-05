@@ -1,4 +1,3 @@
-import { ReactiveEffect } from '@hopejs/reactivity';
 import { createElement, createFragment, appendChild } from '@hopejs/renderer';
 import { getLast, isElement, LIFECYCLE_KEYS } from '@hopejs/shared';
 
@@ -16,7 +15,6 @@ export type BlockFragment = DocumentFragment & {
   _parentBlockRootElement: HopeElement;
 };
 export type HopeElement = Element & {
-  _hope_effects?: Set<ReactiveEffect<void>>;
   [LIFECYCLE_KEYS.unmounted]?: Set<(() => any)[]>;
   [LIFECYCLE_KEYS.elementUnmounted]?: Set<(() => any)[]>;
 };
