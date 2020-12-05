@@ -1,13 +1,7 @@
-import { effect } from '@hopejs/reactivity';
 import { setAttribute } from '@hopejs/renderer';
-import {
-  getCurrentElement,
-  queueJob,
-  collectEffects,
-  getLifecycleHandlers,
-  callUpdated,
-} from '@hopejs/runtime-core';
+import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
+import { autoUpdate } from '../autoUpdate';
 import { outsideWarn } from './outsideWarn';
 
 export function hAttr(name: string, value: string | (() => string)) {
@@ -17,15 +11,7 @@ export function hAttr(name: string, value: string | (() => string)) {
   const currentElement = getCurrentElement();
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers();
-      const ef = effect(
-        () => {
-          setAttribute(currentElement, name, value());
-          updatedHandlers && callUpdated(updatedHandlers);
-        },
-        { scheduler: queueJob }
-      );
-      collectEffects(ef);
+      autoUpdate(() => setAttribute(currentElement, name, value()));
     } else {
       setAttribute(currentElement, name, value);
     }

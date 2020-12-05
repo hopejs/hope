@@ -1,6 +1,5 @@
 import {
   createCssRule,
-  queueJob,
   keyframes as keyframesFromCore,
   media as mediaFromCore,
 } from '@hopejs/runtime-core';
@@ -10,7 +9,6 @@ import {
   logWarn,
   stringifyStyle,
 } from '@hopejs/shared';
-import { effect, stop } from '@hopejs/reactivity';
 import { onUnmounted } from './lifecycle';
 import {
   getComponentCssRuleId,
@@ -22,6 +20,7 @@ import {
   setHasDynamic,
   setHasStatic,
 } from './defineComponent';
+import { autoUpdate } from './autoUpdate';
 
 type Functional<T> = { [P in keyof T]?: T[P] | (() => T[P]) | undefined };
 
@@ -164,13 +163,7 @@ function setCssRule(
     const value = style[key as any];
     if (!value) return;
     if (isFunction(value)) {
-      const ef = effect(
-        () => {
-          cssRuleStyle[key as any] = value();
-        },
-        { scheduler: queueJob }
-      );
-      onUnmounted(() => stop(ef));
+      autoUpdate(() => (cssRuleStyle[key as any] = value()));
     } else {
       cssRuleStyle[key as any] = value;
     }

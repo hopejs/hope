@@ -1,29 +1,15 @@
 import { appendChild, createComment } from '@hopejs/renderer';
-import {
-  getCurrentElement,
-  queueJob,
-  collectEffects,
-  getLifecycleHandlers,
-  callUpdated,
-} from '@hopejs/runtime-core';
+import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
-import { effect } from '@hopejs/reactivity';
 import { outsideWarn } from './outsideWarn';
+import { autoUpdate } from '../autoUpdate';
 
 export function hComment(value: string | (() => string)) {
   const currentElement = getCurrentElement();
   const comment = createComment('');
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers();
-      const ef = effect(
-        () => {
-          comment.textContent = value();
-          updatedHandlers && callUpdated(updatedHandlers);
-        },
-        { scheduler: queueJob }
-      );
-      collectEffects(ef);
+      autoUpdate(() => (comment.textContent = value()));
     } else {
       comment.textContent = value;
     }

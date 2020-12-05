@@ -22,6 +22,38 @@ export function collectUnmountedHook(hooks: (() => any)[]) {
   addSomethingInToBlockRootElement(LIFECYCLE_KEYS.unmounted, hooks);
 }
 
+/**
+ * 处理并销毁列表中的元素
+ * @param list
+ * @param key
+ * @param operator
+ */
+export function destroy(list: Set<any>, key: string, operator: Function) {
+  if (!list) return;
+  list.forEach((some) => {
+    operator(some);
+
+    // 这个列表的最前面的，在视图中是嵌套最深的，
+    // 当前 block 的子 block 的列表应该直接被
+    // 清空，感觉这样性能会好些。。
+    let canClear = true;
+    some[key].forEach((collection: Set<any>) => {
+      if (collection === list) {
+        canClear = false;
+        return;
+      }
+      if (canClear) {
+        // TODO: 不确定这里的 clear 有没有必要！
+        // 如果不 clear ，不知道会不会造成循环引用？
+        collection.size && collection.clear();
+      } else {
+        collection.delete(some);
+      }
+    });
+  });
+  list.clear();
+}
+
 function addSomethingInToBlockRootElement(
   key: string,
   something: any,

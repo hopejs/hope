@@ -5,16 +5,10 @@ import {
   insertBefore,
   removeChild,
 } from '@hopejs/renderer';
-import {
-  getCurrentElement,
-  queueJob,
-  collectEffects,
-  getLifecycleHandlers,
-  callUpdated,
-} from '@hopejs/runtime-core';
+import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
-import { effect } from '@hopejs/reactivity';
 import { outsideWarn } from './outsideWarn';
+import { autoUpdate } from '../autoUpdate';
 
 export function hShow(value: any | (() => any)) {
   // TODO: 该指令不允许在组件中使用
@@ -24,19 +18,13 @@ export function hShow(value: any | (() => any)) {
   const placeholder = createPlaceholder('hShow');
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers();
-      const ef = effect(
-        () => {
-          if (value()) {
-            showElement(currentElement, cache, placeholder);
-          } else {
-            hideElement(currentElement, cache, placeholder);
-          }
-          updatedHandlers && callUpdated(updatedHandlers);
-        },
-        { scheduler: queueJob }
-      );
-      collectEffects(ef);
+      autoUpdate(() => {
+        if (value()) {
+          showElement(currentElement, cache, placeholder);
+        } else {
+          hideElement(currentElement, cache, placeholder);
+        }
+      });
     } else {
       if (value) {
         showElement(currentElement, cache, placeholder);

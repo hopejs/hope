@@ -1,12 +1,7 @@
-import { effect, reactive } from '@hopejs/reactivity';
-import {
-  getCurrentElement,
-  queueJob,
-  collectEffects,
-  getLifecycleHandlers,
-  callUpdated,
-} from '@hopejs/runtime-core';
+import { reactive } from '@hopejs/reactivity';
+import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
+import { autoUpdate } from '../autoUpdate';
 import { outsideWarn } from './outsideWarn';
 
 let componentProps: Record<string, any> | null;
@@ -27,22 +22,13 @@ export function hProp(key: any, value: unknown | (() => unknown)) {
   // 组件运行的时候会设置该值，此时说明 hProp 指令
   // 运行在组件内，用以向组件传递 prop。
   if (componentProps) {
-    processComponentProps(key, value);
-    return;
+    return processComponentProps(key, value);
   }
 
   const currentElement = getCurrentElement();
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers();
-      const ef = effect(
-        () => {
-          (currentElement as any)[key] = value();
-          updatedHandlers && callUpdated(updatedHandlers);
-        },
-        { scheduler: queueJob }
-      );
-      collectEffects(ef);
+      autoUpdate(() => ((currentElement as any)[key] = value()));
     } else {
       (currentElement as any)[key] = value;
     }
@@ -65,16 +51,8 @@ export function getComponentProps() {
 
 function processComponentProps(key: any, value: unknown | (() => unknown)) {
   if (isFunction(value)) {
-    const { updatedHandlers } = getLifecycleHandlers()!;
     const props = componentProps;
-    const ef = effect(
-      () => {
-        props![key] = value();
-        updatedHandlers && callUpdated(updatedHandlers);
-      },
-      { scheduler: queueJob }
-    );
-    collectEffects(ef);
+    autoUpdate(() => (props![key] = value()));
   } else {
     componentProps![key] = value;
   }

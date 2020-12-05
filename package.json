@@ -5,7 +5,7 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "jest",
+    "test": "rollup -c & jest",
     "dev": "rollup -c -w"
   },
   "engines": {

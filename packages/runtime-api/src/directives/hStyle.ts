@@ -1,14 +1,8 @@
 import { setAttribute } from '@hopejs/renderer';
-import {
-  getCurrentElement,
-  queueJob,
-  collectEffects,
-  getLifecycleHandlers,
-  callUpdated,
-} from '@hopejs/runtime-core';
+import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction, normalizeStyle, stringifyStyle } from '@hopejs/shared';
-import { effect } from '@hopejs/reactivity';
 import { outsideWarn } from './outsideWarn';
+import { autoUpdate } from '../autoUpdate';
 
 type CSSStyle<T = CSSStyleDeclaration> = {
   [P in keyof T]?: any;
@@ -22,19 +16,13 @@ export function hStyle(value: any) {
   const currentElement = getCurrentElement();
   if (currentElement) {
     if (isFunction(value)) {
-      const { updatedHandlers } = getLifecycleHandlers();
-      const ef = effect(
-        () => {
-          setAttribute(
-            currentElement,
-            'style',
-            stringifyStyle(normalizeStyle(value()))
-          );
-          updatedHandlers && callUpdated(updatedHandlers);
-        },
-        { scheduler: queueJob }
+      autoUpdate(() =>
+        setAttribute(
+          currentElement,
+          'style',
+          stringifyStyle(normalizeStyle(value()))
+        )
       );
-      collectEffects(ef);
     } else {
       setAttribute(
         currentElement,
