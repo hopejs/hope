@@ -1,9 +1,9 @@
-import { addEventListener } from "@hopejs/renderer";
-import { getCurrentElement } from "@hopejs/runtime-core";
-import { isFunction } from "@hopejs/shared";
-import { outsideWarn } from "./outsideWarn";
+import { addEventListener } from '@hopejs/renderer';
+import { getCurrentElement } from '@hopejs/runtime-core';
+import { isFunction } from '@hopejs/shared';
+import { outsideError } from './outsideError';
 
-type Modifier = "capture" | "once" | "passive" | string;
+type Modifier = 'capture' | 'once' | 'passive' | string;
 
 let componentOn: Record<string, (...arg: any[]) => void> | null;
 
@@ -27,24 +27,21 @@ export function hOn(
 ): void;
 export function hOn(type: string, modifier: any, listener?: any) {
   if (componentOn) {
-    processComponentOn(type, modifier, listener);
-    return;
+    return processComponentOn(type, modifier, listener);
   }
 
   const currentElement = getCurrentElement();
-  if (currentElement) {
-    if (isFunction(modifier)) {
-      addEventListener(currentElement, type, modifier);
-    } else {
-      addEventListener(
-        currentElement,
-        type,
-        listener,
-        normalizeOptions(modifier)
-      );
-    }
+  if (__DEV__ && !currentElement) return outsideError('hOn');
+
+  if (isFunction(modifier)) {
+    addEventListener(currentElement!, type, modifier);
   } else {
-    outsideWarn("hOn");
+    addEventListener(
+      currentElement!,
+      type,
+      listener,
+      normalizeOptions(modifier)
+    );
   }
 }
 
@@ -53,13 +50,13 @@ function normalizeOptions(
 ): boolean | AddEventListenerOptions {
   let result: any = {};
   const arr = modifier
-    .split(" ")
+    .split(' ')
     .map((v) => v.trim())
     .filter((v) => v);
 
   for (let i = 0; i < arr.length; i++) {
     const k = arr[i];
-    if (k === "capture") {
+    if (k === 'capture') {
       return true;
     } else {
       result[k] = true;

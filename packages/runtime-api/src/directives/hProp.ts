@@ -2,7 +2,7 @@ import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
 import { autoUpdate } from '../autoUpdate';
-import { outsideWarn } from './outsideWarn';
+import { outsideError } from './outsideError';
 
 let componentProps: Record<string, any> | null;
 
@@ -26,14 +26,12 @@ export function hProp(key: any, value: unknown | (() => unknown)) {
   }
 
   const currentElement = getCurrentElement();
-  if (currentElement) {
-    if (isFunction(value)) {
-      autoUpdate(() => ((currentElement as any)[key] = value()));
-    } else {
-      (currentElement as any)[key] = value;
-    }
+  if (__DEV__ && !currentElement) return outsideError('hProp');
+
+  if (isFunction(value)) {
+    autoUpdate(() => ((currentElement as any)[key] = value()));
   } else {
-    outsideWarn('hProp');
+    (currentElement as any)[key] = value;
   }
 }
 

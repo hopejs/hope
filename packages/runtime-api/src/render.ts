@@ -18,13 +18,13 @@ export function mount(containerOrSelector: string | Element) {
 function normalizeContainer(container: string | Element): Element | null {
   if (isString(container)) {
     const result = querySelector(container);
-    if (!result) {
+    if (__DEV__ && !result) {
       logError(`找不到以 ${container} 为选择器的元素！`);
     }
     return result;
   } else if (isElement(container)) {
     return container;
   }
-  logError('组件只能挂载到有效的元素容器中。');
+  __DEV__ && logError('无效的容器。');
   return null;
 }

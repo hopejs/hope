@@ -1,7 +1,7 @@
 import { setAttribute } from '@hopejs/renderer';
 import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction, normalizeStyle, stringifyStyle } from '@hopejs/shared';
-import { outsideWarn } from './outsideWarn';
+import { outsideError } from './outsideError';
 import { autoUpdate } from '../autoUpdate';
 
 type CSSStyle<T = CSSStyleDeclaration> = {
@@ -14,23 +14,21 @@ export function hStyle(value: any) {
   // TODO: 该指令不允许在组件中使用
 
   const currentElement = getCurrentElement();
-  if (currentElement) {
-    if (isFunction(value)) {
-      autoUpdate(() =>
-        setAttribute(
-          currentElement,
-          'style',
-          stringifyStyle(normalizeStyle(value()))
-        )
-      );
-    } else {
+  if (__DEV__ && !currentElement) return outsideError('hStyle');
+
+  if (isFunction(value)) {
+    autoUpdate(() =>
       setAttribute(
-        currentElement,
+        currentElement!,
         'style',
-        stringifyStyle(normalizeStyle(value))
-      );
-    }
+        stringifyStyle(normalizeStyle(value()))
+      )
+    );
   } else {
-    outsideWarn('hStyle');
+    setAttribute(
+      currentElement!,
+      'style',
+      stringifyStyle(normalizeStyle(value))
+    );
   }
 }

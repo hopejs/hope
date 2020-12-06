@@ -6,7 +6,7 @@ import {
 import {
   addScopeForSelector,
   isFunction,
-  logWarn,
+  logError,
   stringifyStyle,
 } from '@hopejs/shared';
 import { onUnmounted } from './lifecycle';
@@ -38,15 +38,16 @@ export function addCssRule(
 ) {
   const componentId = getCurrentCid();
 
-  if (!componentId) {
-    logWarn('addCssRule 函数只能在组件中使用，若要设置全局样式请使用普通 css');
-    return;
+  if (__DEV__ && !componentId) {
+    return logError(
+      'addCssRule 函数只能在组件中使用，若要设置全局样式请使用普通 css'
+    );
   }
 
-  const cssRuleId = getComponentCssRuleId(componentId, stackGroupId)!;
-  incrementComponentCssRuleId(componentId);
+  const cssRuleId = getComponentCssRuleId(componentId!, stackGroupId)!;
+  incrementComponentCssRuleId(componentId!);
 
-  const isDynamicObj = getCurrentIsDynamicObject(componentId);
+  const isDynamicObj = getCurrentIsDynamicObject(componentId!);
   const isDynamicVar = isDynamicObj.hasOwnProperty(cssRuleId)
     ? isDynamicObj[cssRuleId]
     : (isDynamicObj[cssRuleId] = isDynamic(style));
@@ -61,7 +62,7 @@ export function addCssRule(
   if (isDynamicVar) {
     setHasDynamic(true);
     selector = addScopeForSelector(selector, getCurrentDsid()!);
-    const cssRule = createCssRule(selector, '{}', componentId);
+    const cssRule = createCssRule(selector, '{}', componentId!);
     if (cssRule) {
       setCssRule(cssRule as any, style);
       onUnmounted(() => deleteCssRule(cssRule as any));
@@ -71,70 +72,71 @@ export function addCssRule(
     // 共享相同的静态样式。
     // keyframes 情况比较特殊，因为需要包含所有子 rule
     // 才有意义。
-    if (getComponentInstanceCount(componentId) >= 1 && !isKeyFrames) {
+    if (getComponentInstanceCount(componentId!) >= 1 && !isKeyFrames) {
       return;
     }
     setHasStatic(true);
-    selector = addScopeForSelector(selector, componentId);
-    createCssRule(selector, `{${stringifyStyle(style as any)}}`, componentId);
+    selector = addScopeForSelector(selector, componentId!);
+    createCssRule(selector, `{${stringifyStyle(style as any)}}`, componentId!);
   }
 }
 
 export function keyframes(block: () => void) {
-  let result = '';
   const componentId = getCurrentCid();
-  if (!componentId) {
-    logWarn('keyframes 函数只能在组件中使用，若要设置全局样式请使用普通 css');
-    return result;
+  if (__DEV__ && !componentId) {
+    return logError(
+      'keyframes 函数只能在组件中使用，若要设置全局样式请使用普通 css'
+    );
   }
+  let result = '';
   const cssKeyframesRuleId = getComponentCssRuleId(
-    componentId,
+    componentId!,
     stackGroupId
   ) as number;
-  setComponentCssRuleId(componentId, 0);
+  setComponentCssRuleId(componentId!, 0);
 
   stackGroupId.push(cssKeyframesRuleId);
-  const isDynamicObj = getCurrentIsDynamicObject(componentId);
+  const isDynamicObj = getCurrentIsDynamicObject(componentId!);
   const firstName = `f-${componentId}-${cssKeyframesRuleId}`;
 
   isKeyFrames = true;
   if (isDynamicObj.hasOwnProperty(cssKeyframesRuleId)) {
     if (isDynamicObj[cssKeyframesRuleId])
-      result = keyframesFromCore(componentId, block);
+      result = keyframesFromCore(componentId!, block);
     else result = firstName;
   } else {
-    keyframesFromCore(componentId, block, firstName);
+    keyframesFromCore(componentId!, block, firstName);
     result = firstName;
   }
-  setComponentCssRuleId(componentId, stackGroupId.pop() as number);
-  incrementComponentCssRuleId(componentId);
+  setComponentCssRuleId(componentId!, stackGroupId.pop() as number);
+  incrementComponentCssRuleId(componentId!);
   isKeyFrames = false;
   return result;
 }
 
 export function media(condition: string, block: () => void) {
   const componentId = getCurrentCid();
-  if (!componentId) {
-    return logWarn(
+  if (__DEV__ && !componentId) {
+    return logError(
       'media 函数只能在组件中使用，若要设置全局样式请使用普通 css'
     );
   }
   const cssMediaRuleId = getComponentCssRuleId(
-    componentId,
+    componentId!,
     stackGroupId
   ) as number;
-  setComponentCssRuleId(componentId, 0);
+  setComponentCssRuleId(componentId!, 0);
 
   stackGroupId.push(cssMediaRuleId);
-  const isDynamicObj = getCurrentIsDynamicObject(componentId);
+  const isDynamicObj = getCurrentIsDynamicObject(componentId!);
   if (isDynamicObj.hasOwnProperty(cssMediaRuleId)) {
     isDynamicObj[cssMediaRuleId] &&
-      mediaFromCore(componentId, condition, block);
+      mediaFromCore(componentId!, condition, block);
   } else {
-    mediaFromCore(componentId, condition, block);
+    mediaFromCore(componentId!, condition, block);
   }
-  setComponentCssRuleId(componentId, stackGroupId.pop() as number);
-  incrementComponentCssRuleId(componentId);
+  setComponentCssRuleId(componentId!, stackGroupId.pop() as number);
+  incrementComponentCssRuleId(componentId!);
 }
 
 function getCurrentIsDynamicObject(componentId: string) {

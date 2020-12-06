@@ -7,33 +7,31 @@ import {
 } from '@hopejs/renderer';
 import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
-import { outsideWarn } from './outsideWarn';
+import { outsideError } from './outsideError';
 import { autoUpdate } from '../autoUpdate';
 
 export function hShow(value: any | (() => any)) {
   // TODO: 该指令不允许在组件中使用
 
   const currentElement = getCurrentElement();
+  if (__DEV__ && !currentElement) return outsideError('hShow');
+
   const cache = createElement('div');
   const placeholder = createPlaceholder('hShow');
-  if (currentElement) {
-    if (isFunction(value)) {
-      autoUpdate(() => {
-        if (value()) {
-          showElement(currentElement, cache, placeholder);
-        } else {
-          hideElement(currentElement, cache, placeholder);
-        }
-      });
-    } else {
-      if (value) {
-        showElement(currentElement, cache, placeholder);
+  if (isFunction(value)) {
+    autoUpdate(() => {
+      if (value()) {
+        showElement(currentElement!, cache, placeholder);
       } else {
-        hideElement(currentElement, cache, placeholder);
+        hideElement(currentElement!, cache, placeholder);
       }
-    }
+    });
   } else {
-    outsideWarn('hShow');
+    if (value) {
+      showElement(currentElement!, cache, placeholder);
+    } else {
+      hideElement(currentElement!, cache, placeholder);
+    }
   }
 }
 

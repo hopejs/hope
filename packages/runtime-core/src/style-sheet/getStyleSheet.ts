@@ -25,7 +25,7 @@ export function getStyleSheet(componentId: string) {
     }
   }
 
-  logError('获取 StyleSheet 失败！');
+  __DEV__ && logError('获取 StyleSheet 失败！');
 }
 
 export function getStyleElement(

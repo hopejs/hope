@@ -1,7 +1,7 @@
 import { setAttribute } from '@hopejs/renderer';
 import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction, normalizeClass } from '@hopejs/shared';
-import { outsideWarn } from './outsideWarn';
+import { outsideError } from './outsideError';
 import { autoUpdate } from '../autoUpdate';
 
 type ClassObject = Record<string, any>;
@@ -14,19 +14,17 @@ export function hClass(value: any) {
   // TODO: 该指令不允许在组件中使用
 
   const currentElement = getCurrentElement();
-  if (currentElement) {
-    if (isFunction(value)) {
-      autoUpdate(() =>
-        setAttribute(
-          currentElement,
-          'class',
-          normalizeClass(value()) || undefined
-        )
-      );
-    } else {
-      setAttribute(currentElement, 'class', normalizeClass(value) || undefined);
-    }
+  if (__DEV__ && !currentElement) return outsideError('hClass');
+
+  if (isFunction(value)) {
+    autoUpdate(() =>
+      setAttribute(
+        currentElement!,
+        'class',
+        normalizeClass(value()) || undefined
+      )
+    );
   } else {
-    outsideWarn('hClass');
+    setAttribute(currentElement!, 'class', normalizeClass(value) || undefined);
   }
 }

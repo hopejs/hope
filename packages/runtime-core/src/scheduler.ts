@@ -112,7 +112,7 @@ export function flushPostFlushCbs(seen?: CountMap) {
       postFlushIndex++
     ) {
       if (__DEV__) {
-        checkRecursiveUpdates(seen!, activePostFlushCbs[postFlushIndex]);
+        checkRecursiveUpdates(seen!, activePostFlushCbs![postFlushIndex]);
       }
       activePostFlushCbs[postFlushIndex]();
     }
