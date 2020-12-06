@@ -1,11 +1,9 @@
 import { addEventListener } from '@hopejs/renderer';
-import { getCurrentElement } from '@hopejs/runtime-core';
+import { getComponentOn, getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
 import { outsideError } from './outsideError';
 
 type Modifier = 'capture' | 'once' | 'passive' | string;
-
-let componentOn: Record<string, (...arg: any[]) => void> | null;
 
 export function hOn<K extends keyof ElementEventMap>(
   type: K,
@@ -26,7 +24,7 @@ export function hOn(
   listener: EventListenerOrEventListenerObject | ((...arg: any[]) => void)
 ): void;
 export function hOn(type: string, modifier: any, listener?: any) {
-  if (componentOn) {
+  if (getComponentOn()) {
     return processComponentOn(type, modifier, listener);
   }
 
@@ -66,19 +64,9 @@ function normalizeOptions(
   return result;
 }
 
-export function setComponentOn() {
-  componentOn = {};
-}
-
-export function resetComponentOn() {
-  componentOn = null;
-}
-
-export function getComponentOn() {
-  return componentOn;
-}
-
 function processComponentOn(type: string, modifier: any, listener?: any) {
+  const componentOn = getComponentOn();
+
   if (isFunction(modifier)) {
     componentOn![type] = modifier;
   } else {

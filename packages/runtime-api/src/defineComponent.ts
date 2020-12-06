@@ -8,20 +8,18 @@ import {
   resetLifecycleHandlers,
   getStyleElement,
   deleteStyleElement,
-} from '@hopejs/runtime-core';
-import { isString, isObject, getLast, isElement } from '@hopejs/shared';
-import { isReactive, reactive } from '@hopejs/reactivity';
-import {
   getComponentOn,
   resetComponentOn,
   setComponentOn,
-} from './directives/hOn';
-import {
   getComponentProps,
   resetComponentProps,
   setComponentProps,
-} from './directives/hProp';
-import { getSlots, resetSlots, setSlots } from './directives/hSlot';
+  getSlots,
+  resetSlots,
+  setSlots,
+} from '@hopejs/runtime-core';
+import { isString, isObject, getLast, isElement } from '@hopejs/shared';
+import { isReactive, reactive } from '@hopejs/reactivity';
 import { mount } from './render';
 import { setQueueAddScope } from './tags';
 import { onUnmounted } from './lifecycle';
@@ -70,6 +68,8 @@ const componentInstanceCount: Record<string, number> = {};
 
 const componentCssRuleId: Record<string, number | undefined> = {};
 
+let betweenStartAndEnd = false;
+
 export function defineComponent<P, S>(
   render: (options: ComponentOptions<P, S>) => any
 ): Component<P, S>;
@@ -89,6 +89,7 @@ export function defineComponent<P, S>(
     setSlots();
     setComponentProps();
     setComponentOn();
+    betweenStartAndEnd = true;
   };
   startTag.cid = cid;
 
@@ -99,8 +100,10 @@ export function defineComponent<P, S>(
       on?: Record<string, (...arg: any[]) => any>;
     } = {}
   ) => {
-    // 放在 end 标签，可以确保组件插槽中的
-    // 属性更新时正确的调用组件的父组件的生命周期钩子
+    betweenStartAndEnd = false;
+
+    // 放在 end 标签，可以确保组件指令函数中的数据
+    // 更新时正确的调用组件的父组件的生命周期钩子
     setLifecycleHandlers();
 
     dsid++;
@@ -144,7 +147,7 @@ export function defineComponent<P, S>(
     cidStack.pop();
     dsidStack.pop();
 
-    // 放在组件渲染完之后，以便让指令能获取到生命周期处理函数
+    // 必须放在 render 函数之后
     resetLifecycleHandlers();
 
     const endPlaceholder: any = createPlaceholder(
@@ -233,6 +236,13 @@ export function incrementComponentCssRuleId(componentId: string) {
 
 export function setComponentCssRuleId(componentId: string, value: number) {
   componentCssRuleId[componentId] = value;
+}
+
+/**
+ * 表示代码运行到组件的开标签和闭标签之间的区域
+ */
+export function isBetweenStartAndEnd() {
+  return betweenStartAndEnd;
 }
 
 function incrementComponentInstanceCount(cid: string) {

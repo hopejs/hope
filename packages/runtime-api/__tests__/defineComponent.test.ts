@@ -7,7 +7,6 @@ import {
   div,
   hProp,
   hText,
-  hSlot,
   mount,
   hOn,
   block,
@@ -69,28 +68,6 @@ describe('defineComponent', () => {
     await nextTick();
     expect(container.innerHTML).toBe(
       `<!--component start--><div>b</div><!--component end-->`
-    );
-  });
-
-  it('slots', async () => {
-    const [person, $person] = defineComponent<any, any>(({ slots }) => {
-      div();
-      slots.default();
-      $div();
-    });
-
-    person();
-    hSlot('default', () => {
-      div();
-      $div();
-    });
-    $person();
-
-    const container = document.createElement('div');
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe(
-      `<!--component start--><div><div></div></div><!--component end-->`
     );
   });
 

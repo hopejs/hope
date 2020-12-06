@@ -1,6 +1,9 @@
 export * from './basic';
 export * from './collect';
 export * from './lifecycle';
+export * from './component/event';
+export * from './component/slot';
+export * from './component/prop';
 export {
   nextTick,
   queueJob,

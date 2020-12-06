@@ -9,9 +9,11 @@ import { getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
 import { outsideError } from './outsideError';
 import { autoUpdate } from '../autoUpdate';
+import { isBetweenStartAndEnd } from '../defineComponent';
+import { cantUseError } from './cantUseError';
 
 export function hShow(value: any | (() => any)) {
-  // TODO: 该指令不允许在组件中使用
+  if (__DEV__ && isBetweenStartAndEnd()) return cantUseError('hShow');
 
   const currentElement = getCurrentElement();
   if (__DEV__ && !currentElement) return outsideError('hShow');

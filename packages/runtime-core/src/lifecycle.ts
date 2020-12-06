@@ -43,8 +43,8 @@ export function callElementUnmounted(handlers: SchedulerCbs) {
 }
 
 /**
- * 当前是否在组件中。
+ * 当前能够使用组件的生命周期函数
  */
-export function inComponent(): boolean {
+export function canUseLifecycle(): boolean {
   return !!currentLifecycle;
 }

@@ -101,6 +101,11 @@ export function getFragment() {
   return fragment;
 }
 
+export function clearFragmentChildren() {
+  const container = createElement('div');
+  mount(container);
+}
+
 export function getContainer() {
   return getCurrentElement() || getCurrntBlockFragment() || getFragment();
 }

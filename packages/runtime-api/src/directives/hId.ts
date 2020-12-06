@@ -3,9 +3,11 @@ import { isFunction } from '@hopejs/shared';
 import { setAttribute } from '@hopejs/renderer';
 import { outsideError } from './outsideError';
 import { autoUpdate } from '../autoUpdate';
+import { isBetweenStartAndEnd } from '../defineComponent';
+import { cantUseError } from './cantUseError';
 
 export function hId(value: string | (() => string)) {
-  // TODO: 该指令不允许在组件中使用
+  if (__DEV__ && isBetweenStartAndEnd()) return cantUseError('hId');
 
   const currentElement = getCurrentElement();
   if (__DEV__ && !currentElement) return outsideError('hId');

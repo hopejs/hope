@@ -1,10 +1,7 @@
-import { reactive } from '@hopejs/reactivity';
-import { getCurrentElement } from '@hopejs/runtime-core';
+import { getComponentProps, getCurrentElement } from '@hopejs/runtime-core';
 import { isFunction } from '@hopejs/shared';
 import { autoUpdate } from '../autoUpdate';
 import { outsideError } from './outsideError';
-
-let componentProps: Record<string, any> | null;
 
 export function hProp<K extends keyof HTMLElementTagNameMap>(
   key: keyof HTMLElementTagNameMap[K],
@@ -21,7 +18,7 @@ export function hProp<T extends object>(
 export function hProp(key: any, value: unknown | (() => unknown)) {
   // 组件运行的时候会设置该值，此时说明 hProp 指令
   // 运行在组件内，用以向组件传递 prop。
-  if (componentProps) {
+  if (getComponentProps()) {
     return processComponentProps(key, value);
   }
 
@@ -35,23 +32,11 @@ export function hProp(key: any, value: unknown | (() => unknown)) {
   }
 }
 
-export function setComponentProps() {
-  componentProps = reactive({});
-}
-
-export function resetComponentProps() {
-  componentProps = null;
-}
-
-export function getComponentProps() {
-  return componentProps;
-}
-
 function processComponentProps(key: any, value: unknown | (() => unknown)) {
+  const props = getComponentProps();
   if (isFunction(value)) {
-    const props = componentProps;
     autoUpdate(() => (props![key] = value()));
   } else {
-    componentProps![key] = value;
+    props![key] = value;
   }
 }
