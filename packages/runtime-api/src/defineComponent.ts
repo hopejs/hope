@@ -17,11 +17,11 @@ import {
   getSlots,
   resetSlots,
   setSlots,
+  setQueueAddScope,
 } from '@hopejs/runtime-core';
 import { isString, isObject, getLast, isElement } from '@hopejs/shared';
 import { isReactive, reactive } from '@hopejs/reactivity';
 import { mount } from './render';
-import { setQueueAddScope } from './tags';
 import { onUnmounted } from './lifecycle';
 
 interface ComponentOptions<

@@ -4,6 +4,7 @@ export * from './lifecycle';
 export * from './component/event';
 export * from './component/slot';
 export * from './component/prop';
+export * from './component/scopeId';
 export {
   nextTick,
   queueJob,

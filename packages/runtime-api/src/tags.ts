@@ -1,41 +1,16 @@
-import { setAttribute } from '@hopejs/renderer';
-import { start, end, getCurrentElement } from '@hopejs/runtime-core';
-import { Attrs } from './directives/hAttr';
+import { start, end, addScopeId } from '@hopejs/runtime-core';
+import { Attrs, hAttr } from './directives/hAttr';
 
-export type QueueAddScope = Function[];
+export const [div, $div] = makeTag('div');
+export const [span, $span] = makeTag('span');
 
-let queueAddScope: QueueAddScope | undefined;
-
-// TODO: 支持 attr
-
-export function div(attr?: Attrs) {
-  start('div');
-  addScopeId();
-}
-
-export function $div() {
-  end();
-}
-
-export function span(attr?: Attrs) {
-  start('span');
-  addScopeId();
-}
-
-export function $span() {
-  end();
-}
-
-export function setQueueAddScope(value: QueueAddScope | undefined) {
-  queueAddScope = value;
-}
-
-function addScopeId() {
-  if (!queueAddScope) return;
-  const el = getCurrentElement();
-  // 添加到一个队列，延迟执行，目的是为了在定义组件时
-  // style 函数可以在组件中的任何位置使用。
-  queueAddScope.push((scopeId: string) => {
-    scopeId && setAttribute(el!, scopeId, '');
-  });
+function makeTag(tagName: any): [(attrs?: Attrs) => void, () => void] {
+  return [
+    (attrs?: Attrs) => {
+      start(tagName);
+      attrs && hAttr(attrs);
+      addScopeId();
+    },
+    end,
+  ];
 }
