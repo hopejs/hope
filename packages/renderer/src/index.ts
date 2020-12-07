@@ -1,4 +1,5 @@
 export * from './createElement';
+export * from './createElementNS';
 export * from './createFragment';
 export * from './setAttribute';
 export * from './addEventListener';
