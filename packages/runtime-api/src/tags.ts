@@ -10,8 +10,10 @@ export type QueueAddScope = Function[];
 
 let queueAddScope: QueueAddScope | undefined;
 
+// TODO: 支持 attr
+
 export function div(attr?: StaticAttr) {
-  start('div', attr);
+  start('div');
   addScopeId();
 }
 
@@ -20,7 +22,7 @@ export function $div() {
 }
 
 export function span(attr?: StaticAttr) {
-  start('span', attr);
+  start('span');
   addScopeId();
 }
 

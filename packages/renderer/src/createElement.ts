@@ -14,6 +14,5 @@ export function createElement(
   options?: ElementCreationOptions
 ): HTMLElement;
 export function createElement(tag: any, options?: ElementCreationOptions) {
-  // TODO: 判断 svg 标签
   return getDocument().createElement(tag, options);
 }

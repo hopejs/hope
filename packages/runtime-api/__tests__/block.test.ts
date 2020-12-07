@@ -1,6 +1,16 @@
 import { reactive } from '@hopejs/reactivity';
-import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
-import { delay, LIFECYCLE_KEYS } from '@hopejs/shared';
+import { createElement } from '@hopejs/renderer';
+import {
+  clearFragmentChildren,
+  end,
+  getCurrentElement,
+  getCurrntBlockFragment,
+  HopeElement,
+  isSVG,
+  nextTick,
+  start,
+} from '@hopejs/runtime-core';
+import { delay, LIFECYCLE_KEYS, NS } from '@hopejs/shared';
 import { $div, $span, block, div, hText, mount, span } from '../src';
 
 describe('block', () => {
@@ -177,6 +187,70 @@ describe('block', () => {
     // @ts-ignore
     expect(typeof Array.from(el2[LIFECYCLE_KEYS.elementUnmounted])[0]).toBe(
       'function'
+    );
+  });
+
+  it('with isSVG', () => {
+    block(() => {
+      expect(isSVG('')).toBe(false);
+      expect(getCurrntBlockFragment()!._isSVG).toBe(false);
+    });
+
+    start('svg');
+    block(() => {
+      expect(isSVG('')).toBe(true);
+      expect(getCurrntBlockFragment()!._isSVG).toBe(true);
+    });
+    end();
+  });
+
+  it('dynamic & isSVG', async () => {
+    clearFragmentChildren();
+    const state = reactive({ show: true });
+
+    start('svg');
+    block(() => {
+      if (state.show) {
+        start('foreignObject');
+        expect(isSVG('')).toBe(false);
+        expect(getCurrntBlockFragment()!._isSVG).toBe(true);
+        expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
+        end();
+      } else {
+        start('foreignObject');
+        start('div');
+        expect(isSVG('')).toBe(false);
+        expect(getCurrntBlockFragment()!._isSVG).toBe(true);
+        expect(getCurrentElement()!.namespaceURI).toBe(NS.XHTML);
+        end();
+        end();
+      }
+    });
+    end();
+
+    const container = createElement('div');
+    mount(container);
+    await delay();
+    expect(container.innerHTML).toBe(
+      '<svg><!--block start--><foreignObject></foreignObject><!--block end--></svg>'
+    );
+
+    state.show = false;
+    await nextTick();
+    expect(container.innerHTML).toBe(
+      '<svg><!--block start--><foreignObject><div></div></foreignObject><!--block end--></svg>'
+    );
+
+    state.show = true;
+    await nextTick();
+    expect(container.innerHTML).toBe(
+      '<svg><!--block start--><foreignObject></foreignObject><!--block end--></svg>'
+    );
+
+    state.show = false;
+    await nextTick();
+    expect(container.innerHTML).toBe(
+      '<svg><!--block start--><foreignObject><div></div></foreignObject><!--block end--></svg>'
     );
   });
 });

@@ -1,5 +1,10 @@
-import { createElement, createFragment, appendChild } from '@hopejs/renderer';
-import { getLast, isElement, LIFECYCLE_KEYS } from '@hopejs/shared';
+import {
+  createElement,
+  createFragment,
+  appendChild,
+  createElementNS,
+} from '@hopejs/renderer';
+import { getLast, isElement, LIFECYCLE_KEYS, NS } from '@hopejs/shared';
 
 /**
  * 标签元素中的静态属性参数
@@ -13,6 +18,7 @@ export type BlockFragment = DocumentFragment & {
   // 个数为 0 ，所以需要在子 fragment 中记录下父元素的
   // rootElement ，以便可以正常的收集 effect。
   _parentBlockRootElement: HopeElement;
+  _isSVG: boolean;
 };
 export type HopeElement = Element & {
   [LIFECYCLE_KEYS.unmounted]?: Set<(() => any)[]>;
@@ -27,21 +33,22 @@ const blockFragmentStack: BlockFragment[] = [];
 const fragment = createFragment();
 let blockFragment: BlockFragment | undefined;
 
-export function start<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  attr?: StaticAttr
-): void;
+const tagNameStack: string[] = [];
+
+export function start<K extends keyof HTMLElementTagNameMap>(tag: K): void;
 /** @deprecated */
 export function start<K extends keyof HTMLElementDeprecatedTagNameMap>(
-  tag: K,
-  attr?: StaticAttr
+  tag: K
 ): void;
-export function start<K extends keyof SVGElementTagNameMap>(
-  tag: K,
-  attr?: StaticAttr
-): void;
-export function start(tag: string, attr?: StaticAttr): void {
-  currentElement = createElement(tag);
+export function start<K extends keyof SVGElementTagNameMap>(tag: K): void;
+export function start(tag: string): void {
+  currentElement = isSVG(tag)
+    ? createElementNS(NS.SVG, tag)
+    : createElement(tag);
+
+  // 需放在 createElement 之后
+  tagNameStack.push(tag);
+
   appendElement();
   if (blockFragment) {
     blockFragment._elementStack.push(currentElement);
@@ -51,6 +58,7 @@ export function start(tag: string, attr?: StaticAttr): void {
 }
 
 export function end() {
+  tagNameStack.pop();
   if (blockFragment) {
     const stack = blockFragment._elementStack;
     stack.pop();
@@ -77,6 +85,7 @@ export function getCurrntBlockFragment() {
 export function createBlockFragment() {
   const result = createFragment() as BlockFragment;
   result._elementStack = [];
+  result._isSVG = isSVG('');
   return result;
 }
 
@@ -110,6 +119,26 @@ export function getContainer() {
   return getCurrentElement() || getCurrntBlockFragment() || getFragment();
 }
 
+export function getTagNameStack() {
+  return tagNameStack;
+}
+
+export function isSVG(tagName: string) {
+  if (tagName === 'svg') return true;
+  const tagNameStack = getTagNameStack();
+  let length = tagNameStack.length;
+
+  while (length--) {
+    if (tagNameStack[length] === 'foreignObject') return false;
+    if (tagNameStack[length] === 'svg') return true;
+  }
+
+  // 如果一个元素在一个 block 中，则会在 fragment 中保存
+  // 其子元素是否为 svg 的状态，以便在动态更新时获取正确的状态值。
+  const currentBlockFragment = getCurrntBlockFragment();
+  return currentBlockFragment ? currentBlockFragment._isSVG : false;
+}
+
 function appendElement() {
   if (!currentElement) return;
   if (blockFragment) {
@@ -136,8 +165,8 @@ function appendBlockElement() {
 /**
  * 获取在 block 中新生成的元素的父元素，
  * 注意当存在组件时，会往 stack 中 push
- * 一个占位符节点，用以保存 effect 和 生命周期
- * 钩子，该节点不能作为父节点，所以要判断一下。
+ * 一个占位符节点，用以保存生命周期钩子，
+ * 该节点不能作为父节点，所以要判断一下。
  * @param stack
  */
 function getBlockCurrentParent(stack: Node[]) {
