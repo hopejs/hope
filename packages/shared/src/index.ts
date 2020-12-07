@@ -73,6 +73,13 @@ export function logWarn(warn: string) {
   console.warn(`[Hope warn]: ${warn}`);
 }
 
+export function forEachObj<T extends object, K extends keyof T>(
+  obj: T,
+  cb: (value: T[K], key: string) => void
+) {
+  Object.keys(obj).forEach((key) => cb(obj[key as K], key));
+}
+
 /**
  * 将一个 css 文件中的选择器替换为带有指定 scopeId 的版本
  * @param css

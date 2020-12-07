@@ -55,7 +55,7 @@ describe('defineComponent', () => {
     });
 
     person();
-    hProp('name', () => p.name);
+    hProp({ name: () => p.name });
     $person();
 
     const container = document.createElement('div');
@@ -110,7 +110,7 @@ describe('defineComponent', () => {
       div();
       $div();
       com();
-      hProp('a', () => 'b');
+      hProp({ a: () => 'b' });
       $com();
     });
     const container = document.createElement('div');

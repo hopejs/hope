@@ -31,7 +31,7 @@ describe('hProp', () => {
 
   it('basic', () => {
     div();
-    hProp(KEY, '123');
+    hProp({ [KEY]: '123' });
     // @ts-ignore
     expect(getCurrentElement()[KEY]).toBe(`123`);
     $div();
@@ -41,7 +41,7 @@ describe('hProp', () => {
     const state = reactive({ name: 'a' });
 
     div();
-    hProp(KEY, () => state.name);
+    hProp({ [KEY]: () => state.name });
     const el = getCurrentElement();
     // @ts-ignore
     expect(el[KEY]).toBe(`a`);
@@ -53,11 +53,34 @@ describe('hProp', () => {
     expect(el[KEY]).toBe(`b`);
   });
 
+  it('reactivity object', async () => {
+    const props = reactive({ [KEY]: 'a' });
+
+    div();
+    hProp(props);
+    const el = getCurrentElement();
+    // @ts-ignore
+    expect(el[KEY]).toBe(`a`);
+    $div();
+
+    props[KEY] = 'b';
+    await nextTick();
+    // @ts-ignore
+    expect(el[KEY]).toBe(`b`);
+
+    // @ts-ignore
+    // 应该新增一个 id 属性
+    props._abc = 'c';
+    await nextTick();
+    // @ts-ignore
+    expect(el._abc).toBe(`c`);
+  });
+
   it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hProp(KEY, () => 'name');
+      hProp({ [KEY]: () => 'name' });
       el = getCurrentElement()!;
       $div();
     });
@@ -70,7 +93,7 @@ describe('hProp', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hProp(KEY, 'name');
+      hProp({ [KEY]: 'name' });
       el = getCurrentElement()!;
       $div();
     });
@@ -86,7 +109,7 @@ describe('hProp', () => {
     let startPlaceholder: HopeElement;
     block(() => {
       testComponent();
-      hProp('a', () => 'a');
+      hProp({ a: () => 'a' });
       startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
       $testComponent();
     });
@@ -106,7 +129,7 @@ describe('hProp', () => {
     let startPlaceholder: HopeElement;
     block(() => {
       testComponent();
-      hProp('b', 'b');
+      hProp({ b: 'b' });
       startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
       $testComponent();
     });

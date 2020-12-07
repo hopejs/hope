@@ -6,7 +6,7 @@ import { LIFECYCLE_KEYS } from '@hopejs/shared';
 describe('hAttr', () => {
   it('basic', () => {
     div();
-    hAttr('abc', 'abc');
+    hAttr({ abc: 'abc' });
     expect(getCurrentElement()?.outerHTML).toBe(`<div abc="abc"></div>`);
     $div();
   });
@@ -15,7 +15,7 @@ describe('hAttr', () => {
     const state = reactive({ name: 'a' });
 
     div();
-    hAttr('abc', () => state.name);
+    hAttr({ abc: () => state.name });
     const el = getCurrentElement();
     expect(el?.outerHTML).toBe(`<div abc="a"></div>`);
     $div();
@@ -25,11 +25,31 @@ describe('hAttr', () => {
     expect(el?.outerHTML).toBe(`<div abc="b"></div>`);
   });
 
+  it('reactivity object', async () => {
+    const attr = reactive({ class: 'a' });
+
+    div();
+    hAttr(attr);
+    const el = getCurrentElement();
+    expect(el?.outerHTML).toBe(`<div class="a"></div>`);
+    $div();
+
+    attr.class = 'b';
+    await nextTick();
+    expect(el?.outerHTML).toBe(`<div class="b"></div>`);
+
+    // @ts-ignore
+    // 应该新增一个 id 属性
+    attr.id = 'c';
+    await nextTick();
+    expect(el?.outerHTML).toBe(`<div class="b" id="c"></div>`);
+  });
+
   it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hAttr('class', () => 'name');
+      hAttr({ class: () => 'name' });
       el = getCurrentElement()!;
       $div();
     });
@@ -42,7 +62,7 @@ describe('hAttr', () => {
     let el: HopeElement;
     block(() => {
       div();
-      hAttr('class', 'name');
+      hAttr({ class: 'name' });
       el = getCurrentElement()!;
       $div();
     });

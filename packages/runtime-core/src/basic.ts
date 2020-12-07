@@ -6,17 +6,13 @@ import {
 } from '@hopejs/renderer';
 import { getLast, isElement, LIFECYCLE_KEYS, NS } from '@hopejs/shared';
 
-/**
- * 标签元素中的静态属性参数
- */
-export type StaticAttr = Record<string, string>;
 export type BlockFragment = DocumentFragment & {
   _elementStack: HopeElement[];
   _parent: BlockFragment | undefined;
 
   // 在更新阶段，blockFragment._elementStack 中的元素
   // 个数为 0 ，所以需要在子 fragment 中记录下父元素的
-  // rootElement ，以便可以正常的收集 effect。
+  // rootElement ，以便可以正常的收集。
   _parentBlockRootElement: HopeElement;
   _isSVG: boolean;
 };

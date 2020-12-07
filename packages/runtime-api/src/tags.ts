@@ -1,10 +1,6 @@
 import { setAttribute } from '@hopejs/renderer';
-import {
-  StaticAttr,
-  start,
-  end,
-  getCurrentElement,
-} from '@hopejs/runtime-core';
+import { start, end, getCurrentElement } from '@hopejs/runtime-core';
+import { Attrs } from './directives/hAttr';
 
 export type QueueAddScope = Function[];
 
@@ -12,7 +8,7 @@ let queueAddScope: QueueAddScope | undefined;
 
 // TODO: 支持 attr
 
-export function div(attr?: StaticAttr) {
+export function div(attr?: Attrs) {
   start('div');
   addScopeId();
 }
@@ -21,7 +17,7 @@ export function $div() {
   end();
 }
 
-export function span(attr?: StaticAttr) {
+export function span(attr?: Attrs) {
   start('span');
   addScopeId();
 }

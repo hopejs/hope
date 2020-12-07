@@ -99,7 +99,7 @@ describe('lifecycle', () => {
       block(() => {
         if (state.show) {
           com();
-          hProp('text', () => state.text);
+          hProp({ text: () => state.text });
           $com();
         }
       });
@@ -112,7 +112,7 @@ describe('lifecycle', () => {
         block(() => {
           if (state.show) {
             com();
-            hProp('text', () => state.text);
+            hProp({ text: () => state.text });
             $com();
           }
         });
@@ -126,7 +126,7 @@ describe('lifecycle', () => {
         div();
         if (state.show) {
           com();
-          hProp('text', () => state.text);
+          hProp({ text: () => state.text });
           $com();
         }
         $div();
@@ -141,7 +141,7 @@ describe('lifecycle', () => {
         $div();
         if (state.show) {
           com();
-          hProp('text', () => state.text);
+          hProp({ text: () => state.text });
           $com();
         }
       });
@@ -151,7 +151,7 @@ describe('lifecycle', () => {
       block(() => {
         if (state.show) {
           com();
-          hProp('text', () => state.text);
+          hProp({ text: () => state.text });
           $com();
         }
         div();
@@ -167,7 +167,7 @@ describe('lifecycle', () => {
           block(() => {
             if (state.show) {
               com();
-              hProp('text', () => state.text);
+              hProp({ text: () => state.text });
               $com();
             }
           });
@@ -182,7 +182,7 @@ describe('lifecycle', () => {
         if (state.show) {
           block(() => {
             com();
-            hProp('text', () => state.text);
+            hProp({ text: () => state.text });
             $com();
           });
         }
@@ -195,7 +195,7 @@ describe('lifecycle', () => {
           block(() => {
             div();
             com();
-            hProp('text', () => state.text);
+            hProp({ text: () => state.text });
             $com();
             $div();
           });
@@ -210,7 +210,7 @@ describe('lifecycle', () => {
             div();
             $div();
             com();
-            hProp('text', () => state.text);
+            hProp({ text: () => state.text });
             $com();
           });
         }
@@ -222,7 +222,7 @@ describe('lifecycle', () => {
         if (state.show) {
           block(() => {
             com();
-            hProp('text', () => state.text);
+            hProp({ text: () => state.text });
             $com();
             div();
             $div();
@@ -238,7 +238,7 @@ describe('lifecycle', () => {
           $div();
           block(() => {
             com();
-            hProp('text', () => state.text);
+            hProp({ text: () => state.text });
             $com();
           });
         }
@@ -251,7 +251,7 @@ describe('lifecycle', () => {
           div();
           block(() => {
             com();
-            hProp('text', () => state.text);
+            hProp({ text: () => state.text });
             $com();
           });
           $div();
@@ -265,7 +265,7 @@ describe('lifecycle', () => {
         if (state.show) {
           block(() => {
             com();
-            hProp('text', () => state.text);
+            hProp({ text: () => state.text });
             $com();
           });
         }
