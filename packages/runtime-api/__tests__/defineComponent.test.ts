@@ -11,6 +11,7 @@ import {
   hOn,
   block,
 } from '../src';
+import { isBetweenStartAndEnd } from '../src/defineComponent';
 
 describe('defineComponent', () => {
   it('basic', async () => {
@@ -155,6 +156,27 @@ describe('defineComponent', () => {
     await delay();
     expect(container2.innerHTML).toBe(
       `<!--block start--><div><!--block start--><div></div><!--block end--><!--component start--><div></div><!--component end--></div><!--block end-->`
+    );
+  });
+
+  it('isBetweenStartAndEnd', async () => {
+    const [com, $com] = defineComponent<any, any>(() => {
+      div();
+      $div();
+    });
+
+    expect(isBetweenStartAndEnd()).toBe(false);
+    com();
+    expect(isBetweenStartAndEnd()).toBe(true);
+    $com();
+    expect(isBetweenStartAndEnd()).toBe(false);
+
+    const container = document.createElement('div');
+    mount(container);
+    await delay();
+
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div></div><!--component end-->'
     );
   });
 });

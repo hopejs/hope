@@ -1,4 +1,5 @@
 import { reactive } from '@hopejs/reactivity';
+import { canUseLifecycle } from '@hopejs/runtime-core';
 import { delay } from '@hopejs/shared';
 import {
   $div,
@@ -38,7 +39,13 @@ describe('lifecycle', () => {
       // 需放在元素的开始标签和结束标签之间
       onElementUnmounted(elementUnmounted);
       $div();
+
+      // 在定义组件时可以使用生命周期函数
+      expect(canUseLifecycle()).toBe(true);
     });
+
+    // 在外面时不能使用生命周期函数
+    expect(canUseLifecycle()).toBe(false);
 
     render(com, $com, state);
 

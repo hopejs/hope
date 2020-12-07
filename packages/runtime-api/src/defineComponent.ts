@@ -71,10 +71,10 @@ const componentCssRuleId: Record<string, number | undefined> = {};
 let betweenStartAndEnd = false;
 
 export function defineComponent<P, S>(
-  render: (options: ComponentOptions<P, S>) => any
+  setup: (options: ComponentOptions<P, S>) => any
 ): Component<P, S>;
 export function defineComponent<P, S>(
-  render: (options: any) => any
+  setup: (options: any) => any
 ): Component<P, S> {
   let result: Component<P, S>;
 
@@ -82,7 +82,7 @@ export function defineComponent<P, S>(
   const startTag = () => {
     const container = getContainer();
     const startPlaceholder = createPlaceholder(
-      `${render.name || 'component'} start`
+      `${setup.name || 'component'} start`
     );
     appendChild(container, startPlaceholder);
     pushStartToBlockFragment(startPlaceholder);
@@ -138,7 +138,7 @@ export function defineComponent<P, S>(
     });
 
     componentCssRuleId[componentId] = 0;
-    render({ props, slots, emit });
+    setup({ props, slots, emit });
 
     popStartFromBlockFragment();
     flushQueueAddScope();
@@ -147,11 +147,11 @@ export function defineComponent<P, S>(
     cidStack.pop();
     dsidStack.pop();
 
-    // 必须放在 render 函数之后
+    // 必须放在 setup 函数之后
     resetLifecycleHandlers();
 
     const endPlaceholder: any = createPlaceholder(
-      `${render.name || 'component'} end`
+      `${setup.name || 'component'} end`
     );
     const container = getContainer();
     appendChild(container, endPlaceholder);
