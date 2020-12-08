@@ -80,6 +80,14 @@ export function forEachObj<T extends object, K extends keyof T>(
   Object.keys(obj).forEach((key) => cb(obj[key as K], key));
 }
 
+export function once(fn: Function & { _hasRun?: boolean }) {
+  return (...arg: any[]) => {
+    if (fn._hasRun) return;
+    fn(...arg);
+    fn._hasRun = true;
+  };
+}
+
 /**
  * 将一个 css 文件中的选择器替换为带有指定 scopeId 的版本
  * @param css

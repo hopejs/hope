@@ -1,6 +1,6 @@
 import { addEventListener } from '@hopejs/renderer';
 import { getComponentOn, getCurrentElement } from '@hopejs/runtime-core';
-import { isFunction } from '@hopejs/shared';
+import { isFunction, once } from '@hopejs/shared';
 import { outsideError } from './outsideError';
 
 type Modifier = 'capture' | 'once' | 'passive' | string;
@@ -70,7 +70,11 @@ function processComponentOn(type: string, modifier: any, listener?: any) {
   if (isFunction(modifier)) {
     componentOn![type] = modifier;
   } else {
-    // TODO: 组件事件的修饰符
-    componentOn![type] = listener;
+    modifier = normalizeOptions(modifier);
+    if (modifier.once) {
+      componentOn![type] = once(listener);
+    } else {
+      componentOn![type] = listener;
+    }
   }
 }
