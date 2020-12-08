@@ -108,7 +108,7 @@ state.className = 'hope'
 
 ### hProp
 
-直接设置 DOM 元素对象的属性，于 hAttr 不同。此指令也可以用在组件中。
+直接设置 DOM 元素对象的属性，与 hAttr 不同。此指令也可以用在组件中。
 
 **用法示例：**
 
@@ -228,19 +228,6 @@ $div()
 
 mount(document.body)
 ```
-3，自动添加前缀
-
-在 hStyle 中使用需要 (浏览器引擎前缀) [vendor prefixes](https://developer.mozilla.org/en-US/docs/Glossary/Vendor_Prefix) 的 CSS property 时，如 transform，Hopejs 将自动侦测并添加相应的前缀。
-
-4，多重值
-
-```js
-div()
-  hStyle({ display: ['-webkit-box', '-ms-flexbox', 'flex'] })
-$div()
-```
-
-这样写只会渲染数组中最后一个被浏览器支持的值。在本例中，如果浏览器支持不带浏览器前缀的 flexbox，那么就只会渲染 display: flex。
 
 ### hId
 
