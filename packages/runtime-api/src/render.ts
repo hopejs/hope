@@ -1,7 +1,6 @@
 import { isElement, isString, logError } from '@hopejs/shared';
-import { mount as coreMount } from '@hopejs/runtime-core';
+import { mount as coreMount, flushPostFlushCbs } from '@hopejs/runtime-core';
 import { querySelector } from '@hopejs/renderer';
-import { flushPostFlushCbs } from '@hopejs/runtime-core';
 
 export function mount(containerOrSelector: string | Element) {
   const container = normalizeContainer(containerOrSelector);

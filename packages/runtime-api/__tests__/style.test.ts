@@ -85,4 +85,4 @@ describe('style', () => {
 });
 
 // TODO: 测试 CSSMediaRule 和 CSSKeyframesRule
-// 需要等到做完兼容苹果浏览器。
+// 目前 jest 的 jsdom 中的 CSSOM 模块还不支持 CSSGroupingRule API
