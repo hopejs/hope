@@ -61,7 +61,7 @@ const { div, $div, hText, reactive } = Hope
 const state = reactive({ text: 'hello hope!' })
 
 div()
-  // hText 的值必须是函数，并返回一个用 reactive 创建的响应式对象
+  // 写成函数的形式可以变成响应式的
   hText(() => state.text)
 $div()
 
@@ -72,7 +72,7 @@ mount(document.body)
 state.text = 'hello world!'
 ```
 
-如上所示，指令函数的参数必须是一个返回响应式对象（也就是用 reactive 创建的对象）的函数，UI 才会是响应式的！
+如上所示，指令函数的参数必须是一个函数，且在函数内部需操作响应式对象（也就是用 reactive 创建的对象） UI 才会是响应式的！
 
 ### hAttr
 
