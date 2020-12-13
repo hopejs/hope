@@ -75,7 +75,7 @@ function processComponentOn(eventName: string, modifier: any, listener?: any) {
     componentOn![eventName] = modifier;
   } else {
     modifier = normalizeOptions(modifier);
-    if (modifier.once) {
+    if (modifier?.once) {
       componentOn![eventName] = once(listener);
     } else {
       componentOn![eventName] = listener;

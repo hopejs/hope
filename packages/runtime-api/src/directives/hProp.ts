@@ -44,19 +44,11 @@ export function hProp(props: any) {
 
 function processComponentProps(props: any) {
   const componentProps = getComponentProps();
-  if (isReactive(props)) {
-    autoUpdate(() =>
-      forEachObj(props, (value, key) => {
-        componentProps![key as string] = value;
-      })
-    );
-  } else {
-    forEachObj(props, (value, key) => {
-      if (isFunction(value)) {
-        autoUpdate(() => (componentProps![key as string] = value()));
-      } else {
-        componentProps![key as string] = value;
-      }
-    });
-  }
+  forEachObj(props, (value, key) => {
+    if (isFunction(value)) {
+      autoUpdate(() => (componentProps![key as string] = value()));
+    } else {
+      componentProps![key as string] = value;
+    }
+  });
 }

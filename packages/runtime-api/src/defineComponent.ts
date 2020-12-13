@@ -19,18 +19,28 @@ import {
   setSlots,
   setQueueAddScope,
 } from '@hopejs/runtime-core';
-import { isString, isObject, getLast, isElement } from '@hopejs/shared';
+import {
+  isString,
+  isObject,
+  getLast,
+  isElement,
+  forEachObj,
+  isOn,
+  parseEventName,
+} from '@hopejs/shared';
 import { isReactive, reactive } from '@hopejs/reactivity';
 import { mount } from './render';
 import { onUnmounted } from './lifecycle';
+import { hOn } from './directives/hOn';
+import { hProp } from './directives/hProp';
 
 interface ComponentOptions<
   P = Record<string, any>,
   S = Record<string, (props: object) => any>
 > {
-  props?: P;
-  slots?: S;
-  emit?(type: string, ...arg: any[]): any;
+  props: P;
+  slots: S;
+  emit(type: string, ...arg: any[]): any;
 }
 
 type MountOptions<P, S> = {
@@ -40,10 +50,12 @@ type MountOptions<P, S> = {
   on?: Record<string, (...arg: any[]) => any>;
 };
 
-export type ComponentStartTag = (...arg: any[]) => any;
+export type ComponentStartTag<P> = (
+  props?: { [K in keyof P]?: P[K] | (() => P[K]) } & Record<string, any>
+) => any;
 export type ComponentEndTag = (...arg: any[]) => any;
 
-type Component<P = any, S = any> = [ComponentStartTag, ComponentEndTag] & {
+type Component<P = any, S = any> = [ComponentStartTag<P>, ComponentEndTag] & {
   mount: (options: MountOptions<P, S> | string | Element) => any;
 };
 
@@ -72,11 +84,9 @@ let betweenStartAndEnd = false;
 
 export function defineComponent<P, S>(
   setup: (options: ComponentOptions<P, S>) => any
-): Component<P, S> {
-  let result: Component<P, S>;
-
+) {
   cid++;
-  const startTag = () => {
+  const startTag = (props?: any) => {
     const container = getContainer();
     const startPlaceholder = createPlaceholder(
       `${setup.name || 'component'} start`
@@ -87,6 +97,15 @@ export function defineComponent<P, S>(
     setComponentProps();
     setComponentOn();
     betweenStartAndEnd = true;
+    props &&
+      forEachObj(props as any, (value, key: string) => {
+        if (isOn(key)) {
+          const eventName = parseEventName(key);
+          hOn(eventName.name, eventName.modifier, value);
+        } else {
+          hProp(props);
+        }
+      });
   };
   startTag.cid = cid;
 
@@ -156,7 +175,7 @@ export function defineComponent<P, S>(
     incrementComponentInstanceCount(componentId);
   };
 
-  result = [startTag, endTag] as any;
+  const result: Component<P, S> = [startTag, endTag] as any;
 
   result.mount = (options: MountOptions<P, S> | string | Element): P => {
     if (isString(options) || isElement(options)) {

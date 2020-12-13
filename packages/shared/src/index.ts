@@ -40,8 +40,9 @@ export {
 /** { onClick$once: () => {} } */
 export function parseEventName(name: string) {
   const arr = name.split('$');
+  const eventName = arr[0].slice(2);
   return {
-    name: arr[0].slice(2).toLowerCase(),
+    name: `${eventName[0].toLowerCase()}${eventName.slice(1)}`,
     modifier: arr.slice(1),
   };
 }

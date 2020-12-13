@@ -960,8 +960,9 @@ var Hope = (function (exports) {
     /** { onClick$once: () => {} } */
     function parseEventName(name) {
         const arr = name.split('$');
+        const eventName = arr[0].slice(2);
         return {
-            name: arr[0].slice(2).toLowerCase(),
+            name: `${eventName[0].toLowerCase()}${eventName.slice(1)}`,
             modifier: arr.slice(1),
         };
     }
@@ -1637,7 +1638,7 @@ var Hope = (function (exports) {
         }
         else {
             modifier = normalizeOptions(modifier);
-            if (modifier.once) {
+            if (modifier?.once) {
                 componentOn[eventName] = once(listener);
             }
             else {
@@ -1826,6 +1827,47 @@ var Hope = (function (exports) {
         return null;
     }
 
+    function outsideError(keyword) {
+        logError(`${keyword} 指令应该放在标签函数内部使用。`);
+    }
+
+    function hProp(props) {
+        // 组件运行的时候会设置该值，此时说明 hProp 指令
+        // 运行在组件内，用以向组件传递 prop。
+        if (getComponentProps()) {
+            return processComponentProps(props);
+        }
+        const currentElement = getCurrentElement();
+        if ( !currentElement)
+            return outsideError('hProp');
+        if (isReactive(props)) {
+            autoUpdate(() => forEachObj(props, (value, key) => {
+                currentElement[key] = value;
+            }));
+        }
+        else {
+            forEachObj(props, (value, key) => {
+                if (isFunction(value)) {
+                    autoUpdate(() => (currentElement[key] = value()));
+                }
+                else {
+                    currentElement[key] = value;
+                }
+            });
+        }
+    }
+    function processComponentProps(props) {
+        const componentProps = getComponentProps();
+        forEachObj(props, (value, key) => {
+            if (isFunction(value)) {
+                autoUpdate(() => (componentProps[key] = value()));
+            }
+            else {
+                componentProps[key] = value;
+            }
+        });
+    }
+
     // dynamic style id
     // 每渲染一次组件就会自增一下
     let dsid = 0;
@@ -1840,9 +1882,8 @@ var Hope = (function (exports) {
     const componentCssRuleId = {};
     let betweenStartAndEnd = false;
     function defineComponent(setup) {
-        let result;
         cid++;
-        const startTag = () => {
+        const startTag = (props) => {
             const container = getContainer();
             const startPlaceholder = createPlaceholder(`${setup.name || 'component'} start`);
             appendChild(container, startPlaceholder);
@@ -1851,6 +1892,16 @@ var Hope = (function (exports) {
             setComponentProps();
             setComponentOn();
             betweenStartAndEnd = true;
+            props &&
+                forEachObj(props, (value, key) => {
+                    if (isOn(key)) {
+                        const eventName = parseEventName(key);
+                        hOn(eventName.name, eventName.modifier, value);
+                    }
+                    else {
+                        hProp(props);
+                    }
+                });
         };
         startTag.cid = cid;
         const endTag = (options = {}) => {
@@ -1899,7 +1950,7 @@ var Hope = (function (exports) {
             appendChild(container, endPlaceholder);
             incrementComponentInstanceCount(componentId);
         };
-        result = [startTag, endTag];
+        const result = [startTag, endTag];
         result.mount = (options) => {
             if (isString(options) || isElement(options)) {
                 options = { target: options, props: reactive({}) };
@@ -2016,10 +2067,6 @@ var Hope = (function (exports) {
         logError(`${keyword} 指令不能在组件上使用。`);
     }
 
-    function outsideError(keyword) {
-        logError(`${keyword} 指令应该放在标签函数内部使用。`);
-    }
-
     function hAttr(attrs) {
         if ( isBetweenStartAndEnd())
             return cantUseError('hAttr');
@@ -2038,50 +2085,6 @@ var Hope = (function (exports) {
                 }
                 else {
                     setAttribute(currentElement, name, value);
-                }
-            });
-        }
-    }
-
-    function hProp(props) {
-        // 组件运行的时候会设置该值，此时说明 hProp 指令
-        // 运行在组件内，用以向组件传递 prop。
-        if (getComponentProps()) {
-            return processComponentProps(props);
-        }
-        const currentElement = getCurrentElement();
-        if ( !currentElement)
-            return outsideError('hProp');
-        if (isReactive(props)) {
-            autoUpdate(() => forEachObj(props, (value, key) => {
-                currentElement[key] = value;
-            }));
-        }
-        else {
-            forEachObj(props, (value, key) => {
-                if (isFunction(value)) {
-                    autoUpdate(() => (currentElement[key] = value()));
-                }
-                else {
-                    currentElement[key] = value;
-                }
-            });
-        }
-    }
-    function processComponentProps(props) {
-        const componentProps = getComponentProps();
-        if (isReactive(props)) {
-            autoUpdate(() => forEachObj(props, (value, key) => {
-                componentProps[key] = value;
-            }));
-        }
-        else {
-            forEachObj(props, (value, key) => {
-                if (isFunction(value)) {
-                    autoUpdate(() => (componentProps[key] = value()));
-                }
-                else {
-                    componentProps[key] = value;
                 }
             });
         }
