@@ -97,6 +97,8 @@ var Hope = (function (exports) {
     const EMPTY_OBJ =  Object.freeze({})
         ;
     const EMPTY_ARR =  Object.freeze([]) ;
+    const onRE = /^on[^a-z]/;
+    const isOn = (key) => onRE.test(key);
     const extend = Object.assign;
     const hasOwnProperty = Object.prototype.hasOwnProperty;
     const hasOwn = (val, key) => hasOwnProperty.call(val, key);
@@ -869,11 +871,20 @@ var Hope = (function (exports) {
     }
 
     function setAttribute(el, name, value) {
-        if (value !== undefined) {
+        if (value != null) {
             el.setAttribute(name, value);
         }
         else {
             el.removeAttribute(name);
+        }
+    }
+
+    function setAttributeNS(el, namespace, name, value) {
+        if (value != null) {
+            el.setAttributeNS(namespace, name, value);
+        }
+        else {
+            el.removeAttributeNS(namespace, name);
         }
     }
 
@@ -944,7 +955,43 @@ var Hope = (function (exports) {
     (function (NS) {
         NS["SVG"] = "http://www.w3.org/2000/svg";
         NS["XHTML"] = "http://www.w3.org/1999/xhtml";
+        NS["XLINK"] = "http://www.w3.org/1999/xlink";
     })(NS || (NS = {}));
+    /** { onClick$once: () => {} } */
+    function parseEventName(name) {
+        const arr = name.split('$');
+        return {
+            name: arr[0].slice(2).toLowerCase(),
+            modifier: arr.slice(1),
+        };
+    }
+    /**
+     * 动态的值是表示写成函数的形式，或者其字段是函数的形式
+     * @param value
+     */
+    function isDynamic(value) {
+        if (isFunction(value))
+            return true;
+        if (isArray(value)) {
+            for (let i = 0; i < value.length; i++) {
+                if (isDynamic(value[i]))
+                    return true;
+            }
+            return false;
+        }
+        if (isObject(value)) {
+            const keys = Object.keys(value);
+            for (let i = 0; i < keys.length; i++) {
+                if (isFunction(value[keys[i]])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    function isSVGElement(el) {
+        return el instanceof SVGElement;
+    }
     function isMediaRule(value) {
         if (value.type === CSSRULE_TYPES.MEDIA_RULE)
             return true;
@@ -970,6 +1017,8 @@ var Hope = (function (exports) {
         console.error(`[Hope error]: ${err}`);
     }
     function forEachObj(obj, cb) {
+        if (!obj)
+            return;
         Object.keys(obj).forEach((key) => cb(obj[key], key));
     }
     function once(fn) {
@@ -1011,7 +1060,7 @@ var Hope = (function (exports) {
     let blockFragment;
     const tagNameStack = [];
     function start(tag) {
-        currentElement = isSVG(tag)
+        currentElement = shouldAsSVG(tag)
             ? createElementNS(NS.SVG, tag)
             : createElement(tag);
         // 需放在 createElement 之后
@@ -1049,7 +1098,8 @@ var Hope = (function (exports) {
     function createBlockFragment() {
         const result = createFragment();
         result._elementStack = [];
-        result._isSVG = isSVG('');
+        // 表示在 block 中创建的元素是否是 svg
+        result._shouldAsSVG = shouldAsSVG('');
         return result;
     }
     function setBlockFragment(value) {
@@ -1077,7 +1127,7 @@ var Hope = (function (exports) {
     function getTagNameStack() {
         return tagNameStack;
     }
-    function isSVG(tagName) {
+    function shouldAsSVG(tagName) {
         if (tagName === 'svg')
             return true;
         const tagNameStack = getTagNameStack();
@@ -1091,7 +1141,7 @@ var Hope = (function (exports) {
         // 如果一个元素在一个 block 中，则会在 fragment 中保存
         // 其子元素是否为 svg 的状态，以便在动态更新时获取正确的状态值。
         const currentBlockFragment = getCurrntBlockFragment();
-        return currentBlockFragment ? currentBlockFragment._isSVG : false;
+        return currentBlockFragment ? currentBlockFragment._shouldAsSVG : false;
     }
     function appendElement() {
         if (!currentElement)
@@ -1515,6 +1565,241 @@ var Hope = (function (exports) {
         onElementUnmounted(() => stop(ef));
     }
 
+    function hClass(value) {
+        const currentElement = getCurrentElement();
+        if (isDynamic(value)) {
+            autoUpdate(() => setAttribute(currentElement, 'class', normalizeClass(getStaticVersion(isFunction(value) ? value() : value)) ||
+                undefined));
+        }
+        else {
+            setAttribute(currentElement, 'class', normalizeClass(value) || undefined);
+        }
+    }
+    function getStaticVersion(obj) {
+        if (isArray(obj))
+            return obj.map((item) => getStaticVersion(item));
+        if (isObject(obj)) {
+            const result = {};
+            forEachObj(obj, (value, key) => {
+                if (isFunction(value)) {
+                    result[key] = value();
+                }
+                else {
+                    result[key] = value;
+                }
+            });
+            return result;
+        }
+        return obj;
+    }
+
+    function hOn(eventName, modifier, listener) {
+        if (getComponentOn()) {
+            return processComponentOn(eventName, modifier, listener);
+        }
+        const currentElement = getCurrentElement();
+        if (isFunction(modifier)) {
+            addEventListener(currentElement, eventName, modifier);
+        }
+        else {
+            addEventListener(currentElement, eventName, listener, normalizeOptions(modifier));
+        }
+    }
+    function normalizeOptions(modifier) {
+        let result = {};
+        let arr;
+        if (isArray(modifier)) {
+            arr = modifier;
+        }
+        else {
+            arr = modifier
+                .split(' ')
+                .map((v) => v.trim())
+                .filter((v) => v);
+        }
+        if (arr.length === 0)
+            return;
+        for (let i = 0; i < arr.length; i++) {
+            const k = arr[i];
+            if (k === 'capture') {
+                return true;
+            }
+            else {
+                result[k] = true;
+            }
+        }
+        return result;
+    }
+    function processComponentOn(eventName, modifier, listener) {
+        const componentOn = getComponentOn();
+        if (isFunction(modifier)) {
+            componentOn[eventName] = modifier;
+        }
+        else {
+            modifier = normalizeOptions(modifier);
+            if (modifier.once) {
+                componentOn[eventName] = once(listener);
+            }
+            else {
+                componentOn[eventName] = listener;
+            }
+        }
+    }
+
+    function hStyle(value) {
+        const style = getCurrentElement().style;
+        if (isFunction(value)) {
+            autoUpdate(() => forEachObj(normalizeStyle(value()), (v, key) => {
+                style[key] = isFunction(v) ? v() : v;
+            }));
+        }
+        else {
+            forEachObj(normalizeStyle(value), (v, key) => {
+                if (isFunction(v)) {
+                    autoUpdate(() => (style[key] = v()));
+                }
+                else {
+                    style[key] = v;
+                }
+            });
+        }
+    }
+
+    const [div, $div] = makeTag('div');
+    const [span, $span] = makeTag('span');
+    function makeTag(tagName) {
+        return [
+            (attrsOrProps) => {
+                start(tagName);
+                attrsOrProps && processAttrsOrProps(attrsOrProps);
+                addScopeId();
+            },
+            end,
+        ];
+    }
+    function processAttrsOrProps(attrsOrProps) {
+        forEachObj(attrsOrProps, (value, key) => {
+            switch (key) {
+                case 'class':
+                    processClass(value);
+                    break;
+                case 'style':
+                    processStyle(value);
+                    break;
+                default:
+                    if (isOn(key)) {
+                        processEvent(value, parseEventName(key));
+                    }
+                    else {
+                        prosessAttrOrProp(value, key);
+                    }
+                    break;
+            }
+        });
+    }
+    function processClass(value) {
+        hClass(value);
+    }
+    function processStyle(value) {
+        hStyle(value);
+    }
+    function processEvent(listener, eventName) {
+        hOn(eventName.name, eventName.modifier, listener);
+    }
+    function prosessAttrOrProp(value, key) {
+        const el = getCurrentElement();
+        if (shouldSetAsProp(el, key, isFunction(value) ? value() : value)) {
+            autoUpdate(() => prosessProps(el, isFunction(value) ? value() : value, key));
+        }
+        else {
+            autoUpdate(() => prosessAtrrs(el, isFunction(value) ? value() : value, key));
+        }
+    }
+    function prosessAtrrs(el, value, key) {
+        if (isSVGElement(el) && key.startsWith('xlink:')) {
+            setAttributeNS(el, NS.XLINK, key, value);
+        }
+        else {
+            setAttribute(el, key, value);
+        }
+    }
+    function prosessProps(el, value, key) {
+        if (key === 'innerHTML' || key === 'textContent') {
+            // TODO: stop 子元素的 effect
+            el[key] = value == null ? '' : value;
+            return;
+        }
+        if (key === 'value' && el.tagName !== 'PROGRESS') {
+            const newValue = value == null ? '' : value;
+            if (el[key] !== newValue) {
+                el[key] = newValue;
+            }
+            return;
+        }
+        if (value == null) {
+            if (typeof el[key] === 'string') {
+                el[key] = '';
+                // 没有值就是删除
+                setAttribute(el, key);
+                return;
+            }
+            if (typeof el[key] === 'number') {
+                el[key] = 0;
+                setAttribute(el, key);
+                return;
+            }
+        }
+        // some properties perform value validation and throw
+        try {
+            el[key] = value;
+        }
+        catch (e) {
+            {
+                logError(`Failed setting prop "${key}" on <${el.tagName.toLowerCase()}>: ` +
+                    `value ${value} is invalid.`);
+            }
+        }
+    }
+    // from https://github.com/vuejs/vue-next/blob/07559e5dd7e392c415d098f75ab4dee03065302e/packages/runtime-dom/src/patchProp.ts#L67
+    function shouldSetAsProp(el, key, value) {
+        const nativeOnRE = /^on[a-z]/;
+        if (isSVGElement(el)) {
+            // most keys must be set as attribute on svg elements to work
+            // ...except innerHTML
+            if (key === 'innerHTML') {
+                return true;
+            }
+            // or native onclick with function values
+            if (key in el && nativeOnRE.test(key) && isFunction(value)) {
+                return true;
+            }
+            return false;
+        }
+        // spellcheck and draggable are numerated attrs, however their
+        // corresponding DOM properties are actually booleans - this leads to
+        // setting it with a string "false" value leading it to be coerced to
+        // `true`, so we need to always treat them as attributes.
+        // Note that `contentEditable` doesn't have this problem: its DOM
+        // property is also enumerated string values.
+        if (key === 'spellcheck' || key === 'draggable') {
+            return false;
+        }
+        // #1787 form as an attribute must be a string, while it accepts an Element as
+        // a prop
+        if (key === 'form' && typeof value === 'string') {
+            return false;
+        }
+        // #1526 <input list> must be set as attribute
+        if (key === 'list' && el.tagName === 'INPUT') {
+            return false;
+        }
+        // native onclick with string value, must be set as attribute
+        if (nativeOnRE.test(key) && isString(value)) {
+            return false;
+        }
+        return key in el;
+    }
+
     function mount$1(containerOrSelector) {
         const container = normalizeContainer(containerOrSelector);
         if (container) {
@@ -1758,19 +2043,6 @@ var Hope = (function (exports) {
         }
     }
 
-    const [div, $div] = makeTag('div');
-    const [span, $span] = makeTag('span');
-    function makeTag(tagName) {
-        return [
-            (attrs) => {
-                start(tagName);
-                attrs && hAttr(attrs);
-                addScopeId();
-            },
-            end,
-        ];
-    }
-
     function hProp(props) {
         // 组件运行的时候会设置该值，此时说明 hProp 指令
         // 运行在组件内，用以向组件传递 prop。
@@ -1812,81 +2084,6 @@ var Hope = (function (exports) {
                     componentProps[key] = value;
                 }
             });
-        }
-    }
-
-    function hOn(type, modifier, listener) {
-        if (getComponentOn()) {
-            return processComponentOn(type, modifier, listener);
-        }
-        const currentElement = getCurrentElement();
-        if ( !currentElement)
-            return outsideError('hOn');
-        if (isFunction(modifier)) {
-            addEventListener(currentElement, type, modifier);
-        }
-        else {
-            addEventListener(currentElement, type, listener, normalizeOptions(modifier));
-        }
-    }
-    function normalizeOptions(modifier) {
-        let result = {};
-        const arr = modifier
-            .split(' ')
-            .map((v) => v.trim())
-            .filter((v) => v);
-        for (let i = 0; i < arr.length; i++) {
-            const k = arr[i];
-            if (k === 'capture') {
-                return true;
-            }
-            else {
-                result[k] = true;
-            }
-        }
-        return result;
-    }
-    function processComponentOn(type, modifier, listener) {
-        const componentOn = getComponentOn();
-        if (isFunction(modifier)) {
-            componentOn[type] = modifier;
-        }
-        else {
-            modifier = normalizeOptions(modifier);
-            if (modifier.once) {
-                componentOn[type] = once(listener);
-            }
-            else {
-                componentOn[type] = listener;
-            }
-        }
-    }
-
-    function hClass(value) {
-        if ( isBetweenStartAndEnd())
-            return cantUseError('hClass');
-        const currentElement = getCurrentElement();
-        if ( !currentElement)
-            return outsideError('hClass');
-        if (isFunction(value)) {
-            autoUpdate(() => setAttribute(currentElement, 'class', normalizeClass(value()) || undefined));
-        }
-        else {
-            setAttribute(currentElement, 'class', normalizeClass(value) || undefined);
-        }
-    }
-
-    function hStyle(value) {
-        if ( isBetweenStartAndEnd())
-            return cantUseError('hStyle');
-        const currentElement = getCurrentElement();
-        if ( !currentElement)
-            return outsideError('hStyle');
-        if (isFunction(value)) {
-            autoUpdate(() => setAttribute(currentElement, 'style', stringifyStyle(normalizeStyle(value()))));
-        }
-        else {
-            setAttribute(currentElement, 'style', stringifyStyle(normalizeStyle(value)));
         }
     }
 
@@ -2111,15 +2308,6 @@ var Hope = (function (exports) {
     function getCurrentIsDynamicObject(componentId) {
         return (isDynamicOfComponentCssRule[componentId] ||
             (isDynamicOfComponentCssRule[componentId] = {}));
-    }
-    function isDynamic(style) {
-        const keys = Object.keys(style);
-        for (let i = 0; i < keys.length; i++) {
-            if (isFunction(style[keys[i]])) {
-                return true;
-            }
-        }
-        return false;
     }
     function setCssRule(cssRule, style) {
         const cssRuleStyle = cssRule.style;

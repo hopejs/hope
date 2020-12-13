@@ -72,9 +72,6 @@ let betweenStartAndEnd = false;
 
 export function defineComponent<P, S>(
   setup: (options: ComponentOptions<P, S>) => any
-): Component<P, S>;
-export function defineComponent<P, S>(
-  setup: (options: any) => any
 ): Component<P, S> {
   let result: Component<P, S>;
 

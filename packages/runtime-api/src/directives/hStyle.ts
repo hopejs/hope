@@ -1,36 +1,29 @@
-import { setAttribute } from '@hopejs/renderer';
 import { getCurrentElement } from '@hopejs/runtime-core';
-import { isFunction, normalizeStyle, stringifyStyle } from '@hopejs/shared';
-import { outsideError } from './outsideError';
+import { forEachObj, isFunction, normalizeStyle } from '@hopejs/shared';
 import { autoUpdate } from '../autoUpdate';
-import { isBetweenStartAndEnd } from '../defineComponent';
-import { cantUseError } from './cantUseError';
 
 type CSSStyle<T = CSSStyleDeclaration> = {
-  [P in keyof T]?: any;
+  [P in keyof T]?: any | (() => any);
 };
 type CSSStyleValue = CSSStyle | CSSStyle[];
 
 export function hStyle(value: CSSStyleValue | (() => CSSStyleValue)): void;
 export function hStyle(value: any) {
-  if (__DEV__ && isBetweenStartAndEnd()) return cantUseError('hStyle');
-
-  const currentElement = getCurrentElement();
-  if (__DEV__ && !currentElement) return outsideError('hStyle');
+  const style = (getCurrentElement() as HTMLElement | SVGElement).style;
 
   if (isFunction(value)) {
     autoUpdate(() =>
-      setAttribute(
-        currentElement!,
-        'style',
-        stringifyStyle(normalizeStyle(value()))
-      )
+      forEachObj(normalizeStyle(value())!, (v: any, key) => {
+        style[key as any] = isFunction(v) ? v() : v;
+      })
     );
   } else {
-    setAttribute(
-      currentElement!,
-      'style',
-      stringifyStyle(normalizeStyle(value))
-    );
+    forEachObj(normalizeStyle(value)!, (v: any, key) => {
+      if (isFunction(v)) {
+        autoUpdate(() => (style[key as any] = v()));
+      } else {
+        style[key as any] = v;
+      }
+    });
   }
 }

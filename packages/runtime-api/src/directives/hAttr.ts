@@ -20,15 +20,15 @@ export function hAttr(attrs: Attrs) {
   if (isReactive(attrs)) {
     autoUpdate(() =>
       forEachObj(attrs, (value, name) => {
-        setAttribute(currentElement!, name, value as string);
+        setAttribute(currentElement!, name as string, value as string);
       })
     );
   } else {
     forEachObj(attrs, (value, name) => {
       if (isFunction(value)) {
-        autoUpdate(() => setAttribute(currentElement!, name, value()));
+        autoUpdate(() => setAttribute(currentElement!, name as string, value()));
       } else {
-        setAttribute(currentElement!, name, value);
+        setAttribute(currentElement!, name as string, value);
       }
     });
   }

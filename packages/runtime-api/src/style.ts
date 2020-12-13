@@ -5,6 +5,7 @@ import {
 } from '@hopejs/runtime-core';
 import {
   addScopeForSelector,
+  isDynamic,
   isFunction,
   logError,
   stringifyStyle,
@@ -144,16 +145,6 @@ function getCurrentIsDynamicObject(componentId: string) {
     isDynamicOfComponentCssRule[componentId] ||
     (isDynamicOfComponentCssRule[componentId] = {})
   );
-}
-
-function isDynamic(style: Functional<CSSStyleDeclaration>) {
-  const keys = Object.keys(style);
-  for (let i = 0; i < keys.length; i++) {
-    if (isFunction(style[keys[i] as any])) {
-      return true;
-    }
-  }
-  return false;
 }
 
 function setCssRule(

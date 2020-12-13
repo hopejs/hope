@@ -2,6 +2,7 @@ export * from './createElement';
 export * from './createElementNS';
 export * from './createFragment';
 export * from './setAttribute';
+export * from './setAttributeNS';
 export * from './addEventListener';
 export * from './removeEventListener';
 export * from './createComment';

@@ -6,7 +6,7 @@ import {
   getCurrentElement,
   getCurrntBlockFragment,
   HopeElement,
-  isSVG,
+  shouldAsSVG,
   nextTick,
   start,
 } from '@hopejs/runtime-core';
@@ -190,21 +190,21 @@ describe('block', () => {
     );
   });
 
-  it('with isSVG', () => {
+  it('with shouldAsSVG', () => {
     block(() => {
-      expect(isSVG('')).toBe(false);
-      expect(getCurrntBlockFragment()!._isSVG).toBe(false);
+      expect(shouldAsSVG('')).toBe(false);
+      expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(false);
     });
 
     start('svg');
     block(() => {
-      expect(isSVG('')).toBe(true);
-      expect(getCurrntBlockFragment()!._isSVG).toBe(true);
+      expect(shouldAsSVG('')).toBe(true);
+      expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
     });
     end();
   });
 
-  it('dynamic & isSVG', async () => {
+  it('dynamic & shouldAsSVG', async () => {
     clearFragmentChildren();
     const state = reactive({ show: true });
 
@@ -212,15 +212,15 @@ describe('block', () => {
     block(() => {
       if (state.show) {
         start('foreignObject');
-        expect(isSVG('')).toBe(false);
-        expect(getCurrntBlockFragment()!._isSVG).toBe(true);
+        expect(shouldAsSVG('')).toBe(false);
+        expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
         expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
         end();
       } else {
         start('foreignObject');
         start('div');
-        expect(isSVG('')).toBe(false);
-        expect(getCurrntBlockFragment()!._isSVG).toBe(true);
+        expect(shouldAsSVG('')).toBe(false);
+        expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
         expect(getCurrentElement()!.namespaceURI).toBe(NS.XHTML);
         end();
         end();

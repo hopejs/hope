@@ -1,42 +1,39 @@
 import { addEventListener } from '@hopejs/renderer';
 import { getComponentOn, getCurrentElement } from '@hopejs/runtime-core';
-import { isFunction, once } from '@hopejs/shared';
-import { outsideError } from './outsideError';
+import { isArray, isFunction, once } from '@hopejs/shared';
 
 type Modifier = 'capture' | 'once' | 'passive' | string;
 
 export function hOn<K extends keyof ElementEventMap>(
-  type: K,
+  eventName: K,
   listener: (this: Element, ev: ElementEventMap[K]) => any
 ): void;
 export function hOn<K extends keyof ElementEventMap>(
-  type: K,
-  modifier: Modifier,
+  eventName: K,
+  modifier: Modifier[] | Modifier,
   listener: (this: Element, ev: ElementEventMap[K]) => any
 ): void;
 export function hOn(
-  type: string,
+  eventName: string,
   listener: EventListenerOrEventListenerObject | ((...arg: any[]) => void)
 ): void;
 export function hOn(
-  type: string,
-  modifier: Modifier,
+  eventName: string,
+  modifier: Modifier[] | Modifier,
   listener: EventListenerOrEventListenerObject | ((...arg: any[]) => void)
 ): void;
-export function hOn(type: string, modifier: any, listener?: any) {
+export function hOn(eventName: string, modifier: any, listener?: any) {
   if (getComponentOn()) {
-    return processComponentOn(type, modifier, listener);
+    return processComponentOn(eventName, modifier, listener);
   }
 
   const currentElement = getCurrentElement();
-  if (__DEV__ && !currentElement) return outsideError('hOn');
-
   if (isFunction(modifier)) {
-    addEventListener(currentElement!, type, modifier);
+    addEventListener(currentElement!, eventName, modifier);
   } else {
     addEventListener(
       currentElement!,
-      type,
+      eventName,
       listener,
       normalizeOptions(modifier)
     );
@@ -44,13 +41,20 @@ export function hOn(type: string, modifier: any, listener?: any) {
 }
 
 function normalizeOptions(
-  modifier: Modifier
-): boolean | AddEventListenerOptions {
+  modifier: Modifier[] | Modifier
+): boolean | AddEventListenerOptions | undefined {
   let result: any = {};
-  const arr = modifier
-    .split(' ')
-    .map((v) => v.trim())
-    .filter((v) => v);
+  let arr;
+  if (isArray(modifier)) {
+    arr = modifier;
+  } else {
+    arr = modifier
+      .split(' ')
+      .map((v) => v.trim())
+      .filter((v) => v);
+  }
+
+  if (arr.length === 0) return;
 
   for (let i = 0; i < arr.length; i++) {
     const k = arr[i];
@@ -64,17 +68,17 @@ function normalizeOptions(
   return result;
 }
 
-function processComponentOn(type: string, modifier: any, listener?: any) {
+function processComponentOn(eventName: string, modifier: any, listener?: any) {
   const componentOn = getComponentOn();
 
   if (isFunction(modifier)) {
-    componentOn![type] = modifier;
+    componentOn![eventName] = modifier;
   } else {
     modifier = normalizeOptions(modifier);
     if (modifier.once) {
-      componentOn![type] = once(listener);
+      componentOn![eventName] = once(listener);
     } else {
-      componentOn![type] = listener;
+      componentOn![eventName] = listener;
     }
   }
 }

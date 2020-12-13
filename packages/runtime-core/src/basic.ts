@@ -14,7 +14,7 @@ export type BlockFragment = DocumentFragment & {
   // 个数为 0 ，所以需要在子 fragment 中记录下父元素的
   // rootElement ，以便可以正常的收集。
   _parentBlockRootElement: HopeElement;
-  _isSVG: boolean;
+  _shouldAsSVG: boolean;
 };
 export type HopeElement = Element & {
   [LIFECYCLE_KEYS.unmounted]?: Set<(() => any)[]>;
@@ -31,14 +31,8 @@ let blockFragment: BlockFragment | undefined;
 
 const tagNameStack: string[] = [];
 
-export function start<K extends keyof HTMLElementTagNameMap>(tag: K): void;
-/** @deprecated */
-export function start<K extends keyof HTMLElementDeprecatedTagNameMap>(
-  tag: K
-): void;
-export function start<K extends keyof SVGElementTagNameMap>(tag: K): void;
-export function start(tag: string): void {
-  currentElement = isSVG(tag)
+export function start<T extends string>(tag: T): void {
+  currentElement = shouldAsSVG(tag)
     ? createElementNS(NS.SVG, tag)
     : createElement(tag);
 
@@ -81,7 +75,8 @@ export function getCurrntBlockFragment() {
 export function createBlockFragment() {
   const result = createFragment() as BlockFragment;
   result._elementStack = [];
-  result._isSVG = isSVG('');
+  // 表示在 block 中创建的元素是否是 svg
+  result._shouldAsSVG = shouldAsSVG('');
   return result;
 }
 
@@ -119,7 +114,7 @@ export function getTagNameStack() {
   return tagNameStack;
 }
 
-export function isSVG(tagName: string) {
+export function shouldAsSVG(tagName: string) {
   if (tagName === 'svg') return true;
   const tagNameStack = getTagNameStack();
   let length = tagNameStack.length;
@@ -132,7 +127,7 @@ export function isSVG(tagName: string) {
   // 如果一个元素在一个 block 中，则会在 fragment 中保存
   // 其子元素是否为 svg 的状态，以便在动态更新时获取正确的状态值。
   const currentBlockFragment = getCurrntBlockFragment();
-  return currentBlockFragment ? currentBlockFragment._isSVG : false;
+  return currentBlockFragment ? currentBlockFragment._shouldAsSVG : false;
 }
 
 function appendElement() {

@@ -1,3 +1,5 @@
+import { isFunction, isArray, isObject } from '@vue/shared';
+
 enum CSSRULE_TYPES {
   CHARSET_RULE = 2,
   FONT_FACE_RULE = 5,
@@ -21,6 +23,7 @@ export enum LIFECYCLE_KEYS {
 export enum NS {
   SVG = 'http://www.w3.org/2000/svg',
   XHTML = 'http://www.w3.org/1999/xhtml',
+  XLINK = 'http://www.w3.org/1999/xlink',
 }
 
 export {
@@ -31,7 +34,48 @@ export {
   normalizeClass,
   normalizeStyle,
   stringifyStyle,
+  isOn,
 } from '@vue/shared';
+
+/** { onClick$once: () => {} } */
+export function parseEventName(name: string) {
+  const arr = name.split('$');
+  return {
+    name: arr[0].slice(2).toLowerCase(),
+    modifier: arr.slice(1),
+  };
+}
+
+/**
+ * 动态的值是表示写成函数的形式，或者其字段是函数的形式
+ * @param value
+ */
+export function isDynamic(value: any) {
+  if (isFunction(value)) return true;
+  if (isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      if (isDynamic(value[i])) return true;
+    }
+    return false;
+  }
+  if (isObject(value)) {
+    const keys = Object.keys(value);
+    for (let i = 0; i < keys.length; i++) {
+      if (isFunction(value[keys[i] as any])) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+export function isSVGElement(el: Element): el is SVGElement {
+  return el instanceof SVGElement;
+}
+
+export function isHTMLElement(el: Element): el is HTMLElement {
+  return el instanceof HTMLElement;
+}
 
 export function isMediaRule(value: any): value is CSSMediaRule {
   if (value.type === CSSRULE_TYPES.MEDIA_RULE) return true;
@@ -75,9 +119,10 @@ export function logWarn(warn: string) {
 
 export function forEachObj<T extends object, K extends keyof T>(
   obj: T,
-  cb: (value: T[K], key: string) => void
+  cb: (value: T[K], key: K) => void
 ) {
-  Object.keys(obj).forEach((key) => cb(obj[key as K], key));
+  if (!obj) return;
+  (Object.keys(obj) as K[]).forEach((key) => cb(obj[key], key));
 }
 
 export function once(fn: Function & { _hasRun?: boolean }) {

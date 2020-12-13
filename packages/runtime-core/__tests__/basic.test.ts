@@ -3,7 +3,7 @@ import {
   end,
   getCurrentElement,
   getFragment,
-  isSVG,
+  shouldAsSVG,
   mount,
   start,
 } from '../src';
@@ -33,20 +33,20 @@ describe('start & end & mount', () => {
     expect(container.innerHTML).toBe('<div><span></span></div>');
   });
 
-  it('isSVG', () => {
+  it('shouldAsSVG', () => {
     start('div');
-    expect(isSVG('')).toBe(false);
+    expect(shouldAsSVG('')).toBe(false);
     expect(getCurrentElement()!.namespaceURI).toBe(NS.XHTML);
     end();
 
     start('svg');
-    expect(isSVG('')).toBe(true);
+    expect(shouldAsSVG('')).toBe(true);
     expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
     end();
 
     start('svg');
     start('foreignObject');
-    expect(isSVG('')).toBe(false);
+    expect(shouldAsSVG('')).toBe(false);
     expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
     end();
     end();
@@ -54,7 +54,7 @@ describe('start & end & mount', () => {
     start('svg');
     start('foreignObject');
     start('div');
-    expect(isSVG('')).toBe(false);
+    expect(shouldAsSVG('')).toBe(false);
     expect(getCurrentElement()!.namespaceURI).toBe(NS.XHTML);
     end();
     end();
@@ -64,7 +64,7 @@ describe('start & end & mount', () => {
     start('foreignObject');
     start('div');
     start('svg');
-    expect(isSVG('')).toBe(true);
+    expect(shouldAsSVG('')).toBe(true);
     expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
     end();
     end();
@@ -76,7 +76,7 @@ describe('start & end & mount', () => {
     start('div');
     start('svg');
     start('foreignObject');
-    expect(isSVG('')).toBe(false);
+    expect(shouldAsSVG('')).toBe(false);
     expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
     end();
     end();

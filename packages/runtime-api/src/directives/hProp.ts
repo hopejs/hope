@@ -47,15 +47,15 @@ function processComponentProps(props: any) {
   if (isReactive(props)) {
     autoUpdate(() =>
       forEachObj(props, (value, key) => {
-        componentProps![key] = value;
+        componentProps![key as string] = value;
       })
     );
   } else {
     forEachObj(props, (value, key) => {
       if (isFunction(value)) {
-        autoUpdate(() => (componentProps![key] = value()));
+        autoUpdate(() => (componentProps![key as string] = value()));
       } else {
-        componentProps![key] = value;
+        componentProps![key as string] = value;
       }
     });
   }

@@ -8,7 +8,7 @@ describe('hStyle', () => {
     div();
     hStyle({ color: 'red' });
     const el = getCurrentElement();
-    expect(el?.outerHTML).toBe(`<div style="color:red;"></div>`);
+    expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
     $div();
   });
 
@@ -19,7 +19,7 @@ describe('hStyle', () => {
     hStyle([obj1, obj2]);
     const el = getCurrentElement();
     expect(el?.outerHTML).toBe(
-      `<div style="color:red;background-color:red;"></div>`
+      `<div style="color: red; background-color: red;"></div>`
     );
     $div();
   });
@@ -30,12 +30,12 @@ describe('hStyle', () => {
     div();
     hStyle(() => ({ color: color.value }));
     const el = getCurrentElement();
-    expect(el?.outerHTML).toBe(`<div style="color:red;"></div>`);
+    expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
     $div();
 
     color.value = 'blue';
     await nextTick();
-    expect(el?.outerHTML).toBe(`<div style="color:blue;"></div>`);
+    expect(el?.outerHTML).toBe(`<div style="color: blue;"></div>`);
   });
 
   it('elementUnmounted', () => {
