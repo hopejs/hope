@@ -26,7 +26,7 @@ type TagName = keyof (HTMLElementTagNameMap & SVGElementTagNameMap);
 
 type AttrsOrProps<
   K extends keyof (HTMLElementTagNameMap & SVGElementTagNameMap)
-> = Attrs & Props<(HTMLElementTagNameMap & SVGElementTagNameMap)[K]>;
+> = Attrs | Props<(HTMLElementTagNameMap & SVGElementTagNameMap)[K]>;
 
 export const [div, $div] = makeTag('div');
 export const [span, $span] = makeTag('span');

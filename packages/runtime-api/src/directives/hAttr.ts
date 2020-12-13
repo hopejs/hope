@@ -6,10 +6,22 @@ import { autoUpdate } from '../autoUpdate';
 import { isBetweenStartAndEnd } from '../defineComponent';
 import { cantUseError } from './cantUseError';
 import { outsideError } from './outsideError';
+import { CSSStyleValue } from './hStyle';
 
-export type Attrs = {
-  [key: string]: string | (() => string);
-};
+export type Attrs =
+  | {
+      [key: string]: string | (() => string);
+    }
+  | {
+      class?:
+        | string
+        | (() => string)
+        | Record<string, boolean | (() => boolean)>
+        | (() => Record<string, boolean | (() => boolean)>)
+        | Record<string, boolean | (() => boolean)>[]
+        | (() => Record<string, boolean | (() => boolean)>[]);
+      style?: CSSStyleValue | (() => CSSStyleValue);
+    };
 
 export function hAttr(attrs: Attrs) {
   if (__DEV__ && isBetweenStartAndEnd()) return cantUseError('hAttr');
@@ -26,9 +38,11 @@ export function hAttr(attrs: Attrs) {
   } else {
     forEachObj(attrs, (value, name) => {
       if (isFunction(value)) {
-        autoUpdate(() => setAttribute(currentElement!, name as string, value()));
+        autoUpdate(() =>
+          setAttribute(currentElement!, name as string, value() as any)
+        );
       } else {
-        setAttribute(currentElement!, name as string, value);
+        setAttribute(currentElement!, name as string, value as any);
       }
     });
   }

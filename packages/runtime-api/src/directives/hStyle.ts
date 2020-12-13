@@ -2,10 +2,12 @@ import { getCurrentElement } from '@hopejs/runtime-core';
 import { forEachObj, isFunction, normalizeStyle } from '@hopejs/shared';
 import { autoUpdate } from '../autoUpdate';
 
-type CSSStyle<T = CSSStyleDeclaration> = {
-  [P in keyof T]?: any | (() => any);
+export type CSSStyle = {
+  [P in keyof CSSStyleDeclaration]?:
+    | CSSStyleDeclaration[P]
+    | (() => CSSStyleDeclaration[P]);
 };
-type CSSStyleValue = CSSStyle | CSSStyle[];
+export type CSSStyleValue = CSSStyle | CSSStyle[];
 
 export function hStyle(value: CSSStyleValue | (() => CSSStyleValue)): void;
 export function hStyle(value: any) {
