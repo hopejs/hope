@@ -34,396 +34,246 @@ $div()
 
 怎么样，是不是很相似？这是我故意模仿 html 的语法设计的，便于使用者的理解，降低学习成本。
 
-## 指令
+## 用 JavaScript 编写 HTML
 
-指令是用来设置 DOM 元素的属性和事件的一系列函数，用户还可以通过 hopejs 暴露出来的 API 自定义指令函数。指令只能在开始标签函数和闭合标签函数中间使用，如上面 hello world 示例中的 hText。
+用 js 写 HTML 的好处是可以实现模块化，响应式，组件化开发页面，相比 HTML 更灵活。虽然有这些好处，但如何用 js 写 HTML 是个难题。可以用函数传参的形式，类似于虚拟 DOM 中的 h 函数。
 
-**目前的指令有：**
+```js
+// 描述一个 div 元素
+h('div', props, ...children);
+```
 
-### hText
+如上所示，单个函数的形式可以完备的描述一个 DOM 树的整体结构，但当 DOM 树比较复杂时，这种写法的可读性比较低，写起来也不方便，对习惯了 HTML 语法的初学者来说不是很友好。
 
-用来生成文本节点的指令。
-
-**用法示例：**
+于是我想到了下面的这种类似于 HTML 语法的写法。
 
 ```js
 const { div, $div, hText } = Hope
 
+// 描述一个 div 元素
 div()
-  hText('hello hope!')
+  hText('hello')
 $div()
-
-mount(document.body)
-```
-**响应式示例：**
-```js
-const { div, $div, hText, reactive } = Hope
-const state = reactive({ text: 'hello hope!' })
-
-div()
-  // 写成函数的形式可以变成响应式的
-  hText(() => state.text)
-$div()
-
-mount(document.body)
-
-// 重新更改状态值 UI 会自动高效更新，
-// 其响应式原理请看 https://github.com/vuejs/vue-next/tree/master/packages/reactivity
-state.text = 'hello world!'
 ```
 
-如上所示，指令函数的参数必须是一个函数，且在函数内部需操作响应式对象（也就是用 reactive 创建的对象） UI 才会是响应式的！
+上面的这种写法比较类似于 HTML 的语法，有“开始标签”和“结束标签”，并且还可以在“标签”之间写其它的元素，如下所示：
 
-### hAttr
-
-使用 `setAttribute` 设置 DOM 元素的属性。
-
-**用法示例：**
 ```js
-const { div, $div, hAttr } = Hope
-
+// 描述一个拥有一个 span 子元素的 div 元素
 div()
-  hAttr({ class: 'class-name' })
+  span()
+  $span()
 $div()
 
-mount(document.body)
+// HTML 版本
+<div>
+  <span>
+  </span>
+</div>
 ```
 
-**响应式示例：**
+通过上面简单的比较，可以发现这种写法像 HTML 的写法，所以对习惯 HTML 语法的初学者来说比较容易入门，在写复杂的 DOM 结构的时候也会像 HTML 一样富有层次感。以后还会支持**自动缩进**和**语法补全**（通过 vscode 插件支持）。
+
+### HTML attribute 和 DOM property
+
+如何设置元素的 class 或者 DOM 的属性呢？
+
+请看下面的例子：
 
 ```js
-const { div, $div, hAttr, reactive } = Hope
-const state = reactive({ className: 'class-name' })
-
-div()
-  hAttr({ class: () => state.className })
+// 设置 div 的 class name
+div({ class: 'class-name' })
+  hText('hello')
 $div()
 
-mount(document.body)
-
-// 重新更改状态值 UI 会自动高效更新，
-// 其响应式原理请看 https://github.com/vuejs/vue-next/tree/master/packages/reactivity
-state.className = 'hope'
+// HTML 版本
+<div class="class-name">
+  hello
+</div>
 ```
 
-### hProp
+可以看出，我是尽可能的模仿 HTML 的语法，便于更快的上手使用。有一点与 HTML 不同的是 hopejs 会自动判断设置的属性是 attribute 还是 property，所以如果想设置 DOM 元素的 property，也可以直接写到开始标签参数中。
 
-直接设置 DOM 元素对象的属性，与 hAttr 不同。此指令也可以用在组件中。
-
-**用法示例：**
-
+例如：
 ```js
-const { div, $div, hProp } = Hope
-
-div()
-  hProp({ innerHTML: 'hello hope!' })
+// 设置 div 的 innerHTML 属性
+div({ innerHTML: 'hello hope!' })
+  hText('hello')
 $div()
 
-mount(document.body)
+// HTML 这样写是无效的，并不会设置其 DOM 元素的 innerHTML
+<div innerHTML="hello hope!">
+  hello
+</div>
 ```
 
-**响应式示例：**
+### 绑定事件
+
+如何绑定事件呢，很简单，如下所示：
 
 ```js
-const { div, $div, hProp, reactive } = Hope
-const state = reactive({ html: 'hello hope!' })
-
-div()
-  hProp({ innerHTML: () => state.html })
+// 绑定 div 的 click 事件，'on' 后面的首字母需要大写
+div({ onClick: () => console.log('Say hello!') })
+  hText('hello')
 $div()
 
-mount(document.body)
-
-// 重新更改状态值 UI 会自动高效更新，
-// 其响应式原理请看 https://github.com/vuejs/vue-next/tree/master/packages/reactivity
-state.html = 'hello world!'
+// HTML 版本，'on' 后面的首字母不需要大写
+<div onclick="hello hope!">
+  hello
+</div>
 ```
 
-### hClass
+这里要注意 `onClick` 中的 `Click` 的首字母是需要大写的，其底层使用的是 DOM 元素的 `addEventListener` 属性设置的。
 
-设置 DOM 的 class 属性。
+## 组件
 
-**用法示例：**
-
-1，基础用法
+前端的组件化已经深入人心，所以 hopejs 也支持组件化开发。hopejs 暴露的有一个生成组件的 API：`defineComponent`，用该 API 可以封装自己的组件。
 
 ```js
-const { div, $div, hClass } = Hope
+const { defineComponent, div, $div, hText, s } = Hope
 
-div()
-  hClass('class-name')
-$div()
+// 接收一个函数作为参数，在该函数中书写该组件的 HTML 结构和 CSS 样式
+const [com, $com] = defineComponent(({ props, slot, emit }) => {
+  // 直接写 “HTML"，不用 return
+  div({ class: 'class-name' })
+    hText('Hello Component!')
+  $div()
 
-mount(document.body)
-```
+  // hopejs 暴露了一个 s 接口，s 是 style 的缩写，用来写 CSS
+  // 该语法也是模仿的 CSS 的语法，CSS 的版本是这样的：
+  // .class-name {
+  //   width: 100px;
+  //   height: 100px;
+  // }
+  s('.class-name', {
+    width: '100px',
+    height: '100px'
+  })
+})
 
-2，对象用法
-```js
-const { div, $div, hClass } = Hope
+// 然后就像普通标签一样使用组件
+com()
+$com()
 
-div()
-  hClass({ 'class-name': true })
-$div()
-
+// 最后需要挂在到 DOM 树中
 mount(document.body)
 ```
 
-3，数组用法
+### 生命周期
+
+在组件中可以使用三个生命周期函数，分别是：
+
+#### onMounted
+
+当组件被挂在到 DOM 树中时被触发。
+
+#### onUnmounted
+
+当组件被卸载时触发该生命周期函数。
+
+#### onUpdated
+
+当组件的视图更新时触发该生命周期函数。
+
+### 事件
+
+我比较喜欢 `单向数据流` 的概念，父组件与子组件通过子组件的 props 通信，子组件与父组件通过发出一个事件的方式进行通信，这样的代码更易于维护。
+
+在 hopejs 中组件也可以发出一个事件，供用户使用的时候监听该事件，处理一些逻辑。事件是通过 `emit` 在组件中发出的。
+
 ```js
-const { div, $div, hClass } = Hope
-const class1 = { 'class-name-1': true }
-const class2 = { 'class-name-2': true }
+const { defineComponent, div, $div, hText, s } = Hope
 
-div()
-  hClass([class1, class2])
-$div()
+const [com, $com] = defineComponent(({ props, slot, emit }) => {
+  const handler = () => {
+    // 使用 emit 发出一个事件
+    emit('clickText', '这里可以传参数')
+  }
 
+  // 监听组件根元素的 click 事件
+  div({ onClick: handler })
+    hText('Hello Component!')
+  $div()
+})
+
+// 监听事件时注意字母的大小写，必须要 'on' 开头
+com({ onClickText: (param) => console.log(param) })
+$com()
+
+// 最后需要挂在到 DOM 树中
 mount(document.body)
 ```
 
-**响应式示例：**
+### 插槽
+
+插槽在组件中也是很重要的，可以更灵活的使用组件。现在来看一下 hopejs 中组件的插槽是如何实现的。
 
 ```js
-const { div, $div, hClass, reactive } = Hope
-const state = reactive({ isActive: true })
+const { defineComponent, div, $div, hText, hSlot, s } = Hope
 
-div()
-  // 把上面的写成函数形式就会变成响应式的
-  hClass(() => ({ active: state.isActive }))
-$div()
+const [com, $com] = defineComponent(({ props, slot, emit }) => {
+  // 通过 slot 参数，在组件中可以获取到插入到组件中的插槽，
+  // 所谓插槽就是一个函数，直接在某个位置上调用即可，default
+  // 表示的是没有提供具体名字的插槽，如果提供了具体的名字，
+  // 则需要更改为那个具体的名字，如 slot.name()
+  div()
+    slot.default()
+  $div()
+})
 
-mount(document.body)
-
-// 重新更改状态值 UI 会自动高效更新，
-// 其响应式原理请看 https://github.com/vuejs/vue-next/tree/master/packages/reactivity
-state.isActive = false
-```
-
-### hStyle
-
-设置 DOM 的 style 属性。
-
-1，基础用法
-
-```js
-const { div, $div, hStyle } = Hope
-
-div()
-  hStyle({ color: 'red' })
-$div()
-
-mount(document.body)
-```
-
-2，数组用法
-
-```js
-const { div, $div, hStyle } = Hope
-const style1 = { width: '100px' }
-const style2 = { height: '100px' }
-
-div()
-  hStyle([style1, style2])
-$div()
-
-mount(document.body)
-```
-
-### hId
-
-设置 DOM 元素的 id 属性。
-
-**用法示例：**
-
-```js
-const { div, $div, hId } = Hope
-
-div()
-  hId('id-name')
-$div()
-
-mount(document.body)
-```
-
-**响应式示例：**
-
-```js
-const { div, $div, hId, reactive } = Hope
-const state = reactive({ id: 'id-name' })
-
-div()
-  hId(() => state.id)
-$div()
-
-mount(document.body)
-
-// 重新更改状态值 UI 会自动高效更新，
-// 其响应式原理请看 https://github.com/vuejs/vue-next/tree/master/packages/reactivity
-state.id = 'hope'
-```
-
-### hOn
-
-设置 DOM 的事件监听器，也可以用在组件中。
-
-**用法示例：**
-
-```js
-const { div, $div, hOn } = Hope
-
-const handle = () => console.log('click')
-
-div()
-  hOn('click', handle)
-$div()
-
-mount(document.body)
-```
-
-### hShow
-
-控制 DOM 元素的显示和隐藏，该指令会保持 DOM 元素的状态，不会直接销毁 DOM 元素。
-
-**用法示例：**
-
-```js
-const { div, $div, hShow } = Hope
-
-div()
-  hShow(true)
-$div()
-
-mount(document.body)
-```
-
-**响应式示例：**
-
-```js
-const { div, $div, hShow, reactive } = Hope
-
-const state = reactive({ show: true })
-
-div()
-  hShow(() => state.show)
-$div()
-
-mount(document.body)
-
-// 上面的 div 元素会被隐藏，但不会销毁
-state.show = false
-```
-
-### hComment
-
-生成一个注释节点。
-
-### hSlot
-
-设置组件的插槽。
-
-**用法示例：**
-
-```js
-const { div, $div, hText, defineComponent } = Hope
-// 创建一个组件
-const [com, $com] = defineComponent(() => {...})
-
+// 使用组件时，需要通过 hSlot 指令来指定组件的插槽
 com()
   hSlot(() => {
     div()
-      hText('作为插槽在组件内部渲染')
+      hText('这里是插槽中的内容')
     $div()
   })
 $com()
 
+// 也可以指定插槽的名字，使用时这样用 slot.name()
+com()
+  hSlot('name', () => {
+    div()
+      hText('这里是插槽中的内容')
+    $div()
+  })
+$com()
+
+// 最后需要挂在到 DOM 树中
 mount(document.body)
 ```
 
-## 结构化响应式更新 block
+## 响应式
 
-上面的指令只会更新 DOM 元素内部的属性，如果想对元素进行结构性更新可以使用 block API。
-
-**用法示例：**
+响应式在现在的前端开发中已经是不可缺少的一部分了，它极大的简化了前端页面的开发难度。来看一下 hopejs 的响应式是怎么写的。
 
 ```js
-const { div, $div, block, hText } = Hope
-const state = reactive({ toggle: true })
+const { div, $div, reactive } = Hope
+const state = reactive({ color: 'red' })
 
-block(() => {
-  if (state.toggle) {
-    div()
-      hText('当 toggle 为 true 时会渲染该元素，下面的元素不会被渲染')
-    $div()
-  } else {
-    div()
-      hText('当 toggle 为 false 时会渲染该元素，上面的元素会被销毁')
-    $div()
-  }
-})
-
-mount(document.body)
-
-// UI 会自动更新
-state.toggle = false
-```
-
-## 定义一个组件 defineComponent
-
-**用法示例：**
-
-```js
-const { div, $div, span, $span, hOn, hText, hProp, hSlot, defineComponent, reactive, onMounted, onUnmounted, onUpdated, s } = Hope
-
-// 创建一个组件
-const Com = defineComponent(({ props, slots, emit }) => {
-    const state = reactive({ color: 'red' })
-    const clickHandle = () => {
-      // 自定义一个组件的事件，使用组件时可以使用 hOn 指令监听
-      emit('comClick', '事件参数')
-    }
-
-    // 组件的生命周期钩子，在组件渲染完毕时触发
-    onMounted(() => {...})
-    // 组件卸载时触发
-    onUnmounted(() => {...})
-    // 组件视图更新时触发
-    onUpdated(() => {...})
-
-    // 设置 div 的 calss
-    div({ class: 'class-name' })
-      // 定义默认插槽的渲染位置
-      slots.default()
-      hOn('click', clickHandle)
-      // 可以接收用户使用组件时，传进来的 props
-      hText(() => props.text)
-    $div()
-
-    // 可以直接在 js 中写 css
-    s('.class-name', {
-      width: '100px',
-      height: '100px',
-      // 写成函数的形式就会变成响应式的，且更新非常高效
-      backgroundColor: () => state.color
-    })
-})
-
-// 定义好之后的组件可以直接挂载到 DOM
-Com.mount(document.body)
-
-// 也可以与其它一起使用，用法如下：
-const [com, $com] = Com
-
-div()
-  com()
-    hProp({ text: '设置组件的 props' })
-    // 编写组件的默认插槽
-    hSlot(() => {
-      span()
-      $span()
-    })
-  $com()
+// HTML
+// 在 hopejs 中，只要把属性的值写成函数的形式，并返回，
+// 当状态值更改时，对应的 UI 也会自动更新
+div({style: {
+  color: () => state.color
+}})
 $div()
 
-// 然后挂载
+// 挂在到 DOM 树
 mount(document.body)
 ```
+
+可以看到，在 hopejs 中响应式需要满足**两个条件**，一个是响应式对象，就是用 reactive API 生成的对象，一个是**属性值是一个返回状态值的函数**，这两个条件缺一不可，否则就不会状态值更改时自动更新 UI。
+
+## Todo List
+
+- [x] 组件化
+- [x] 响应式
+- [x] 组件中写样式
+- [x] 支持 svg
+- [ ] 发包
+- [ ] 动画 API 的设计及实现
+- [ ] 组件切换时的过度效果
+- [ ] 支持 jsx 语法
+- [ ] 列表渲染时的性能优化
+- [ ] 还有一些暂时没想到的功能...
