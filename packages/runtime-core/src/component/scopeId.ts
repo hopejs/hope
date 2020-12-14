@@ -13,7 +13,7 @@ export function addScopeId() {
   if (!queueAddScope) return;
   const el = getCurrentElement();
   // 添加到一个队列，延迟执行，目的是为了在定义组件时
-  // style 函数可以在组件中的任何位置使用。
+  // 样式可以写在组件中的任何位置。
   queueAddScope.push((scopeId: string) => {
     scopeId && setAttribute(el!, scopeId, '');
   });

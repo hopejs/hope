@@ -4,25 +4,25 @@ import { isArray, isFunction, once } from '@hopejs/shared';
 
 type Modifier = 'capture' | 'once' | 'passive' | string;
 
-export function hOn<K extends keyof ElementEventMap>(
+export function setEvent<K extends keyof ElementEventMap>(
   eventName: K,
   listener: (this: Element, ev: ElementEventMap[K]) => any
 ): void;
-export function hOn<K extends keyof ElementEventMap>(
+export function setEvent<K extends keyof ElementEventMap>(
   eventName: K,
   modifier: Modifier[] | Modifier,
   listener: (this: Element, ev: ElementEventMap[K]) => any
 ): void;
-export function hOn(
+export function setEvent(
   eventName: string,
   listener: EventListenerOrEventListenerObject | ((...arg: any[]) => void)
 ): void;
-export function hOn(
+export function setEvent(
   eventName: string,
   modifier: Modifier[] | Modifier,
   listener: EventListenerOrEventListenerObject | ((...arg: any[]) => void)
 ): void;
-export function hOn(eventName: string, modifier: any, listener?: any) {
+export function setEvent(eventName: string, modifier: any, listener?: any) {
   if (getComponentOn()) {
     return processComponentOn(eventName, modifier, listener);
   }

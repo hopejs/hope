@@ -8,7 +8,6 @@ import {
   ComponentStartTag,
   defineComponent,
   div,
-  hProp,
   hText,
   mount,
   nextTick,
@@ -98,8 +97,7 @@ describe('lifecycle', () => {
     await common((com, $com, state) => {
       block(() => {
         if (state.show) {
-          com();
-          hProp({ text: () => state.text });
+          com({ text: () => state.text });
           $com();
         }
       });
@@ -111,8 +109,7 @@ describe('lifecycle', () => {
       block(() => {
         block(() => {
           if (state.show) {
-            com();
-            hProp({ text: () => state.text });
+            com({ text: () => state.text });
             $com();
           }
         });
@@ -125,8 +122,7 @@ describe('lifecycle', () => {
       block(() => {
         div();
         if (state.show) {
-          com();
-          hProp({ text: () => state.text });
+          com({ text: () => state.text });
           $com();
         }
         $div();
@@ -140,8 +136,7 @@ describe('lifecycle', () => {
         div();
         $div();
         if (state.show) {
-          com();
-          hProp({ text: () => state.text });
+          com({ text: () => state.text });
           $com();
         }
       });
@@ -150,8 +145,7 @@ describe('lifecycle', () => {
     await common((com, $com, state) => {
       block(() => {
         if (state.show) {
-          com();
-          hProp({ text: () => state.text });
+          com({ text: () => state.text });
           $com();
         }
         div();
@@ -166,8 +160,7 @@ describe('lifecycle', () => {
         if (state.show) {
           block(() => {
             if (state.show) {
-              com();
-              hProp({ text: () => state.text });
+              com({ text: () => state.text });
               $com();
             }
           });
@@ -181,8 +174,7 @@ describe('lifecycle', () => {
       block(() => {
         if (state.show) {
           block(() => {
-            com();
-            hProp({ text: () => state.text });
+            com({ text: () => state.text });
             $com();
           });
         }
@@ -194,8 +186,7 @@ describe('lifecycle', () => {
         if (state.show) {
           block(() => {
             div();
-            com();
-            hProp({ text: () => state.text });
+            com({ text: () => state.text });
             $com();
             $div();
           });
@@ -209,8 +200,7 @@ describe('lifecycle', () => {
           block(() => {
             div();
             $div();
-            com();
-            hProp({ text: () => state.text });
+            com({ text: () => state.text });
             $com();
           });
         }
@@ -221,8 +211,7 @@ describe('lifecycle', () => {
       block(() => {
         if (state.show) {
           block(() => {
-            com();
-            hProp({ text: () => state.text });
+            com({ text: () => state.text });
             $com();
             div();
             $div();
@@ -237,8 +226,7 @@ describe('lifecycle', () => {
           div();
           $div();
           block(() => {
-            com();
-            hProp({ text: () => state.text });
+            com({ text: () => state.text });
             $com();
           });
         }
@@ -250,8 +238,7 @@ describe('lifecycle', () => {
         if (state.show) {
           div();
           block(() => {
-            com();
-            hProp({ text: () => state.text });
+            com({ text: () => state.text });
             $com();
           });
           $div();
@@ -264,8 +251,7 @@ describe('lifecycle', () => {
         div();
         if (state.show) {
           block(() => {
-            com();
-            hProp({ text: () => state.text });
+            com({ text: () => state.text });
             $com();
           });
         }

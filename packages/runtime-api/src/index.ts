@@ -4,12 +4,6 @@ export { div, $div, span, $span } from './tags';
 export * from './render';
 
 // 指令
-export { hAttr } from './directives/hAttr';
-export { hProp } from './directives/hProp';
-export { hOn } from './directives/hOn';
-export { hClass } from './directives/hClass';
-export { hStyle } from './directives/hStyle';
-export { hId } from './directives/hId';
 export { hShow } from './directives/hShow';
 export { hText } from './directives/hText';
 export { hComment } from './directives/hComment';

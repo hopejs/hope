@@ -6,19 +6,11 @@ import {
   nextTick,
 } from '@hopejs/runtime-core';
 import { reactive } from '@hopejs/reactivity';
-import {
-  hProp,
-  div,
-  $div,
-  block,
-  defineComponent,
-  hText,
-  mount,
-} from '../../src';
 import { delay, LIFECYCLE_KEYS } from '@hopejs/shared';
 import { createElement } from '@hopejs/renderer';
+import { div, $div, block, defineComponent, hText, mount } from '../../src';
 
-describe('hProp', () => {
+describe('props', () => {
   const KEY = '_hopejs_test';
   const [testComponent, $testComponent] = defineComponent<any, any>(
     ({ props }) => {
@@ -30,57 +22,43 @@ describe('hProp', () => {
   );
 
   it('basic', () => {
-    div();
-    hProp({ [KEY]: '123' });
+    div({ [KEY]: '123' });
     // @ts-ignore
-    expect(getCurrentElement()[KEY]).toBe(`123`);
+    expect(getCurrentElement()!.outerHTML).toBe(
+      '<div _hopejs_test="123"></div>'
+    );
     $div();
   });
 
   it('reactivity', async () => {
     const state = reactive({ name: 'a' });
 
-    div();
-    hProp({ [KEY]: () => state.name });
+    div({ [KEY]: () => state.name });
     const el = getCurrentElement();
     // @ts-ignore
-    expect(el[KEY]).toBe(`a`);
+    expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
     $div();
 
     state.name = 'b';
     await nextTick();
     // @ts-ignore
-    expect(el[KEY]).toBe(`b`);
+    expect(el.outerHTML).toBe('<div _hopejs_test="b"></div>');
   });
 
   it('reactivity object', async () => {
     const props = reactive({ [KEY]: 'a' });
 
-    div();
-    hProp(props);
+    div(props);
     const el = getCurrentElement();
     // @ts-ignore
-    expect(el[KEY]).toBe(`a`);
+    expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
     $div();
-
-    props[KEY] = 'b';
-    await nextTick();
-    // @ts-ignore
-    expect(el[KEY]).toBe(`b`);
-
-    // @ts-ignore
-    // 应该新增一个 id 属性
-    props._abc = 'c';
-    await nextTick();
-    // @ts-ignore
-    expect(el._abc).toBe(`c`);
   });
 
   it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
-      div();
-      hProp({ [KEY]: () => 'name' });
+      div({ [KEY]: () => 'name' });
       el = getCurrentElement()!;
       $div();
     });
@@ -92,8 +70,7 @@ describe('hProp', () => {
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
     block(() => {
-      div();
-      hProp({ [KEY]: 'name' });
+      div({ [KEY]: 'name' });
       el = getCurrentElement()!;
       $div();
     });
@@ -108,8 +85,7 @@ describe('hProp', () => {
 
     let startPlaceholder: HopeElement;
     block(() => {
-      testComponent();
-      hProp({ a: () => 'a' });
+      testComponent({ a: () => 'a' });
       startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
       $testComponent();
     });
@@ -128,8 +104,7 @@ describe('hProp', () => {
   it('elementUnmounted & no reactivity & with component', async () => {
     let startPlaceholder: HopeElement;
     block(() => {
-      testComponent();
-      hProp({ b: 'b' });
+      testComponent({ b: 'b' });
       startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
       $testComponent();
     });

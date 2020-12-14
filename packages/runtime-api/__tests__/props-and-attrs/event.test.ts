@@ -1,13 +1,12 @@
 import { getCurrentElement } from '@hopejs/runtime-core';
 import { delay } from '@hopejs/shared';
-import { hOn, div, $div, defineComponent, mount } from '../../src';
+import { div, $div, defineComponent, mount } from '../../src';
 
-describe('hOn', () => {
+describe('event', () => {
   it('basic', () => {
     const fn = jest.fn();
 
-    div();
-    hOn('click', fn);
+    div({ onClick: fn });
     const el = getCurrentElement();
     $div();
 
@@ -20,8 +19,7 @@ describe('hOn', () => {
   it('modifier & once', () => {
     const fn = jest.fn();
 
-    div();
-    hOn('click', 'once', fn);
+    div({ onClick$once: fn });
     const el = getCurrentElement();
     $div();
 
@@ -34,9 +32,10 @@ describe('hOn', () => {
   it('modifier & once with component', async () => {
     let el: Element;
     const [person, $person] = defineComponent<any, any>(({ emit }) => {
-      div();
-      hOn('click', () => {
-        emit && emit('testClick', 123);
+      div({
+        onClick: () => {
+          emit && emit('testClick', 123);
+        },
       });
       el = getCurrentElement()!;
       $div();
@@ -46,8 +45,7 @@ describe('hOn', () => {
       expect(arg).toBe(123);
     });
 
-    person();
-    hOn('testClick', 'once', fn);
+    person({ onTestClick$once: fn });
     $person();
 
     const container = document.createElement('div');

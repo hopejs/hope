@@ -31,8 +31,8 @@ import {
 import { isReactive, reactive } from '@hopejs/reactivity';
 import { mount } from './render';
 import { onUnmounted } from './lifecycle';
-import { hOn } from './directives/hOn';
-import { hProp } from './directives/hProp';
+import { setEvent } from './props-and-attrs/event';
+import { setPropsForComponent } from './props-and-attrs/props';
 
 interface ComponentOptions<
   P = Record<string, any>,
@@ -50,7 +50,7 @@ type MountOptions<P, S> = {
   on?: Record<string, (...arg: any[]) => any>;
 };
 
-export type ComponentStartTag<P> = (
+export type ComponentStartTag<P = any> = (
   props?: { [K in keyof P]?: P[K] | (() => P[K]) } & Record<string, any>
 ) => any;
 export type ComponentEndTag = (...arg: any[]) => any;
@@ -101,9 +101,9 @@ export function defineComponent<P, S>(
       forEachObj(props as any, (value, key: string) => {
         if (isOn(key)) {
           const eventName = parseEventName(key);
-          hOn(eventName.name, eventName.modifier, value);
+          setEvent(eventName.name, eventName.modifier, value);
         } else {
-          hProp(props);
+          setPropsForComponent(props);
         }
       });
   };

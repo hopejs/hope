@@ -10,13 +10,13 @@ import {
 } from '@hopejs/shared';
 import { autoUpdate } from '../autoUpdate';
 
-type ClassObject = Record<string, any>;
+type ClassObject = Record<string, boolean>;
 type ClassArray = (string | ClassObject)[];
 
-export function hClass(value: ClassArray | (() => ClassArray)): void;
-export function hClass(value: ClassObject | (() => ClassObject)): void;
-export function hClass(value: string | (() => string)): void;
-export function hClass(value: any) {
+export function setClass(value: ClassArray | (() => ClassArray)): void;
+export function setClass(value: ClassObject | (() => ClassObject)): void;
+export function setClass(value: string | (() => string)): void;
+export function setClass(value: any) {
   const currentElement = getCurrentElement();
   if (isDynamic(value)) {
     autoUpdate(() =>

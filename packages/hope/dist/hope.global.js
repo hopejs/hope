@@ -1438,7 +1438,7 @@ var Hope = (function (exports) {
             return;
         const el = getCurrentElement();
         // 添加到一个队列，延迟执行，目的是为了在定义组件时
-        // style 函数可以在组件中的任何位置使用。
+        // 样式可以写在组件中的任何位置。
         queueAddScope.push((scopeId) => {
             scopeId && setAttribute(el, scopeId, '');
         });
@@ -1566,7 +1566,16 @@ var Hope = (function (exports) {
         onElementUnmounted(() => stop(ef));
     }
 
-    function hClass(value) {
+    function setAtrrs(el, value, key) {
+        if (isSVGElement(el) && key.startsWith('xlink:')) {
+            setAttributeNS(el, NS.XLINK, key, value);
+        }
+        else {
+            setAttribute(el, key, value);
+        }
+    }
+
+    function setClass(value) {
         const currentElement = getCurrentElement();
         if (isDynamic(value)) {
             autoUpdate(() => setAttribute(currentElement, 'class', normalizeClass(getStaticVersion(isFunction(value) ? value() : value)) ||
@@ -1594,7 +1603,7 @@ var Hope = (function (exports) {
         return obj;
     }
 
-    function hOn(eventName, modifier, listener) {
+    function setEvent(eventName, modifier, listener) {
         if (getComponentOn()) {
             return processComponentOn(eventName, modifier, listener);
         }
@@ -1647,7 +1656,96 @@ var Hope = (function (exports) {
         }
     }
 
-    function hStyle(value) {
+    // from vue3
+    function setProps(el, value, key) {
+        if (key === 'innerHTML' || key === 'textContent') {
+            // TODO: stop 子元素的 effect
+            el[key] = value == null ? '' : value;
+            return;
+        }
+        if (key === 'value' && el.tagName !== 'PROGRESS') {
+            const newValue = value == null ? '' : value;
+            if (el[key] !== newValue) {
+                el[key] = newValue;
+            }
+            return;
+        }
+        if (value == null) {
+            if (typeof el[key] === 'string') {
+                el[key] = '';
+                // 没有值就是删除
+                setAttribute(el, key);
+                return;
+            }
+            if (typeof el[key] === 'number') {
+                el[key] = 0;
+                setAttribute(el, key);
+                return;
+            }
+        }
+        // some properties perform value validation and throw
+        try {
+            el[key] = value;
+        }
+        catch (e) {
+            {
+                logError(`Failed setting prop "${key}" on <${el.tagName.toLowerCase()}>: ` +
+                    `value ${value} is invalid.`);
+            }
+        }
+    }
+    function setPropsForComponent(props) {
+        const componentProps = getComponentProps();
+        forEachObj(props, (value, key) => {
+            if (isFunction(value)) {
+                autoUpdate(() => (componentProps[key] = value()));
+            }
+            else {
+                componentProps[key] = value;
+            }
+        });
+    }
+    // from https://github.com/vuejs/vue-next/blob/07559e5dd7e392c415d098f75ab4dee03065302e/packages/runtime-dom/src/patchProp.ts#L67
+    function shouldSetAsProp(el, key, value) {
+        const nativeOnRE = /^on[a-z]/;
+        if (isSVGElement(el)) {
+            // most keys must be set as attribute on svg elements to work
+            // ...except innerHTML
+            if (key === 'innerHTML') {
+                return true;
+            }
+            // or native onclick with function values
+            if (key in el && nativeOnRE.test(key) && isFunction(value)) {
+                return true;
+            }
+            return false;
+        }
+        // spellcheck and draggable are numerated attrs, however their
+        // corresponding DOM properties are actually booleans - this leads to
+        // setting it with a string "false" value leading it to be coerced to
+        // `true`, so we need to always treat them as attributes.
+        // Note that `contentEditable` doesn't have this problem: its DOM
+        // property is also enumerated string values.
+        if (key === 'spellcheck' || key === 'draggable') {
+            return false;
+        }
+        // #1787 form as an attribute must be a string, while it accepts an Element as
+        // a prop
+        if (key === 'form' && typeof value === 'string') {
+            return false;
+        }
+        // #1526 <input list> must be set as attribute
+        if (key === 'list' && el.tagName === 'INPUT') {
+            return false;
+        }
+        // native onclick with string value, must be set as attribute
+        if (nativeOnRE.test(key) && isString(value)) {
+            return false;
+        }
+        return key in el;
+    }
+
+    function setStyle(value) {
         const style = getCurrentElement().style;
         if (isFunction(value)) {
             autoUpdate(() => forEachObj(normalizeStyle(value()), (v, key) => {
@@ -1699,106 +1797,39 @@ var Hope = (function (exports) {
         });
     }
     function processClass(value) {
-        hClass(value);
+        setClass(value);
     }
     function processStyle(value) {
-        hStyle(value);
+        setStyle(value);
     }
     function processEvent(listener, eventName) {
-        hOn(eventName.name, eventName.modifier, listener);
+        setEvent(eventName.name, eventName.modifier, listener);
     }
     function prosessAttrOrProp(value, key) {
         const el = getCurrentElement();
         if (shouldSetAsProp(el, key, isFunction(value) ? value() : value)) {
-            autoUpdate(() => prosessProps(el, isFunction(value) ? value() : value, key));
+            if (isFunction(value)) {
+                autoUpdate(() => prosessProps(el, value(), key));
+            }
+            else {
+                prosessProps(el, value, key);
+            }
         }
         else {
-            autoUpdate(() => prosessAtrrs(el, isFunction(value) ? value() : value, key));
+            if (isFunction(value)) {
+                autoUpdate(() => prosessAtrrs(el, value(), key));
+            }
+            else {
+                prosessAtrrs(el, value, key);
+            }
         }
     }
     function prosessAtrrs(el, value, key) {
-        if (isSVGElement(el) && key.startsWith('xlink:')) {
-            setAttributeNS(el, NS.XLINK, key, value);
-        }
-        else {
-            setAttribute(el, key, value);
-        }
+        setAtrrs(el, value, key);
     }
+    // from vue3
     function prosessProps(el, value, key) {
-        if (key === 'innerHTML' || key === 'textContent') {
-            // TODO: stop 子元素的 effect
-            el[key] = value == null ? '' : value;
-            return;
-        }
-        if (key === 'value' && el.tagName !== 'PROGRESS') {
-            const newValue = value == null ? '' : value;
-            if (el[key] !== newValue) {
-                el[key] = newValue;
-            }
-            return;
-        }
-        if (value == null) {
-            if (typeof el[key] === 'string') {
-                el[key] = '';
-                // 没有值就是删除
-                setAttribute(el, key);
-                return;
-            }
-            if (typeof el[key] === 'number') {
-                el[key] = 0;
-                setAttribute(el, key);
-                return;
-            }
-        }
-        // some properties perform value validation and throw
-        try {
-            el[key] = value;
-        }
-        catch (e) {
-            {
-                logError(`Failed setting prop "${key}" on <${el.tagName.toLowerCase()}>: ` +
-                    `value ${value} is invalid.`);
-            }
-        }
-    }
-    // from https://github.com/vuejs/vue-next/blob/07559e5dd7e392c415d098f75ab4dee03065302e/packages/runtime-dom/src/patchProp.ts#L67
-    function shouldSetAsProp(el, key, value) {
-        const nativeOnRE = /^on[a-z]/;
-        if (isSVGElement(el)) {
-            // most keys must be set as attribute on svg elements to work
-            // ...except innerHTML
-            if (key === 'innerHTML') {
-                return true;
-            }
-            // or native onclick with function values
-            if (key in el && nativeOnRE.test(key) && isFunction(value)) {
-                return true;
-            }
-            return false;
-        }
-        // spellcheck and draggable are numerated attrs, however their
-        // corresponding DOM properties are actually booleans - this leads to
-        // setting it with a string "false" value leading it to be coerced to
-        // `true`, so we need to always treat them as attributes.
-        // Note that `contentEditable` doesn't have this problem: its DOM
-        // property is also enumerated string values.
-        if (key === 'spellcheck' || key === 'draggable') {
-            return false;
-        }
-        // #1787 form as an attribute must be a string, while it accepts an Element as
-        // a prop
-        if (key === 'form' && typeof value === 'string') {
-            return false;
-        }
-        // #1526 <input list> must be set as attribute
-        if (key === 'list' && el.tagName === 'INPUT') {
-            return false;
-        }
-        // native onclick with string value, must be set as attribute
-        if (nativeOnRE.test(key) && isString(value)) {
-            return false;
-        }
-        return key in el;
+        setProps(el, value, key);
     }
 
     function mount$1(containerOrSelector) {
@@ -1831,43 +1862,6 @@ var Hope = (function (exports) {
         logError(`${keyword} 指令应该放在标签函数内部使用。`);
     }
 
-    function hProp(props) {
-        // 组件运行的时候会设置该值，此时说明 hProp 指令
-        // 运行在组件内，用以向组件传递 prop。
-        if (getComponentProps()) {
-            return processComponentProps(props);
-        }
-        const currentElement = getCurrentElement();
-        if ( !currentElement)
-            return outsideError('hProp');
-        if (isReactive(props)) {
-            autoUpdate(() => forEachObj(props, (value, key) => {
-                currentElement[key] = value;
-            }));
-        }
-        else {
-            forEachObj(props, (value, key) => {
-                if (isFunction(value)) {
-                    autoUpdate(() => (currentElement[key] = value()));
-                }
-                else {
-                    currentElement[key] = value;
-                }
-            });
-        }
-    }
-    function processComponentProps(props) {
-        const componentProps = getComponentProps();
-        forEachObj(props, (value, key) => {
-            if (isFunction(value)) {
-                autoUpdate(() => (componentProps[key] = value()));
-            }
-            else {
-                componentProps[key] = value;
-            }
-        });
-    }
-
     // dynamic style id
     // 每渲染一次组件就会自增一下
     let dsid = 0;
@@ -1896,10 +1890,10 @@ var Hope = (function (exports) {
                 forEachObj(props, (value, key) => {
                     if (isOn(key)) {
                         const eventName = parseEventName(key);
-                        hOn(eventName.name, eventName.modifier, value);
+                        setEvent(eventName.name, eventName.modifier, value);
                     }
                     else {
-                        hProp(props);
+                        setPropsForComponent(props);
                     }
                 });
         };
@@ -2065,43 +2059,6 @@ var Hope = (function (exports) {
 
     function cantUseError(keyword) {
         logError(`${keyword} 指令不能在组件上使用。`);
-    }
-
-    function hAttr(attrs) {
-        if ( isBetweenStartAndEnd())
-            return cantUseError('hAttr');
-        const currentElement = getCurrentElement();
-        if ( !currentElement)
-            return outsideError('hAttr');
-        if (isReactive(attrs)) {
-            autoUpdate(() => forEachObj(attrs, (value, name) => {
-                setAttribute(currentElement, name, value);
-            }));
-        }
-        else {
-            forEachObj(attrs, (value, name) => {
-                if (isFunction(value)) {
-                    autoUpdate(() => setAttribute(currentElement, name, value()));
-                }
-                else {
-                    setAttribute(currentElement, name, value);
-                }
-            });
-        }
-    }
-
-    function hId(value) {
-        if ( isBetweenStartAndEnd())
-            return cantUseError('hId');
-        const currentElement = getCurrentElement();
-        if ( !currentElement)
-            return outsideError('hId');
-        if (isFunction(value)) {
-            autoUpdate(() => setAttribute(currentElement, 'id', value()));
-        }
-        else {
-            setAttribute(currentElement, 'id', value);
-        }
     }
 
     function hShow(value) {
@@ -2352,15 +2309,9 @@ var Hope = (function (exports) {
     exports.defineComponent = defineComponent;
     exports.div = div;
     exports.effect = effect;
-    exports.hAttr = hAttr;
-    exports.hClass = hClass;
     exports.hComment = hComment;
-    exports.hId = hId;
-    exports.hOn = hOn;
-    exports.hProp = hProp;
     exports.hShow = hShow;
     exports.hSlot = hSlot;
-    exports.hStyle = hStyle;
     exports.hText = hText;
     exports.isReactive = isReactive;
     exports.keyframes = keyframes$1;

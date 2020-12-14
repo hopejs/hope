@@ -1,26 +1,16 @@
-import { setAttribute, setAttributeNS } from '@hopejs/renderer';
 import {
   start,
   end,
   addScopeId,
   getCurrentElement,
 } from '@hopejs/runtime-core';
-import {
-  forEachObj,
-  isFunction,
-  isString,
-  isOn,
-  isSVGElement,
-  parseEventName,
-  logError,
-  NS,
-} from '@hopejs/shared';
+import { forEachObj, isFunction, isOn, parseEventName } from '@hopejs/shared';
 import { autoUpdate } from './autoUpdate';
-import { Attrs } from './directives/hAttr';
-import { hClass } from './directives/hClass';
-import { hOn } from './directives/hOn';
-import { Props } from './directives/hProp';
-import { hStyle } from './directives/hStyle';
+import { setAtrrs, Attrs } from './props-and-attrs/attrs';
+import { setClass } from './props-and-attrs/class';
+import { setEvent } from './props-and-attrs/event';
+import { Props, setProps, shouldSetAsProp } from './props-and-attrs/props';
+import { setStyle } from './props-and-attrs/style';
 
 type TagName = keyof (HTMLElementTagNameMap & SVGElementTagNameMap);
 
@@ -65,124 +55,42 @@ function processAttrsOrProps<T extends TagName>(attrsOrProps: AttrsOrProps<T>) {
 }
 
 function processClass(value: any | (() => any)) {
-  hClass(value);
+  setClass(value);
 }
 
 function processStyle(value: any | (() => any)) {
-  hStyle(value);
+  setStyle(value);
 }
 
 function processEvent(
   listener: any,
   eventName: { name: string; modifier: string[] }
 ) {
-  hOn(eventName.name, eventName.modifier, listener);
+  setEvent(eventName.name, eventName.modifier, listener);
 }
 
 function prosessAttrOrProp(value: any, key: string) {
   const el = getCurrentElement() as any;
   if (shouldSetAsProp(el, key, isFunction(value) ? value() : value)) {
-    autoUpdate(() =>
-      prosessProps(el, isFunction(value) ? value() : value, key)
-    );
+    if (isFunction(value)) {
+      autoUpdate(() => prosessProps(el, value(), key));
+    } else {
+      prosessProps(el, value, key);
+    }
   } else {
-    autoUpdate(() =>
-      prosessAtrrs(el, isFunction(value) ? value() : value, key)
-    );
+    if (isFunction(value)) {
+      autoUpdate(() => prosessAtrrs(el, value(), key));
+    } else {
+      prosessAtrrs(el, value, key);
+    }
   }
 }
 
 function prosessAtrrs(el: any, value: any, key: string) {
-  if (isSVGElement(el) && key.startsWith('xlink:')) {
-    setAttributeNS(el, NS.XLINK, key, value);
-  } else {
-    setAttribute(el, key, value);
-  }
+  setAtrrs(el, value, key);
 }
 
+// from vue3
 function prosessProps(el: any, value: any, key: string) {
-  if (key === 'innerHTML' || key === 'textContent') {
-    // TODO: stop 子元素的 effect
-
-    el[key] = value == null ? '' : value;
-    return;
-  }
-  if (key === 'value' && el.tagName !== 'PROGRESS') {
-    const newValue = value == null ? '' : value;
-    if (el[key] !== newValue) {
-      el[key] = newValue;
-    }
-    return;
-  }
-  if (value == null) {
-    if (typeof el[key] === 'string') {
-      el[key] = '';
-      // 没有值就是删除
-      setAttribute(el, key);
-      return;
-    }
-    if (typeof el[key] === 'number') {
-      el[key] = 0;
-      setAttribute(el, key);
-      return;
-    }
-  }
-
-  // some properties perform value validation and throw
-  try {
-    el[key] = value;
-  } catch (e) {
-    if (__DEV__) {
-      logError(
-        `Failed setting prop "${key}" on <${el.tagName.toLowerCase()}>: ` +
-          `value ${value} is invalid.`
-      );
-    }
-  }
-}
-
-// from https://github.com/vuejs/vue-next/blob/07559e5dd7e392c415d098f75ab4dee03065302e/packages/runtime-dom/src/patchProp.ts#L67
-function shouldSetAsProp(el: Element, key: string, value: unknown) {
-  const nativeOnRE = /^on[a-z]/;
-
-  if (isSVGElement(el)) {
-    // most keys must be set as attribute on svg elements to work
-    // ...except innerHTML
-    if (key === 'innerHTML') {
-      return true;
-    }
-    // or native onclick with function values
-    if (key in el && nativeOnRE.test(key) && isFunction(value)) {
-      return true;
-    }
-    return false;
-  }
-
-  // spellcheck and draggable are numerated attrs, however their
-  // corresponding DOM properties are actually booleans - this leads to
-  // setting it with a string "false" value leading it to be coerced to
-  // `true`, so we need to always treat them as attributes.
-  // Note that `contentEditable` doesn't have this problem: its DOM
-  // property is also enumerated string values.
-  if (key === 'spellcheck' || key === 'draggable') {
-    return false;
-  }
-
-  // #1787 form as an attribute must be a string, while it accepts an Element as
-  // a prop
-  if (key === 'form' && typeof value === 'string') {
-    return false;
-  }
-
-  // #1526 <input list> must be set as attribute
-  if (key === 'list' && el.tagName === 'INPUT') {
-    return false;
-  }
-
-  // native onclick with string value, must be set as attribute
-  if (nativeOnRE.test(key) && isString(value)) {
-    return false;
-  }
-
-  return key in el;
+  setProps(el, value, key);
 }

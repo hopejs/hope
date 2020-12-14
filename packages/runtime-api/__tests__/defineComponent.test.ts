@@ -1,16 +1,7 @@
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement, nextTick } from '@hopejs/runtime-core';
 import { delay } from '@hopejs/shared';
-import {
-  $div,
-  defineComponent,
-  div,
-  hProp,
-  hText,
-  mount,
-  hOn,
-  block,
-} from '../src';
+import { $div, defineComponent, div, hText, mount, block } from '../src';
 import { isBetweenStartAndEnd } from '../src/defineComponent';
 
 describe('defineComponent', () => {
@@ -54,8 +45,7 @@ describe('defineComponent', () => {
       $div();
     });
 
-    person();
-    hProp({ name: () => p.name });
+    person({ name: () => p.name });
     $person();
 
     const container = document.createElement('div');
@@ -75,9 +65,10 @@ describe('defineComponent', () => {
   it('emit', async () => {
     let el: Element;
     const [person, $person] = defineComponent<any, any>(({ emit }) => {
-      div();
-      hOn('click', () => {
-        emit && emit('testClick', 123);
+      div({
+        onClick: () => {
+          emit && emit('testClick', 123);
+        },
       });
       el = getCurrentElement()!;
       $div();
@@ -87,8 +78,7 @@ describe('defineComponent', () => {
       expect(arg).toBe(123);
     });
 
-    person();
-    hOn('testClick', fn);
+    person({ onTestClick: fn });
     $person();
 
     const container = document.createElement('div');
@@ -109,8 +99,7 @@ describe('defineComponent', () => {
     block(() => {
       div();
       $div();
-      com();
-      hProp({ a: () => 'b' });
+      com({ a: () => 'b' });
       $com();
     });
     const container = document.createElement('div');

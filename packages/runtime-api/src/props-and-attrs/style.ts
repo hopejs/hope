@@ -9,8 +9,8 @@ export type CSSStyle = {
 };
 export type CSSStyleValue = CSSStyle | CSSStyle[];
 
-export function hStyle(value: CSSStyleValue | (() => CSSStyleValue)): void;
-export function hStyle(value: any) {
+export function setStyle(value: CSSStyleValue | (() => CSSStyleValue)): void;
+export function setStyle(value: any) {
   const style = (getCurrentElement() as HTMLElement | SVGElement).style;
 
   if (isFunction(value)) {
