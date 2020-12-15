@@ -1229,8 +1229,7 @@ var Hope = (function (exports) {
             return;
         // 每个 block 应该保存下父 block 的 rootElement，
         // 以便在更新的时候能够获取到正确的 rootElement。
-        const blockRootElement = blockFragment._elementStack[0] ||
-            childBlockFragment?._parentBlockRootElement;
+        const blockRootElement = blockFragment._elementStack[0] || (childBlockFragment === null || childBlockFragment === void 0 ? void 0 : childBlockFragment._parentBlockRootElement);
         if (blockRootElement) {
             (blockRootElement[key] || (blockRootElement[key] = new Set())).add(something);
             // 用于对象销毁时清空列表。
@@ -1647,7 +1646,7 @@ var Hope = (function (exports) {
         }
         else {
             modifier = normalizeOptions(modifier);
-            if (modifier?.once) {
+            if (modifier === null || modifier === void 0 ? void 0 : modifier.once) {
                 componentOn[eventName] = once(listener);
             }
             else {
@@ -1827,7 +1826,6 @@ var Hope = (function (exports) {
     function prosessAtrrs(el, value, key) {
         setAtrrs(el, value, key);
     }
-    // from vue3
     function prosessProps(el, value, key) {
         setProps(el, value, key);
     }

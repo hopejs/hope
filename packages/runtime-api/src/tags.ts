@@ -90,7 +90,6 @@ function prosessAtrrs(el: any, value: any, key: string) {
   setAtrrs(el, value, key);
 }
 
-// from vue3
 function prosessProps(el: any, value: any, key: string) {
   setProps(el, value, key);
 }
