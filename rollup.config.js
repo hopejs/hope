@@ -9,7 +9,7 @@ export default {
   input: 'packages/hope/src/index.ts',
   output: {
     format: 'iife',
-    file: 'packages/hope/dist/hope.global.js',
+    file: __DEV__ ? 'packages/hope/dist/hope.js' : 'packages/hope/dist/hope.min.js',
     name: 'Hope',
   },
   plugins: [
