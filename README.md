@@ -243,6 +243,27 @@ $com()
 mount(document.body)
 ```
 
+## 更新 DOM 树的结构
+
+有时候我们会根据某个状态值的不同，去显示不同的 DOM 结构，比如根据路由的不同渲染不同的组件。hopejs 提供了 `block` API 来进行 DOM 树的结构更新。如下所示：
+
+```js
+const { div, $div, hText, reactive, block } = Hope
+const state = reactive({ show: true })
+
+div()
+  // 在 block 中声明 DOM 结构与状态之间的关系，
+  // 当状态更新时，DOM 树结构也会自动进行更新
+  block(() => {
+    if (state.show) {
+      hText('show 为 true 时显示')
+    } else {
+      hText('show 为 false 时显示')
+    }
+  })
+$div()
+```
+
 ## 响应式
 
 响应式在现在的前端开发中已经是不可缺少的一部分了，它极大的简化了前端页面的开发难度。来看一下 hopejs 的响应式是怎么写的。
