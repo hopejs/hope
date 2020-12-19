@@ -2,35 +2,35 @@ import { createElement } from '@hopejs/renderer';
 import { getCurrentElement, mount, nextTick } from '@hopejs/runtime-core';
 import { delay } from '@hopejs/shared';
 import { reactive } from '@hopejs/reactivity';
-import { $div, div } from '../src';
+import { div$, div$$ } from '../src';
 
 describe('tag props', () => {
   const container = createElement('div');
 
   it('class', async () => {
     // string
-    div({ class: 'class-name' });
-    $div();
+    div$({ class: 'class-name' });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div class="class-name"></div>');
 
     // object
-    div({ class: { 'class-name': true } });
-    $div();
+    div$({ class: { 'class-name': true } });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div class="class-name"></div>');
 
-    div({ class: { 'class-name': false } });
-    $div();
+    div$({ class: { 'class-name': false } });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div></div>');
 
     // array
-    div({ class: [{ 'class-name': true }, { 'second-name': true }] });
-    $div();
+    div$({ class: [{ 'class-name': true }, { 'second-name': true }] });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
@@ -42,8 +42,8 @@ describe('tag props', () => {
     const state = reactive({ name: 'a', isActive: true });
 
     // string
-    div({ class: () => state.name });
-    $div();
+    div$({ class: () => state.name });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div class="a"></div>');
@@ -52,8 +52,8 @@ describe('tag props', () => {
     expect(container.innerHTML).toBe('<div class="b"></div>');
 
     // object
-    div({ class: { active: () => state.isActive } });
-    $div();
+    div$({ class: { active: () => state.isActive } });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div class="active"></div>');
@@ -62,8 +62,8 @@ describe('tag props', () => {
     expect(container.innerHTML).toBe('<div></div>');
 
     // nest function
-    div({ class: () => ({ active: () => state.isActive }) });
-    $div();
+    div$({ class: () => ({ active: () => state.isActive }) });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div></div>');
@@ -72,8 +72,8 @@ describe('tag props', () => {
     expect(container.innerHTML).toBe('<div class="active"></div>');
 
     // function
-    div({ class: () => ({ active: state.isActive }) });
-    $div();
+    div$({ class: () => ({ active: state.isActive }) });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div class="active"></div>');
@@ -82,8 +82,8 @@ describe('tag props', () => {
     expect(container.innerHTML).toBe('<div></div>');
 
     // function & array
-    div({ class: () => [{ active: state.isActive }] });
-    $div();
+    div$({ class: () => [{ active: state.isActive }] });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div></div>');
@@ -92,8 +92,8 @@ describe('tag props', () => {
     expect(container.innerHTML).toBe('<div class="active"></div>');
 
     // array
-    div({ class: [{ active: () => state.isActive }] });
-    $div();
+    div$({ class: [{ active: () => state.isActive }] });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div class="active"></div>');
@@ -104,36 +104,36 @@ describe('tag props', () => {
 
   it('style', async () => {
     // basic
-    div({ style: { color: 'red' } });
-    $div();
+    div$({ style: { color: 'red' } });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div style="color: red;"></div>');
 
     // property is a function
-    div({ style: { color: () => 'red' } });
-    $div();
+    div$({ style: { color: () => 'red' } });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div style="color: red;"></div>');
 
     // function
-    div({ style: () => ({ color: 'red' }) });
-    $div();
+    div$({ style: () => ({ color: 'red' }) });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div style="color: red;"></div>');
 
     // nest function
-    div({ style: () => ({ color: () => 'red' }) });
-    $div();
+    div$({ style: () => ({ color: () => 'red' }) });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div style="color: red;"></div>');
 
     // array
-    div({ style: [{ color: 'red' }, { width: '100px' }] });
-    $div();
+    div$({ style: [{ color: 'red' }, { width: '100px' }] });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
@@ -145,8 +145,8 @@ describe('tag props', () => {
     const state = reactive({ color: 'red' });
 
     // property is a function
-    div({ style: { color: () => state.color } });
-    $div();
+    div$({ style: { color: () => state.color } });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div style="color: red;"></div>');
@@ -155,8 +155,8 @@ describe('tag props', () => {
     expect(container.innerHTML).toBe('<div style="color: blue;"></div>');
 
     // function
-    div({ style: () => ({ color: state.color }) });
-    $div();
+    div$({ style: () => ({ color: state.color }) });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div style="color: blue;"></div>');
@@ -165,8 +165,8 @@ describe('tag props', () => {
     expect(container.innerHTML).toBe('<div style="color: red;"></div>');
 
     // nest function
-    div({ style: () => ({ color: () => state.color }) });
-    $div();
+    div$({ style: () => ({ color: () => state.color }) });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div style="color: red;"></div>');
@@ -175,8 +175,8 @@ describe('tag props', () => {
     expect(container.innerHTML).toBe('<div style="color: blue;"></div>');
 
     // array
-    div({ style: () => [{ color: state.color }] });
-    $div();
+    div$({ style: () => [{ color: state.color }] });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div style="color: blue;"></div>');
@@ -187,16 +187,16 @@ describe('tag props', () => {
 
   it('id', async () => {
     // basic
-    div({ id: 'id-name' });
-    $div();
+    div$({ id: 'id-name' });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div id="id-name"></div>');
 
     // reactivity
     const state = reactive({ id: 'a' });
-    div({ id: () => state.id });
-    $div();
+    div$({ id: () => state.id });
+    div$$();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe('<div id="a"></div>');
@@ -211,9 +211,9 @@ describe('tag props', () => {
 
   it('event', async () => {
     const handle = jest.fn();
-    div({ onClick: handle });
+    div$({ onClick: handle });
     const el = getCurrentElement()!;
-    $div();
+    div$$();
     mount(container);
     await delay();
     el.dispatchEvent(new CustomEvent('click'));
@@ -223,9 +223,9 @@ describe('tag props', () => {
 
     // modifier
     const handle2 = jest.fn();
-    div({ onClick$once: handle2 });
+    div$({ onClick$once: handle2 });
     const el2 = getCurrentElement()!;
-    $div();
+    div$$();
     mount(container);
     await delay();
     el2.dispatchEvent(new CustomEvent('click'));

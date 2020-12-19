@@ -1,15 +1,15 @@
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement, nextTick } from '@hopejs/runtime-core';
 import { delay } from '@hopejs/shared';
-import { $div, defineComponent, div, hText, mount, block } from '../src';
+import { div$, defineComponent, div$$, hText, mount, block } from '../src';
 import { isBetweenStartAndEnd } from '../src/defineComponent';
 
 describe('defineComponent', () => {
   it('basic', async () => {
     const [helloWorld, $helloWorld] = defineComponent(() => {
-      div();
+      div$();
       hText('Hello World');
-      $div();
+      div$$();
     });
 
     const container = document.createElement('div');
@@ -24,9 +24,9 @@ describe('defineComponent', () => {
 
   it('mount', async () => {
     const HelloWorld = defineComponent(() => {
-      div();
+      div$();
       hText('Hello Hope');
-      $div();
+      div$$();
     });
 
     const container = document.createElement('div');
@@ -40,9 +40,9 @@ describe('defineComponent', () => {
   it('props', async () => {
     const p = reactive({ name: 'a' });
     const [person, $person] = defineComponent<any, any>(({ props }) => {
-      div();
+      div$();
       hText(() => props.name);
-      $div();
+      div$$();
     });
 
     person({ name: () => p.name });
@@ -65,13 +65,13 @@ describe('defineComponent', () => {
   it('emit', async () => {
     let el: Element;
     const [person, $person] = defineComponent<any, any>(({ emit }) => {
-      div({
+      div$({
         onClick: () => {
           emit && emit('testClick', 123);
         },
       });
       el = getCurrentElement()!;
-      $div();
+      div$$();
     });
 
     const fn = jest.fn((arg) => {
@@ -91,16 +91,16 @@ describe('defineComponent', () => {
   });
 
   it('block & component', async () => {
-    const [com, $com] = defineComponent<any, any>(({ props }) => {
-      div();
+    const [com$, com$$] = defineComponent<any, any>(({ props }) => {
+      div$();
       hText(() => props.a);
-      $div();
+      div$$();
     });
     block(() => {
-      div();
-      $div();
-      com({ a: () => 'b' });
-      $com();
+      div$();
+      div$$();
+      com$({ a: () => 'b' });
+      com$$();
     });
     const container = document.createElement('div');
     mount(container);
@@ -111,17 +111,17 @@ describe('defineComponent', () => {
   });
 
   it('nest block & component', async () => {
-    const [com, $com] = defineComponent<any, any>(() => {
-      div();
-      $div();
+    const [com$, com$$] = defineComponent<any, any>(() => {
+      div$();
+      div$$();
     });
     block(() => {
-      div();
+      div$();
       block(() => {
-        com();
-        $com();
+        com$();
+        com$$();
       });
-      $div();
+      div$$();
     });
     const container1 = document.createElement('div');
     mount(container1);
@@ -131,14 +131,14 @@ describe('defineComponent', () => {
     );
 
     block(() => {
-      div();
+      div$();
       block(() => {
-        div();
-        $div();
+        div$();
+        div$$();
       });
-      com();
-      $com();
-      $div();
+      com$();
+      com$$();
+      div$$();
     });
     const container2 = document.createElement('div');
     mount(container2);
@@ -149,15 +149,15 @@ describe('defineComponent', () => {
   });
 
   it('isBetweenStartAndEnd', async () => {
-    const [com, $com] = defineComponent<any, any>(() => {
-      div();
-      $div();
+    const [com$, com$$] = defineComponent<any, any>(() => {
+      div$();
+      div$$();
     });
 
     expect(isBetweenStartAndEnd()).toBe(false);
-    com();
+    com$();
     expect(isBetweenStartAndEnd()).toBe(true);
-    $com();
+    com$$();
     expect(isBetweenStartAndEnd()).toBe(false);
 
     const container = document.createElement('div');

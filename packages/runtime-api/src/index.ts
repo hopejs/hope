@@ -1,6 +1,6 @@
 export { nextTick } from '@hopejs/runtime-core';
 
-export { div, $div, span, $span } from './tags';
+export * from './tags';
 export * from './render';
 
 // 指令

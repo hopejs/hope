@@ -11,7 +11,7 @@ import {
   start,
 } from '@hopejs/runtime-core';
 import { delay, LIFECYCLE_KEYS, NS } from '@hopejs/shared';
-import { $div, $span, block, div, hText, mount, span } from '../src';
+import { div$, span$, block, div$$, hText, mount, span$$ } from '../src';
 
 describe('block', () => {
   it('basic', async () => {
@@ -21,13 +21,13 @@ describe('block', () => {
 
     block(() => {
       if (state.toggle) {
-        div();
+        div$();
         hText('1');
-        $div();
+        div$$();
       } else {
-        span();
+        span$();
         hText('2');
-        $span();
+        span$$();
       }
     });
 
@@ -53,10 +53,10 @@ describe('block', () => {
 
     block(() => {
       if (state.show) {
-        div();
+        div$();
         hText(() => state.text);
         el = getCurrentElement()!;
-        $div();
+        div$$();
       }
     });
     const container = document.createElement('div');
@@ -92,10 +92,10 @@ describe('block', () => {
 
   it('nest element', async () => {
     block(() => {
-      div();
-      div();
-      $div();
-      $div();
+      div$();
+      div$();
+      div$$();
+      div$$();
     });
 
     const container = document.createElement('div');
@@ -109,8 +109,8 @@ describe('block', () => {
   it('nest block', async () => {
     block(() => {
       block(() => {
-        div();
-        $div();
+        div$();
+        div$$();
       });
     });
 
@@ -124,12 +124,12 @@ describe('block', () => {
 
   it('nest block & nest element', async () => {
     block(() => {
-      div();
+      div$();
       block(() => {
-        div();
-        $div();
+        div$();
+        div$$();
       });
-      $div();
+      div$$();
     });
 
     const container = document.createElement('div');
@@ -142,11 +142,11 @@ describe('block', () => {
 
   it('nest block & not nest element', async () => {
     block(() => {
-      div();
-      $div();
+      div$();
+      div$$();
       block(() => {
-        div();
-        $div();
+        div$();
+        div$$();
       });
     });
 
@@ -161,12 +161,12 @@ describe('block', () => {
   it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
-      div();
+      div$();
       el = getCurrentElement()!;
-      $div();
+      div$$();
       block(() => {
-        div();
-        $div();
+        div$();
+        div$$();
       });
     });
     // @ts-ignore
@@ -174,13 +174,13 @@ describe('block', () => {
 
     let el2: HopeElement;
     block(() => {
-      div();
+      div$();
       el2 = getCurrentElement()!;
       block(() => {
-        div();
-        $div();
+        div$();
+        div$$();
       });
-      $div();
+      div$$();
     });
     // @ts-ignore
     expect(el2[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);

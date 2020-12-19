@@ -1,14 +1,14 @@
 import { getCurrentElement } from '@hopejs/runtime-core';
 import { delay } from '@hopejs/shared';
-import { div, $div, defineComponent, mount } from '../../src';
+import { div$, div$$, defineComponent, mount } from '../../src';
 
 describe('event', () => {
   it('basic', () => {
     const fn = jest.fn();
 
-    div({ onClick: fn });
+    div$({ onClick: fn });
     const el = getCurrentElement();
-    $div();
+    div$$();
 
     el?.dispatchEvent(new CustomEvent('click'));
     expect(fn).toBeCalledTimes(1);
@@ -19,9 +19,9 @@ describe('event', () => {
   it('modifier & once', () => {
     const fn = jest.fn();
 
-    div({ onClick$once: fn });
+    div$({ onClick$once: fn });
     const el = getCurrentElement();
-    $div();
+    div$$();
 
     el?.dispatchEvent(new CustomEvent('click'));
     expect(fn).toBeCalledTimes(1);
@@ -32,13 +32,13 @@ describe('event', () => {
   it('modifier & once with component', async () => {
     let el: Element;
     const [person, $person] = defineComponent<any, any>(({ emit }) => {
-      div({
+      div$({
         onClick: () => {
           emit && emit('testClick', 123);
         },
       });
       el = getCurrentElement()!;
-      $div();
+      div$$();
     });
 
     const fn = jest.fn((arg) => {
