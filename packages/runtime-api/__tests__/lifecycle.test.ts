@@ -2,12 +2,12 @@ import { reactive } from '@hopejs/reactivity';
 import { canUseLifecycle } from '@hopejs/runtime-core';
 import { delay } from '@hopejs/shared';
 import {
-  div$,
+  div,
   block,
   ComponentEndTag,
   ComponentStartTag,
   defineComponent,
-  div$$,
+  $div,
   hText,
   mount,
   nextTick,
@@ -33,11 +33,11 @@ describe('lifecycle', () => {
       onUnmounted(unmounted);
       onUpdated(updated);
 
-      div$();
+      div();
       hText(() => props.text);
       // 需放在元素的开始标签和结束标签之间
       onElementUnmounted(elementUnmounted);
-      div$$();
+      $div();
 
       // 在定义组件时可以使用生命周期函数
       expect(canUseLifecycle()).toBe(true);
@@ -120,12 +120,12 @@ describe('lifecycle', () => {
   it('div inner', async () => {
     await common((com, $com, state) => {
       block(() => {
-        div$();
+        div();
         if (state.show) {
           com({ text: () => state.text });
           $com();
         }
-        div$$();
+        $div();
       });
     });
   });
@@ -133,8 +133,8 @@ describe('lifecycle', () => {
   it('div brother', async () => {
     await common((com, $com, state) => {
       block(() => {
-        div$();
-        div$$();
+        div();
+        $div();
         if (state.show) {
           com({ text: () => state.text });
           $com();
@@ -148,8 +148,8 @@ describe('lifecycle', () => {
           com({ text: () => state.text });
           $com();
         }
-        div$();
-        div$$();
+        div();
+        $div();
       });
     });
   });
@@ -185,10 +185,10 @@ describe('lifecycle', () => {
       block(() => {
         if (state.show) {
           block(() => {
-            div$();
+            div();
             com({ text: () => state.text });
             $com();
-            div$$();
+            $div();
           });
         }
       });
@@ -198,8 +198,8 @@ describe('lifecycle', () => {
       block(() => {
         if (state.show) {
           block(() => {
-            div$();
-            div$$();
+            div();
+            $div();
             com({ text: () => state.text });
             $com();
           });
@@ -207,55 +207,55 @@ describe('lifecycle', () => {
       });
     });
 
-    await common((com$, com$$, state) => {
+    await common((com, $com, state) => {
       block(() => {
         if (state.show) {
           block(() => {
-            com$({ text: () => state.text });
-            com$$();
-            div$();
-            div$$();
+            com({ text: () => state.text });
+            $com();
+            div();
+            $div();
           });
         }
       });
     });
 
-    await common((com$, com$$, state) => {
+    await common((com, $com, state) => {
       block(() => {
         if (state.show) {
-          div$();
-          div$$();
+          div();
+          $div();
           block(() => {
-            com$({ text: () => state.text });
-            com$$();
+            com({ text: () => state.text });
+            $com();
           });
         }
       });
     });
 
-    await common((com$, com$$, state) => {
+    await common((com, $com, state) => {
       block(() => {
         if (state.show) {
-          div$();
+          div();
           block(() => {
-            com$({ text: () => state.text });
-            com$$();
+            com({ text: () => state.text });
+            $com();
           });
-          div$$();
+          $div();
         }
       });
     });
 
-    await common((com$, com$$, state) => {
+    await common((com, $com, state) => {
       block(() => {
-        div$();
+        div();
         if (state.show) {
           block(() => {
-            com$({ text: () => state.text });
-            com$$();
+            com({ text: () => state.text });
+            $com();
           });
         }
-        div$$();
+        $div();
       });
     });
   });

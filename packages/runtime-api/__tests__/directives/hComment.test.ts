@@ -1,24 +1,24 @@
 import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
 import { reactive } from '@hopejs/reactivity';
-import { hComment, div$, div$$, block } from '../../src';
+import { hComment, div, $div, block } from '../../src';
 import { LIFECYCLE_KEYS } from '@hopejs/shared';
 
 describe('hComment', () => {
   it('basic', () => {
-    div$();
+    div();
     hComment('');
     expect(getCurrentElement()?.innerHTML).toBe('<!---->');
-    div$$();
+    $div();
   });
 
   it('reactivity', async () => {
     const state = reactive({ name: 'a' });
 
-    div$();
+    div();
     hComment(() => state.name);
     const el = getCurrentElement();
     expect(el?.innerHTML).toBe(`<!--a-->`);
-    div$$();
+    $div();
 
     state.name = 'b';
     await nextTick();
@@ -28,10 +28,10 @@ describe('hComment', () => {
   it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
-      div$();
+      div();
       hComment(() => 'name');
       el = getCurrentElement()!;
-      div$$();
+      $div();
     });
 
     // @ts-ignore
@@ -41,10 +41,10 @@ describe('hComment', () => {
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
     block(() => {
-      div$();
+      div();
       hComment('name');
       el = getCurrentElement()!;
-      div$$();
+      $div();
     });
 
     // @ts-ignore

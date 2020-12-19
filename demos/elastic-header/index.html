@@ -11,11 +11,11 @@
   </head>
   <body>
     <script>
-      const { mount, div$, div$$, h1$, h1$$, p$, p$$, a$, a$$, hSlot, hText } = Hope
-      const { defineComponent, svg$, svg$$, path$, path$$, reactive } = Hope;
+      const { mount, div, $div, h1, $h1, p, $p, a, $a, hSlot, hText } = Hope
+      const { defineComponent, svg, $svg, path, $path, reactive } = Hope;
 
       // 定义组件
-      const [draggableHeaderView$, draggableHeaderView$$,] = defineComponent(({ slots }) => {
+      const [draggableHeaderView, $draggableHeaderView,] = defineComponent(({ slots }) => {
         const state = reactive({
           dragging: false,
           // quadratic bezier control point
@@ -70,7 +70,7 @@
           }
         }
 
-        div$({
+        div({
           class: 'draggable-header-view',
           onMousedown: startDrag,
           onTouchstart: startDrag,
@@ -80,44 +80,44 @@
           onTouchend: stopDrag,
           onMouseleave: stopDrag
         })
-          svg$({ class: 'bg', width: '320', height: '560' })
-            path$({ d: headerPath, fill: '#3F51B5' })
-            path$$()
-          svg$$()
-          div$({ class: 'header' })
+          svg({ class: 'bg', width: '320', height: '560' })
+            path({ d: headerPath, fill: '#3F51B5' })
+            $path()
+          $svg()
+          div({ class: 'header' })
             slots.header()
-          div$$()
-          div$({ class: 'content', style: contentPosition })
+          $div()
+          div({ class: 'content', style: contentPosition })
             slots.content()
-          div$$()
-        div$$()
+          $div()
+        $div()
       });
 
       // 文档入口
-      div$({ id: 'app', onTouchmove$prevent: () => void 0 })
-        draggableHeaderView$()
+      div({ id: 'app', onTouchmove$prevent: () => void 0 })
+        draggableHeaderView()
           hSlot('header', () => {
-            h1$()
+            h1()
               hText('Elastic Draggable SVG Header')
-            h1$$()
-            p$()
+            $h1()
+            p()
               hText('with ')
-              a$({ href: 'https://vuejs.org' })
+              a({ href: 'https://vuejs.org' })
                 hText('Vue.js')
-              a$$()
+              $a()
               hText(' + ')
-              a$({ href: 'http://dynamicsjs.com' })
+              a({ href: 'http://dynamicsjs.com' })
                 hText('dynamics.js')
-              a$$()
-            p$$()
+              $a()
+            $p()
           })
           hSlot('content', () => {
-            p$()
+            p()
               hText('Note this is just an effect demo - there are of course many additional details if you want to use this in production, e.g. handling responsive sizes, reload threshold and content scrolling. Those are out of scope for this quick little hack. However, the idea is that you can hide them as internal details of a Vue.js component and expose a simple Web-Component-like interface.')
-            p$$()
+            $p()
           })
-        draggableHeaderView$$()
-      div$$()
+        $draggableHeaderView()
+      $div()
 
       // 挂载到 DOM 树
       mount(document.body)

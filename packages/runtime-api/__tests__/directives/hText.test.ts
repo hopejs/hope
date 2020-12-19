@@ -1,23 +1,23 @@
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
 import { LIFECYCLE_KEYS } from '@hopejs/shared';
-import { div$, div$$, hText, block } from '../../src';
+import { div, $div, hText, block } from '../../src';
 
 describe('hText', () => {
   it('basic', () => {
-    div$();
+    div();
     hText('text');
     expect(getCurrentElement()?.innerHTML).toBe(`text`);
-    div$$();
+    $div();
   });
 
   it('reactivity', async () => {
     const content = reactive({ value: 'text' });
 
-    div$();
+    div();
     hText(() => content.value);
     const el = getCurrentElement();
-    div$$();
+    $div();
 
     expect(el?.innerHTML).toBe(`text`);
     content.value = '123';
@@ -28,10 +28,10 @@ describe('hText', () => {
   it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
-      div$();
+      div();
       hText(() => 'text');
       el = getCurrentElement()!;
-      div$$();
+      $div();
     });
 
     // @ts-ignore
@@ -41,10 +41,10 @@ describe('hText', () => {
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
     block(() => {
-      div$();
+      div();
       hText('text');
       el = getCurrentElement()!;
-      div$$();
+      $div();
     });
 
     // @ts-ignore

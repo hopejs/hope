@@ -8,11 +8,11 @@
 
 例如用`hopejs`写一个 Hello World 是这样的：
 ```javascript
-const { div$, div$$, hText } = Hope
+const { div, $div, hText } = Hope
 
-div$()
+div()
   hText('hello hope!')
-div$$()
+$div()
 
 mount(document.body)
 ```
@@ -27,9 +27,9 @@ mount(document.body)
 </div>
 
 // hopejs 版本
-div$()
+div()
   hText('hello hope!')
-div$$()
+$div()
 ```
 
 怎么样，是不是很相似？这是我故意模仿 html 的语法设计的，便于使用者的理解，降低学习成本。
@@ -48,22 +48,22 @@ h('div', props, ...children);
 于是我想到了下面的这种类似于 HTML 语法的写法。
 
 ```js
-const { div$, div$$, hText } = Hope
+const { div, $div, hText } = Hope
 
 // 描述一个 div 元素
-div$()
+div()
   hText('hello')
-div$$()
+$div()
 ```
 
 上面的这种写法比较类似于 HTML 的语法，有“开始标签”和“结束标签”，并且还可以在“标签”之间写其它的元素，如下所示：
 
 ```js
 // 描述一个拥有一个 span 子元素的 div 元素
-div$()
-  span$()
-  span$$()
-div$$()
+div()
+  span()
+  $span()
+$div()
 
 // HTML 版本
 <div>
@@ -82,9 +82,9 @@ div$$()
 
 ```js
 // 设置 div 的 class name
-div$({ class: 'class-name' })
+div({ class: 'class-name' })
   hText('hello')
-div$$()
+$div()
 
 // HTML 版本
 <div class="class-name">
@@ -97,9 +97,9 @@ div$$()
 例如：
 ```js
 // 设置 div 的 innerHTML 属性
-div$({ innerHTML: 'hello hope!' })
+div({ innerHTML: 'hello hope!' })
   hText('hello')
-div$$()
+$div()
 
 // HTML 这样写是无效的，并不会设置其 DOM 元素的 innerHTML
 <div innerHTML="hello hope!">
@@ -113,9 +113,9 @@ div$$()
 
 ```js
 // 绑定 div 的 click 事件，'on' 后面的首字母需要大写
-div$({ onClick: () => console.log('Say hello!') })
+div({ onClick: () => console.log('Say hello!') })
   hText('hello')
-div$$()
+$div()
 
 // HTML 版本，'on' 后面的首字母不需要大写
 <div onclick="hello hope!">
@@ -133,11 +133,11 @@ div$$()
 const { defineComponent, div, $div, hText, s } = Hope
 
 // 接收一个函数作为参数，在该函数中书写该组件的 HTML 结构和 CSS 样式
-const [com$, com$$] = defineComponent(({ props, slot, emit }) => {
+const [com, $com] = defineComponent(({ props, slot, emit }) => {
   // 直接写 “HTML"，不用 return
-  div$({ class: 'class-name' })
+  div({ class: 'class-name' })
     hText('Hello Component!')
-  div$$()
+  $div()
 
   // hopejs 暴露了一个 s 接口，s 是 style 的缩写，用来写 CSS
   // 该语法也是模仿的 CSS 的语法，CSS 的版本是这样的：
@@ -152,8 +152,8 @@ const [com$, com$$] = defineComponent(({ props, slot, emit }) => {
 })
 
 // 然后就像普通标签一样使用组件
-com$()
-com$$()
+com()
+$com()
 
 // 最后需要挂在到 DOM 树中
 mount(document.body)
@@ -182,23 +182,23 @@ mount(document.body)
 在 hopejs 中组件也可以发出一个事件，供用户使用的时候监听该事件，处理一些逻辑。事件是通过 `emit` 在组件中发出的。
 
 ```js
-const { defineComponent, div$, div$$, hText, s } = Hope
+const { defineComponent, div, $div, hText, s } = Hope
 
-const [com$, com$$] = defineComponent(({ props, slot, emit }) => {
+const [com, $com] = defineComponent(({ props, slot, emit }) => {
   const handler = () => {
     // 使用 emit 发出一个事件
     emit('clickText', '这里可以传参数')
   }
 
   // 监听组件根元素的 click 事件
-  div$({ onClick: handler })
+  div({ onClick: handler })
     hText('Hello Component!')
-  div$$()
+  $div()
 })
 
 // 监听事件时注意字母的大小写，必须要 'on' 开头
-com$({ onClickText: (param) => console.log(param) })
-com$$()
+com({ onClickText: (param) => console.log(param) })
+$com()
 
 // 最后需要挂在到 DOM 树中
 mount(document.body)
@@ -209,35 +209,35 @@ mount(document.body)
 插槽在组件中也是很重要的，可以更灵活的使用组件。现在来看一下 hopejs 中组件的插槽是如何实现的。
 
 ```js
-const { defineComponent, div$, div$$, hText, hSlot, s } = Hope
+const { defineComponent, div, $div, hText, hSlot, s } = Hope
 
-const [com$, com$$] = defineComponent(({ props, slot, emit }) => {
+const [com, $com] = defineComponent(({ props, slot, emit }) => {
   // 通过 slot 参数，在组件中可以获取到插入到组件中的插槽，
   // 所谓插槽就是一个函数，直接在某个位置上调用即可，default
   // 表示的是没有提供具体名字的插槽，如果提供了具体的名字，
   // 则需要更改为那个具体的名字，如 slot.name()
-  div$()
+  div()
     slot.default()
-  div$$()
+  $div()
 })
 
 // 使用组件时，需要通过 hSlot 指令来指定组件的插槽
-com$()
+com()
   hSlot(() => {
-    div$()
+    div()
       hText('这里是插槽中的内容')
-    div$$()
+    $div()
   })
-com$$()
+$com()
 
 // 也可以指定插槽的名字，使用时这样用 slot.name()
-com$()
+com()
   hSlot('name', () => {
-    div$()
+    div()
       hText('这里是插槽中的内容')
-    div$$()
+    $div()
   })
-com$$()
+$com()
 
 // 最后需要挂在到 DOM 树中
 mount(document.body)
@@ -248,10 +248,10 @@ mount(document.body)
 有时候我们会根据某个状态值的不同，去显示不同的 DOM 结构，比如根据路由的不同渲染不同的组件。hopejs 提供了 `block` API 来进行 DOM 树的结构更新。如下所示：
 
 ```js
-const { div$, div$$, hText, reactive, block } = Hope
+const { div, $div, hText, reactive, block } = Hope
 const state = reactive({ show: true })
 
-div$()
+div()
   // 在 block 中声明 DOM 结构与状态之间的关系，
   // 当状态更新时，DOM 树结构也会自动进行更新
   block(() => {
@@ -261,7 +261,7 @@ div$()
       hText('show 为 false 时显示')
     }
   })
-div$$()
+$div()
 ```
 
 ## 响应式
@@ -269,16 +269,16 @@ div$$()
 响应式在现在的前端开发中已经是不可缺少的一部分了，它极大的简化了前端页面的开发难度。来看一下 hopejs 的响应式是怎么写的。
 
 ```js
-const { div$, div$$, reactive } = Hope
+const { div, $div, reactive } = Hope
 const state = reactive({ color: 'red' })
 
 // HTML
 // 在 hopejs 中，只要把属性的值写成函数的形式，并返回，
 // 当状态值更改时，对应的 UI 也会自动更新
-div$({style: {
+div({style: {
   color: () => state.color
 }})
-div$$()
+$div()
 
 // 挂在到 DOM 树
 mount(document.body)

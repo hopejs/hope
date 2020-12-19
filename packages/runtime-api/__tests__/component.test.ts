@@ -2,15 +2,15 @@ import { createElement } from '@hopejs/renderer';
 import { delay } from '@hopejs/shared';
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement } from '@hopejs/runtime-core';
-import { div$, defineComponent, div$$, mount, nextTick } from '../src';
+import { div, defineComponent, $div, mount, nextTick } from '../src';
 
 describe('component', () => {
   const container = createElement('div');
 
   it('props', async () => {
     const [com, $com] = defineComponent<{ text: string }, any>(({ props }) => {
-      div$({ class: () => props.text });
-      div$$();
+      div({ class: () => props.text });
+      $div();
     });
 
     com({ text: 'class-name' });
@@ -41,9 +41,9 @@ describe('component', () => {
     let el: any;
     const [com, $com] = defineComponent<{ onComClick: any }, any>(
       ({ emit }) => {
-        div$({ onClick: () => emit('comClick', 123) });
+        div({ onClick: () => emit('comClick', 123) });
         el = getCurrentElement()!;
-        div$$();
+        $div();
       }
     );
 

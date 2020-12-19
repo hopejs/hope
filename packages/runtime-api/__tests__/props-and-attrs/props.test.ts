@@ -8,36 +8,36 @@ import {
 import { reactive } from '@hopejs/reactivity';
 import { delay, LIFECYCLE_KEYS } from '@hopejs/shared';
 import { createElement } from '@hopejs/renderer';
-import { div$, div$$, block, defineComponent, hText, mount } from '../../src';
+import { div, $div, block, defineComponent, hText, mount } from '../../src';
 
 describe('props', () => {
   const KEY = '_hopejs_test';
   const [testComponent, $testComponent] = defineComponent<any, any>(
     ({ props }) => {
-      div$();
+      div();
       hText(props.a);
       hText(props.b);
-      div$$();
+      $div();
     }
   );
 
   it('basic', () => {
-    div$({ [KEY]: '123' });
+    div({ [KEY]: '123' });
     // @ts-ignore
     expect(getCurrentElement()!.outerHTML).toBe(
       '<div _hopejs_test="123"></div>'
     );
-    div$$();
+    $div();
   });
 
   it('reactivity', async () => {
     const state = reactive({ name: 'a' });
 
-    div$({ [KEY]: () => state.name });
+    div({ [KEY]: () => state.name });
     const el = getCurrentElement();
     // @ts-ignore
     expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
-    div$$();
+    $div();
 
     state.name = 'b';
     await nextTick();
@@ -48,19 +48,19 @@ describe('props', () => {
   it('reactivity object', async () => {
     const props = reactive({ [KEY]: 'a' });
 
-    div$(props);
+    div(props);
     const el = getCurrentElement();
     // @ts-ignore
     expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
-    div$$();
+    $div();
   });
 
   it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
-      div$({ [KEY]: () => 'name' });
+      div({ [KEY]: () => 'name' });
       el = getCurrentElement()!;
-      div$$();
+      $div();
     });
 
     // @ts-ignore
@@ -70,9 +70,9 @@ describe('props', () => {
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
     block(() => {
-      div$({ [KEY]: 'name' });
+      div({ [KEY]: 'name' });
       el = getCurrentElement()!;
-      div$$();
+      $div();
     });
 
     // @ts-ignore

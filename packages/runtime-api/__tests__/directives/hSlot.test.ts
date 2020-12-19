@@ -1,18 +1,18 @@
 import { delay } from '@hopejs/shared';
-import { div$, defineComponent, div$$, hSlot, hText, mount } from '../../src';
+import { div, defineComponent, $div, hSlot, hText, mount } from '../../src';
 
 describe('hSlot', () => {
   it('basic', async () => {
     const [person, $person] = defineComponent<any, any>(({ slots }) => {
-      div$();
+      div();
       slots.default();
-      div$$();
+      $div();
     });
 
     person();
     hSlot(() => {
-      div$();
-      div$$();
+      div();
+      $div();
     });
     $person();
 
@@ -27,10 +27,10 @@ describe('hSlot', () => {
 
   it('slot name', async () => {
     const [person, $person] = defineComponent<any, any>(({ slots }) => {
-      div$();
+      div();
       slots.first();
       slots.second();
-      div$$();
+      $div();
     });
 
     person();

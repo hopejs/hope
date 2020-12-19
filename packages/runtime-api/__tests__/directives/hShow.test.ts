@@ -1,21 +1,21 @@
 import { reactive } from '@hopejs/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
 import { delay, LIFECYCLE_KEYS } from '@hopejs/shared';
-import { hShow, mount, div$, div$$, block } from '../../src';
+import { hShow, mount, div, $div, block } from '../../src';
 
 describe('hShow', () => {
   it('basic', async () => {
-    div$();
+    div();
     hShow(true);
-    div$$();
+    $div();
     const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(`<div></div>`);
 
-    div$();
+    div();
     hShow(false);
-    div$$();
+    $div();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(`<!--hShow-->`);
@@ -24,9 +24,9 @@ describe('hShow', () => {
   it('reactivity', async () => {
     const show = reactive({ value: true });
 
-    div$();
+    div();
     hShow(() => show.value);
-    div$$();
+    $div();
     const container = document.createElement('div');
     mount(container);
     await delay();
@@ -40,11 +40,11 @@ describe('hShow', () => {
   it('nest element', async () => {
     const show = reactive({ value: false });
 
-    div$();
+    div();
     hShow(() => show.value);
-    div$();
-    div$$();
-    div$$();
+    div();
+    $div();
+    $div();
     const container = document.createElement('div');
     mount(container);
     await delay();
@@ -58,10 +58,10 @@ describe('hShow', () => {
   it('elementUnmounted', () => {
     let el: HopeElement;
     block(() => {
-      div$();
+      div();
       hShow(() => true);
       el = getCurrentElement()!;
-      div$$();
+      $div();
     });
 
     // @ts-ignore
@@ -71,10 +71,10 @@ describe('hShow', () => {
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
     block(() => {
-      div$();
+      div();
       hShow(true);
       el = getCurrentElement()!;
-      div$$();
+      $div();
     });
 
     // @ts-ignore
