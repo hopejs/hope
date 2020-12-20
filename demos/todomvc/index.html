@@ -1,69 +1,285 @@
 <!doctype html>
-<html data-framework="vue">
+<html>
   <head>
     <meta charset="utf-8">
-    <title>Vue.js • TodoMVC</title>
+    <title>Hope.js • TodoMVC</title>
     <link rel="stylesheet" href="https://unpkg.com/todomvc-app-css@2.0.4/index.css">
     <script src="https://unpkg.com/director@1.2.8/build/director.js"></script>
-    <style>[v-cloak] { display: none; }</style>
   </head>
   <body>
-    <section class="todoapp">
-      <header class="header">
-        <h1>todos</h1>
-        <input class="new-todo"
-          autofocus autocomplete="off"
-          placeholder="What needs to be done?"
-          v-model="newTodo"
-          @keyup.enter="addTodo">
-      </header>
-      <section class="main" v-show="todos.length" v-cloak>
-        <input class="toggle-all" type="checkbox" v-model="allDone">
-        <ul class="todo-list">
-          <li v-for="todo in filteredTodos"
-            class="todo"
-            :key="todo.id"
-            :class="{ completed: todo.completed, editing: todo == editedTodo }">
-            <div class="view">
-              <input class="toggle" type="checkbox" v-model="todo.completed">
-              <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
-              <button class="destroy" @click="removeTodo(todo)"></button>
-            </div>
-            <input class="edit" type="text"
-              v-model="todo.title"
-              v-todo-focus="todo == editedTodo"
-              @blur="doneEdit(todo)"
-              @keyup.enter="doneEdit(todo)"
-              @keyup.esc="cancelEdit(todo)">
-          </li>
-        </ul>
-      </section>
-      <footer class="footer" v-show="todos.length" v-cloak>
-        <span class="todo-count">
-          <strong>{{ remaining }}</strong> {{ remaining | pluralize }} left
-        </span>
-        <ul class="filters">
-          <li><a href="#/all" :class="{ selected: visibility == 'all' }">All</a></li>
-          <li><a href="#/active" :class="{ selected: visibility == 'active' }">Active</a></li>
-          <li><a href="#/completed" :class="{ selected: visibility == 'completed' }">Completed</a></li>
-        </ul>
-        <button class="clear-completed" @click="removeCompleted" v-show="todos.length > remaining">
-          Clear completed
-        </button>
-      </footer>
-    </section>
-    <footer class="info">
-      <p>Double-click to edit a todo</p>
-      <p>Written by <a href="http://evanyou.me">Evan You</a></p>
-      <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
-    </footer>
-
     <script>
-    // for testing
-    if (navigator.userAgent.indexOf('PhantomJS') > -1) localStorage.clear()
+      // for testing
+      if (navigator.userAgent.indexOf('PhantomJS') > -1) localStorage.clear()
+      </script>
+      <!-- Delete ".min" for console warnings in development -->
+    <script src="../../packages/hope/dist/hope.min.js"></script>
+    <script>
+      const {
+        section,
+        $section,
+        footer,
+        $footer,
+        p,
+        $p,
+        a,
+        $a,
+        header,
+        $header,
+        h1,
+        $h1,
+        input,
+        $input,
+        reactive,
+        effect,
+        hText,
+        hShow,
+        ul,
+        $ul,
+        block,
+        li,
+        $li,
+        div,
+        $div,
+        label,
+        $label,
+        button,
+        $button,
+        getCurrentElement,
+        autoUpdate,
+        span,
+        $span,
+        strong,
+        $strong,
+        mount
+      } = Hope
+
+      // localStorage persistence
+      var STORAGE_KEY = 'todos-hopejs-0.0.1'
+      var todoStorage = {
+        fetch: function () {
+          var todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+          todos.forEach(function (todo, index) {
+            todo.id = index
+          })
+          todoStorage.uid = todos.length
+          return todos
+        },
+        save: function (todos) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
+        }
+      }
+
+      // visibility filters
+      var filters = {
+        all: function (todos) {
+          return todos
+        },
+        active: function (todos) {
+          return todos.filter(function (todo) {
+            return !todo.completed
+          })
+        },
+        completed: function (todos) {
+          return todos.filter(function (todo) {
+            return todo.completed
+          })
+        }
+      }
+
+      const state = reactive({
+        todos: todoStorage.fetch(),
+        newTodo: '',
+        editedTodo: null,
+        visibility: 'all'
+      })
+
+      effect(() => {
+        todoStorage.save(state.todos)
+      })
+
+      const filteredTodos = () => filters[state.visibility](state.todos)
+      const remaining = () => filters.active(state.todos).length
+      const getAllDone = () => (remaining() === 0)
+      const setAllDone = (value) => state.todos.forEach(function (todo) {
+        todo.completed = value
+      })
+      const pluralize = (n) => (n === 1 ? 'item' : 'items')
+      const addTodo = () => {
+        var value = state.newTodo && state.newTodo.trim()
+        if (!value) {
+          return
+        }
+        state.todos.push({
+          id: todoStorage.uid++,
+          title: value,
+          completed: false
+        })
+        state.newTodo = ''
+      }
+      const removeTodo = (todo) => {
+        state.todos.splice(state.todos.indexOf(todo), 1)
+      }
+      const editTodo = (todo) => {
+        state.beforeEditCache = todo.title
+        state.editedTodo = todo
+      }
+      const doneEdit = (todo) => {
+        if (!state.editedTodo) {
+          return
+        }
+        state.editedTodo = null
+        todo.title = todo.title.trim()
+        if (!todo.title) {
+          state.removeTodo(todo)
+        }
+      }
+      const cancelEdit = (todo) => {
+        state.editedTodo = null
+        todo.title = state.beforeEditCache
+      }
+      const removeCompleted = () => {
+        state.todos = filters.active(state.todos)
+      }
+      const todoFocus = (value) => {
+        const el = getCurrentElement()
+        autoUpdate(() => {
+          if (value()) {
+            el.focus()
+          }
+        })
+      }
+
+      // handle routing
+      function onHashChange () {
+        var visibility = window.location.hash.replace(/#\/?/, '')
+        if (filters[visibility]) {
+          state.visibility = visibility
+        } else {
+          window.location.hash = ''
+          state.visibility = 'all'
+        }
+      }
+
+      window.addEventListener('hashchange', onHashChange)
+      onHashChange()
+
+      // HTML
+      section({class: "todoapp"})
+        header({class: "header"})
+          h1()
+            hText("todos")
+          $h1()
+          input({
+            class: "new-todo",
+            autofocus: true,
+            autocomplete: "off",
+            placeholder: "What needs to be done?",
+            value: () => state.newTodo,
+            onInput: (e) => (state.newTodo = e.target.value),
+            onKeyup: (e) => (e.keyCode === 13 && addTodo())
+          })
+          $input()
+        $header()
+        section({ class: "main" })
+          hShow(() => state.todos.length)
+          input({
+            class: "toggle-all",
+            type: "checkbox",
+            onInput(e) {
+              setAllDone(!getAllDone())
+            }
+          })
+          $input()
+          ul({class: "todo-list"})
+            block(() => {
+              filteredTodos().forEach((todo) => {
+                li({
+                  class: ["todo", { completed: () => todo.completed, editing: () => (todo == state.editedTodo) }]
+                })
+                  div({class: "view"})
+                    input({
+                      class: "toggle",
+                      type: "checkbox",
+                      onInput() { todo.completed = !todo.completed}
+                    })
+                    $input()
+                    label({onDblclick() { editTodo(todo) }})
+                      hText(() => todo.title)
+                    $label()
+                    button({class: "destroy", onClick() { removeTodo(todo) }})
+                    $button()
+                  $div()
+                  input({
+                    class: "edit",
+                    type: "text",
+                    value: () => todo.title,
+                    onInput: e => (todo.title = e.target.value),
+                    onBlur: () => doneEdit(todo),
+                    onKeyup: (e) => (e.keyCode === 13 && doneEdit(todo)),
+                    onKeyup: (e) => (e.keyCode === 27 && cancelEdit(todo))
+                  })
+                    todoFocus(() => todo == state.editedTodo)
+                  $input()
+                $li()
+              })
+            })
+          $ul()
+        $section()
+        footer({class: "footer"})
+          hShow(() => state.todos.length)
+          span({class: "todo-count"})
+            strong()
+              hText(remaining)
+            $strong()
+            hText(() => pluralize(remaining()))
+            hText(" left")
+          $span()
+          ul({class: "filters"})
+            li()
+              a({href: "#/all", class: {selected: () => (state.visibility == 'all')}})
+                hText("All")
+              $a()
+            $li()
+            li()
+              a({href: "#/active", class: {selected: () => (state.visibility == 'active')}})
+                hText("active")
+              $a()
+            $li()
+            li()
+              a({href: "#/completed", class: {selected: () => (state.visibility == 'completed')}})
+                hText("completed")
+              $a()
+            $li()
+          $ul()
+          button({
+            class: "clear-completed",
+            onClick: removeCompleted
+          })
+            hShow(() => (state.todos.length > remaining()))
+            hText("Clear completed")
+          $button()
+        $footer()
+      $section()
+      footer({class: "info"})
+        p()
+          hText("Double-click to edit a todo")
+        $p()
+        p()
+          hText("Written by ")
+          a({href: "https://github.com/zhangzhonghe"})
+            hText("张中合")
+          $a()
+        $p()
+        p()
+          hText("Part of ")
+          a({href: "http://todomvc.com"})
+            hText("TodoMVC")
+          $a()
+        $p()
+      $footer()
+
+      // 挂载
+      mount(document.body)
     </script>
-    <!-- Delete ".min" for console warnings in development -->
-    <script src="../../dist/vue.min.js"></script>
-    <script src="app.js"></script>
   </body>
 </html>

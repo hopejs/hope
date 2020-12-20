@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
-    <title>Vue.js elastic header example</title>
+    <title>Hope.js elastic header example</title>
     <!-- Delete ".min" for console warnings in development -->
     <script src="../../packages/hope/dist/hope.min.js"></script>
     <script src="http://dynamicsjs.com/lib/dynamics.js"></script>
@@ -102,8 +102,8 @@
             $h1()
             p()
               hText('with ')
-              a({ href: 'https://vuejs.org' })
-                hText('Vue.js')
+              a()
+                hText('Hope.js')
               $a()
               hText(' + ')
               a({ href: 'http://dynamicsjs.com' })
@@ -113,7 +113,7 @@
           })
           hSlot('content', () => {
             p()
-              hText('Note this is just an effect demo - there are of course many additional details if you want to use this in production, e.g. handling responsive sizes, reload threshold and content scrolling. Those are out of scope for this quick little hack. However, the idea is that you can hide them as internal details of a Vue.js component and expose a simple Web-Component-like interface.')
+              hText('Note this is just an effect demo - there are of course many additional details if you want to use this in production, e.g. handling responsive sizes, reload threshold and content scrolling. Those are out of scope for this quick little hack. However, the idea is that you can hide them as internal details of a Hope.js component and expose a simple Web-Component-like interface.')
             $p()
           })
         $draggableHeaderView()
