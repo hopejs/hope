@@ -285,3 +285,11 @@ mount(document.body)
 ```
 
 可以看到，在 hopejs 中响应式需要满足**两个条件**，一个是响应式对象，就是用 reactive API 生成的对象，一个是**属性值是一个返回状态值的函数**，这两个条件缺一不可，否则就不会状态值更改时自动更新 UI。
+
+# Demos
+
+demo1: [elastic-header](https://hopejs.github.io/hope/demos/elastic-header/index.html)
+
+demo2: [markdown](https://hopejs.github.io/hope/demos/markdown/index.html)
+
+demo3: [todomvc](https://hopejs.github.io/hope/demos/todomvc/index.html)
