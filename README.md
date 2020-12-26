@@ -4,7 +4,11 @@
 
 ## 快速开始
 
-目前仅支持在`script`标签的`src`属性中引入`hope.global.js`，该文件存放在`packages/hope/dist`目录下。所有API都存放在一个全局对象`Hope`中。
+在`script`标签的`src`属性中引入`https://unpkg.com/@hopejs/hope@0.6.7/dist/index.min.js`，所有 API 都在全局变量 `Hope` 中。
+
+```html
+<script src="https://unpkg.com/@hopejs/hope@0.6.7/dist/index.min.js"></script>
+```
 
 例如用`hopejs`写一个 Hello World 是这样的：
 ```javascript
