@@ -1,8 +1,16 @@
 {
-  "name": "hope",
-  "version": "0.0.1",
-  "description": "hope",
-  "main": "index.js",
+  "name": "@hopejs/hope",
+  "version": "0.6.7",
+  "description": "@hopejs/hope",
+  "main": "lib/index.js",
+  "module": "esm/index.js",
+  "unpkg": "dist/index.js",
+  "types": "lib/hope/src/index.d.ts",
+  "files": [
+    "dist",
+    "lib",
+    "esm"
+  ],
   "keywords": [
     "hopejs"
   ],

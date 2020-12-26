@@ -7,11 +7,21 @@ const __DEV__ = process.env.NODE_ENV !== 'production';
 
 export default {
   input: 'packages/hope/src/index.ts',
-  output: {
-    format: 'iife',
-    file: __DEV__ ? 'packages/hope/dist/hope.js' : 'packages/hope/dist/hope.min.js',
-    name: 'Hope',
-  },
+  output: [
+    {
+      format: 'umd',
+      file: __DEV__ ? 'packages/hope/dist/index.js' : 'packages/hope/dist/index.min.js',
+      name: 'Hope',
+    },
+    {
+      format: 'cjs',
+      file: 'packages/hope/lib/index.js'
+    },
+    {
+      format: 'esm',
+      file: 'packages/hope/esm/index.js'
+    }
+  ],
   plugins: [
     replace({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),

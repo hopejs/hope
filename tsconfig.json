@@ -1,26 +1,24 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
+    "declaration": true,
     "sourceMap": false,
     "target": "ES2015",
     "module": "esnext",
     "moduleResolution": "node",
     "allowJs": false,
     "strict": true,
-    "jsx": "react",
-    "jsxFactory": "h",
     "noUnusedLocals": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "removeComments": false,
     "lib": ["esnext", "dom"],
-    "types": ["jest", "node", "react"],
-    "rootDir": ".",
+    "types": ["jest", "node"],
     "paths": {
       "@hopejs/*": ["packages/*/src"],
       "hope": ["packages/hope/src"]
     }
-  }
+  },
+  "include": ["packages/hope/src"]
 }

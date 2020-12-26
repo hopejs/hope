@@ -1,6 +1,6 @@
 {
   "name": "@hopejs/renderer",
-  "version": "0.0.1",
+  "version": "0.6.7",
   "description": "@hopejs/renderer",
   "main": "index.js",
   "scripts": {

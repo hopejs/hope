@@ -1,13 +1,15 @@
 {
   "private": true,
-  "version": "0.0.1",
+  "version": "0.6.7",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "test": "rollup -c & jest",
-    "dev": "cross-env NODE_ENV=development rollup -c -w",
-    "build": "cross-env NODE_ENV=production rollup -c"
+    "dev": "cross-env NODE_ENV=development rollup -c",
+    "build": "cross-env NODE_ENV=production rollup -c",
+    "build:cjs": "tsc --module commonjs --outDir packages/hope/dist/lib",
+    "build:esm": "tsc --module ES2015 --outDir packages/hope/dist/esm"
   },
   "engines": {
     "node": ">=10.0.0"
@@ -17,7 +19,6 @@
     "@rollup/plugin-replace": "^2.3.4",
     "@types/jest": "^26.0.15",
     "@types/node": "^14.10.1",
-    "@types/react": "^17.0.0",
     "cross-env": "^7.0.3",
     "jest": "^26.6.2",
     "rollup": "^2.33.1",

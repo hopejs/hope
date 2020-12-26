@@ -1,6 +1,6 @@
 {
   "name": "@hopejs/runtime-api",
-  "version": "0.0.1",
+  "version": "0.6.7",
   "description": "@hopejs/runtime-api",
   "main": "index.js",
   "scripts": {
