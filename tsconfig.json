@@ -6,7 +6,7 @@
     "target": "ES2015",
     "module": "esnext",
     "moduleResolution": "node",
-    "allowJs": false,
+    "allowJs": true,
     "strict": true,
     "noUnusedLocals": true,
     "experimentalDecorators": true,
@@ -16,9 +16,8 @@
     "lib": ["esnext", "dom"],
     "types": ["jest", "node"],
     "paths": {
-      "@hopejs/*": ["packages/*/src"],
-      "hope": ["packages/hope/src"]
+      "src": ["src"]
     }
   },
-  "include": ["packages/hope/src"]
+  "include": ["src"]
 }
