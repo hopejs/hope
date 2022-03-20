@@ -45,17 +45,17 @@ function insertBlockFragment(
 
 function remove(start: Node, end: Node, firstNode: Node | null) {
   end = firstNode || end;
-  const next: any = start.nextSibling;
+  let next: any = start.nextSibling;
   // next 可能已经被 remove。
-  if (!next || next === end) return;
+  while(next && next !== end) {
+    // 调用元素的卸载钩子
+    invokeElementUnmountedHooks(next);
+    // 调用组件的卸载钩子
+    invokeUnmountedHooks(next);
+    removeChild(next!);
 
-  // 调用元素的卸载钩子
-  invokeElementUnmountedHooks(next);
-  // 调用组件的卸载钩子
-  invokeUnmountedHooks(next);
-
-  removeChild(next!);
-  remove(start, end, firstNode);
+    next = start.nextSibling;
+  }
 }
 
 function invokeUnmountedHooks(node: HopeElement) {
