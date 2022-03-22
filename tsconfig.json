@@ -16,7 +16,7 @@
     "lib": ["esnext", "dom"],
     "types": ["jest", "node"],
     "paths": {
-      "@hopejs/*": ["packages/*/src"],
+      "@": ["src"],
       "hope": ["packages/hope/src"]
     }
   },
