@@ -1,4 +1,4 @@
-import { reactive } from "../src";
+import { reactive } from "@/reactivity";
 
 describe("reactive", () => {
   it("object", () => {

@@ -4,7 +4,7 @@ import {
   queuePostFlushCb,
   invalidateJob,
   flushPostFlushCbs,
-} from '../src/scheduler';
+} from '@/core/scheduler';
 
 describe('scheduler', () => {
   it('nextTick', async () => {

@@ -4,9 +4,9 @@ import {
   createPlaceholder,
   insertBefore,
   removeChild,
-} from '@hopejs/renderer';
-import { getCurrentElement } from '@hopejs/runtime-core';
-import { isFunction } from '@hopejs/shared';
+} from '@/renderer';
+import { getCurrentElement } from '@/core';
+import { isFunction } from '@/shared';
 import { outsideError } from './outsideError';
 import { autoUpdate } from '../autoUpdate';
 import { isBetweenStartAndEnd } from '../defineComponent';

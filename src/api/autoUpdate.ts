@@ -1,9 +1,9 @@
-import { effect, stop } from '@hopejs/reactivity';
+import { effect, stop } from '@/reactivity';
 import {
   callUpdated,
   getLifecycleHandlers,
   queueJob,
-} from '@hopejs/runtime-core';
+} from '@/core';
 import { onElementUnmounted } from './lifecycle';
 
 export function autoUpdate(block: () => any) {

@@ -3,8 +3,8 @@ import {
   end,
   addScopeId,
   getCurrentElement,
-} from '@hopejs/runtime-core';
-import { forEachObj, isFunction, isOn, parseEventName } from '@hopejs/shared';
+} from '@/core';
+import { forEachObj, isFunction, isOn, parseEventName } from '@/shared';
 import { autoUpdate } from './autoUpdate';
 import { setAtrrs, Attrs } from './props-and-attrs/attrs';
 import { setClass } from './props-and-attrs/class';
@@ -26,14 +26,12 @@ export const [title, $title] = makeTag('title');
 
 // HTML
 export const [address, $address] = makeTag('address');
-export const [applet, $applet] = makeTag('applet');
 export const [area, $area] = makeTag('area');
 export const [article, $article] = makeTag('article');
 export const [aside, $aside] = makeTag('aside');
 export const [audio, $audio] = makeTag('audio');
 export const [b, $b] = makeTag('b');
 export const [base, $base] = makeTag('base');
-export const [basefont, $basefont] = makeTag('basefont');
 export const [bdi, $bdi] = makeTag('bdi');
 export const [bdo, $bdo] = makeTag('bdo');
 export const [blockquote, $blockquote] = makeTag('blockquote');

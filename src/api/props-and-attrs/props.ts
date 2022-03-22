@@ -1,12 +1,12 @@
-import { setAttribute } from '@hopejs/renderer';
-import { getComponentProps } from '@hopejs/runtime-core';
+import { setAttribute } from '@/renderer';
+import { getComponentProps } from '@/core';
 import {
   forEachObj,
   isFunction,
   isString,
   isSVGElement,
   logError,
-} from '@hopejs/shared';
+} from '@/shared';
 import { autoUpdate } from '../autoUpdate';
 
 export type Props<T> = {

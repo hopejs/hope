@@ -1,8 +1,8 @@
-import { createElement } from '@hopejs/renderer';
-import { getCurrentElement, mount, nextTick } from '@hopejs/runtime-core';
-import { delay } from '@hopejs/shared';
-import { reactive } from '@hopejs/reactivity';
-import { div, $div } from '../src';
+import { createElement } from '@/renderer';
+import { getCurrentElement, mount, nextTick } from '@/core';
+import { delay } from '@/shared';
+import { reactive } from '@/reactivity';
+import { $div, div } from '@/api';
 
 describe('tag props', () => {
   const container = createElement('div');

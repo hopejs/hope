@@ -2,14 +2,14 @@ import {
   createCssRule,
   keyframes as keyframesFromCore,
   media as mediaFromCore,
-} from '@hopejs/runtime-core';
+} from '@/core';
 import {
   addScopeForSelector,
   isDynamic,
   isFunction,
   logError,
   stringifyStyle,
-} from '@hopejs/shared';
+} from '@/shared';
 import { onUnmounted } from './lifecycle';
 import {
   getComponentCssRuleId,

@@ -1,4 +1,4 @@
-import { NS } from '@hopejs/shared';
+import { NS } from '@/shared';
 import { getDocument } from './getDocument';
 
 export function createElementNS(

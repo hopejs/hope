@@ -6,9 +6,8 @@ module.exports = {
   testEnvironment: "jsdom",
   watchPathIgnorePatterns: ["/node_modules/", "/dist/", "/.git/"],
   moduleNameMapper: {
-    "^@hopejs/(.*?)$": "<rootDir>/packages/$1/src",
-    hope: "<rootDir>/packages/hope/src",
+    "^@/(.*?)$": "<rootDir>/src/$1"
   },
   rootDir: __dirname,
-  testMatch: ["<rootDir>/packages/**/__tests__/**/*test.[jt]s"],
+  testMatch: ["<rootDir>/__tests__/**/*test.[jt]s"],
 };

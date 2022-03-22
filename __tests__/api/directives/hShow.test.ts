@@ -1,7 +1,7 @@
-import { reactive } from '@hopejs/reactivity';
-import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
-import { delay, LIFECYCLE_KEYS } from '@hopejs/shared';
-import { hShow, mount, div, $div, block } from '../../src';
+import { reactive } from '@/reactivity';
+import { getCurrentElement, HopeElement, nextTick } from '@/core';
+import { delay, LIFECYCLE_KEYS } from '@/shared';
+import { hShow, mount, div, $div, block } from '@/api';
 
 describe('hShow', () => {
   it('basic', async () => {

@@ -1,6 +1,6 @@
-import { reactive } from '@hopejs/reactivity';
-import { canUseLifecycle } from '@hopejs/runtime-core';
-import { delay } from '@hopejs/shared';
+import { reactive } from '@/reactivity';
+import { canUseLifecycle } from '@/core';
+import { delay } from '@/shared';
 import {
   div,
   block,
@@ -15,7 +15,7 @@ import {
   onMounted,
   onUnmounted,
   onUpdated,
-} from '../src';
+} from '@/api';
 
 describe('lifecycle', () => {
   const common = async (

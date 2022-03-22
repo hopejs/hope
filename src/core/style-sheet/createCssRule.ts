@@ -3,7 +3,7 @@ import {
   isKeyframesRule,
   isMediaRule,
   isStyleSheet,
-} from '@hopejs/shared';
+} from '@/shared';
 import { getStyleSheet } from './getStyleSheet';
 
 type CssGroup = CSSStyleSheet | CSSMediaRule | CSSKeyframesRule | undefined;

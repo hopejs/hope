@@ -1,6 +1,6 @@
-import { getCurrentElement } from '@hopejs/runtime-core';
-import { delay } from '@hopejs/shared';
-import { div, $div, defineComponent, mount } from '../../src';
+import { getCurrentElement } from '@/core';
+import { delay } from '@/shared';
+import { div, $div, defineComponent, mount } from '@/api';
 
 describe('event', () => {
   it('basic', () => {

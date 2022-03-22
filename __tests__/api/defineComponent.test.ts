@@ -1,8 +1,8 @@
-import { reactive } from '@hopejs/reactivity';
-import { getCurrentElement, nextTick } from '@hopejs/runtime-core';
-import { delay } from '@hopejs/shared';
-import { div, defineComponent, $div, hText, mount, block } from '../src';
-import { isBetweenStartAndEnd } from '../src/defineComponent';
+import { reactive } from '@/reactivity';
+import { getCurrentElement, nextTick } from '@/core';
+import { delay } from '@/shared';
+import { div, defineComponent, $div, hText, mount, block } from '@/api';
+import { isBetweenStartAndEnd } from '@/api/defineComponent';
 
 describe('defineComponent', () => {
   it('basic', async () => {

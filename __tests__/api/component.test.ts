@@ -1,8 +1,8 @@
-import { createElement } from '@hopejs/renderer';
-import { delay } from '@hopejs/shared';
-import { reactive } from '@hopejs/reactivity';
-import { getCurrentElement } from '@hopejs/runtime-core';
-import { div, defineComponent, $div, mount, nextTick } from '../src';
+import { createElement } from '@/renderer';
+import { delay } from '@/shared';
+import { reactive } from '@/reactivity';
+import { getCurrentElement } from '@/core';
+import { div, defineComponent, $div, mount, nextTick } from '@/api';
 
 describe('component', () => {
   const container = createElement('div');

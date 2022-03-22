@@ -1,4 +1,4 @@
-import { once } from '../src';
+import { once } from '@/shared';
 
 describe('shared', () => {
   it('once', () => {

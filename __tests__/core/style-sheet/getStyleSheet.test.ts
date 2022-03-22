@@ -1,4 +1,4 @@
-import { deleteStyleElement, getStyleElement, getStyleSheet } from '../../src';
+import { deleteStyleElement, getStyleElement, getStyleSheet } from '@/core';
 
 describe('getStyleSheet', () => {
   it('basic', () => {

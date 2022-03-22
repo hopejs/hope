@@ -1,7 +1,7 @@
-import { getStyleSheet, nextTick } from '@hopejs/runtime-core';
-import { reactive } from '@hopejs/reactivity';
-import { defineComponent, s } from '../src';
-import { getCurrentCid } from '../src/defineComponent';
+import { getStyleSheet, nextTick } from '@/core';
+import { reactive } from '@/reactivity';
+import { defineComponent, s } from '@/api';
+import { getCurrentCid } from '@/api/defineComponent';
 
 describe('style', () => {
   const common = (number: number, block: () => void) => {

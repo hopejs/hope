@@ -1,4 +1,4 @@
-import { setAttribute } from '@hopejs/renderer';
+import { setAttribute } from '@/renderer';
 import { getCurrentElement } from '../basic';
 
 export type QueueAddScope = Function[];

@@ -1,4 +1,4 @@
-import { isArray } from '@hopejs/shared';
+import { isArray } from '@/shared';
 
 export interface SchedulerJob {
   (): void;

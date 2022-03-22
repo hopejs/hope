@@ -1,4 +1,4 @@
-import { reactive } from '@hopejs/reactivity';
+import { reactive } from '@/reactivity';
 
 let componentProps: Record<string, any> | null;
 

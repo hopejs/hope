@@ -1,4 +1,4 @@
-import { NS } from '@hopejs/shared';
+import { NS } from '@/shared';
 import {
   end,
   getCurrentElement,
@@ -6,7 +6,7 @@ import {
   shouldAsSVG,
   mount,
   start,
-} from '../src';
+} from '@/core';
 
 describe('start & end & mount', () => {
   it('basic', () => {

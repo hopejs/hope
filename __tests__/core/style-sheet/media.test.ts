@@ -1,4 +1,4 @@
-import { createCssRule, getStyleSheet, media } from '../../src';
+import { createCssRule, getStyleSheet, media } from '@/core';
 
 describe('media', () => {
   it('basic', () => {

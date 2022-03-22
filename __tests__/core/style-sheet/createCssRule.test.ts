@@ -1,4 +1,4 @@
-import { createCssRule } from '../../src';
+import { createCssRule } from '@/core';
 
 describe('createCssRule', () => {
   const cid = 'cid-createCssRule';

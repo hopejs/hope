@@ -1,5 +1,5 @@
-import { setAttribute, setAttributeNS } from '@hopejs/renderer';
-import { isSVGElement, NS } from '@hopejs/shared';
+import { setAttribute, setAttributeNS } from '@/renderer';
+import { isSVGElement, NS } from '@/shared';
 import { CSSStyleValue } from './style';
 
 export type Attrs =

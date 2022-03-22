@@ -1,4 +1,4 @@
-export { nextTick, getCurrentElement } from '@hopejs/runtime-core';
+export { nextTick, getCurrentElement } from '@/core';
 
 export * from './tags';
 export * from './render';

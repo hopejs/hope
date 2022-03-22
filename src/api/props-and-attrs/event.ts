@@ -1,6 +1,6 @@
-import { addEventListener } from '@hopejs/renderer';
-import { getComponentOn, getCurrentElement } from '@hopejs/runtime-core';
-import { isArray, isFunction, once } from '@hopejs/shared';
+import { addEventListener } from '@/renderer';
+import { getComponentOn, getCurrentElement } from '@/core';
+import { isArray, isFunction, once } from '@/shared';
 
 type Modifier = 'capture' | 'once' | 'passive' | string;
 

@@ -1,6 +1,6 @@
-import { appendChild, createComment } from '@hopejs/renderer';
-import { getCurrentElement } from '@hopejs/runtime-core';
-import { isFunction } from '@hopejs/shared';
+import { appendChild, createComment } from '@/renderer';
+import { getCurrentElement } from '@/core';
+import { isFunction } from '@/shared';
 import { outsideError } from './outsideError';
 import { autoUpdate } from '../autoUpdate';
 

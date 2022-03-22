@@ -1,4 +1,4 @@
-import { createCssRule, getStyleSheet, keyframes } from '../../src';
+import { createCssRule, getStyleSheet, keyframes } from '@/core';
 
 describe('keyframes', () => {
   it('basic', () => {

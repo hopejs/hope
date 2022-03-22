@@ -1,5 +1,5 @@
-import { setAttribute } from '@hopejs/renderer';
-import { getCurrentElement } from '@hopejs/runtime-core';
+import { setAttribute } from '@/renderer';
+import { getCurrentElement } from '@/core';
 import {
   forEachObj,
   isArray,
@@ -7,7 +7,7 @@ import {
   isFunction,
   isObject,
   normalizeClass,
-} from '@hopejs/shared';
+} from '@/shared';
 import { autoUpdate } from '../autoUpdate';
 
 type ClassObject = Record<string, boolean>;

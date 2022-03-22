@@ -3,7 +3,7 @@ import {
   createPlaceholder,
   insertBefore,
   removeChild,
-} from '@hopejs/renderer';
+} from '@/renderer';
 import {
   callElementUnmounted,
   callUnmounted,
@@ -13,8 +13,8 @@ import {
   HopeElement,
   resetBlockFragment,
   setBlockFragment,
-} from '@hopejs/runtime-core';
-import { LIFECYCLE_KEYS } from '@hopejs/shared';
+} from '@/core';
+import { LIFECYCLE_KEYS } from '@/shared';
 import { autoUpdate } from './autoUpdate';
 
 export function block(range: () => void) {

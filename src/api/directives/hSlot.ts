@@ -1,5 +1,5 @@
-import { getSlots } from '@hopejs/runtime-core';
-import { logError } from '@hopejs/shared';
+import { getSlots } from '@/core';
+import { logError } from '@/shared';
 
 export function hSlot(slot: (props: object) => void): void;
 export function hSlot(name: string, slot: (props: object) => void): void;

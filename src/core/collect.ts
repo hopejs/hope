@@ -1,4 +1,4 @@
-import { LIFECYCLE_KEYS } from '@hopejs/shared';
+import { LIFECYCLE_KEYS } from '@/shared';
 import { BlockFragment, getCurrntBlockFragment } from './basic';
 
 export function collectElementUnmountedHook(hook: () => any) {

@@ -1,7 +1,7 @@
-import { getCurrentElement, HopeElement, nextTick } from '@hopejs/runtime-core';
-import { reactive } from '@hopejs/reactivity';
-import { hComment, div, $div, block } from '../../src';
-import { LIFECYCLE_KEYS } from '@hopejs/shared';
+import { getCurrentElement, HopeElement, nextTick } from '@/core';
+import { reactive } from '@/reactivity';
+import { hComment, div, $div, block } from '@/api';
+import { LIFECYCLE_KEYS } from '@/shared';
 
 describe('hComment', () => {
   it('basic', () => {

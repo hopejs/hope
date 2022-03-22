@@ -1,5 +1,5 @@
-import { delay } from '@hopejs/shared';
-import { div, defineComponent, $div, hSlot, hText, mount } from '../../src';
+import { delay } from '@/shared';
+import { div, defineComponent, $div, hSlot, hText, mount } from '@/api';
 
 describe('hSlot', () => {
   it('basic', async () => {

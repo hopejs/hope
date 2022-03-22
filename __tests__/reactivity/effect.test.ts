@@ -1,4 +1,4 @@
-import { effect, reactive } from "../src";
+import { effect, reactive } from "@/reactivity";
 
 describe("effect", () => {
   it("第一次应该执行", () => {

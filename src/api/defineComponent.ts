@@ -1,4 +1,4 @@
-import { appendChild, createPlaceholder, removeChild } from '@hopejs/renderer';
+import { appendChild, createPlaceholder, removeChild } from '@/renderer';
 import {
   getContainer,
   getCurrntBlockFragment,
@@ -18,7 +18,7 @@ import {
   resetSlots,
   setSlots,
   setQueueAddScope,
-} from '@hopejs/runtime-core';
+} from '@/core';
 import {
   isString,
   isObject,
@@ -27,8 +27,8 @@ import {
   forEachObj,
   isOn,
   parseEventName,
-} from '@hopejs/shared';
-import { isReactive, reactive } from '@hopejs/reactivity';
+} from '@/shared';
+import { isReactive, reactive } from '@/reactivity';
 import { mount } from './render';
 import { onUnmounted } from './lifecycle';
 import { setEvent } from './props-and-attrs/event';

@@ -4,8 +4,8 @@ import {
   collectElementUnmountedHook,
   getLifecycleHandlers,
   canUseLifecycle,
-} from '@hopejs/runtime-core';
-import { logError } from '@hopejs/shared';
+} from '@/core';
+import { logError } from '@/shared';
 
 const COMMON_WARN = '应该在定义组件的时候，写在组件定义中。';
 

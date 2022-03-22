@@ -1,5 +1,5 @@
-import { reactive } from '@hopejs/reactivity';
-import { createElement } from '@hopejs/renderer';
+import { reactive } from '@/reactivity';
+import { createElement } from '@/renderer';
 import {
   clearFragmentChildren,
   end,
@@ -9,9 +9,9 @@ import {
   shouldAsSVG,
   nextTick,
   start,
-} from '@hopejs/runtime-core';
-import { delay, LIFECYCLE_KEYS, NS } from '@hopejs/shared';
-import { div, span, block, $div, hText, mount, $span } from '../src';
+} from '@/core';
+import { delay, LIFECYCLE_KEYS, NS } from '@/shared';
+import { div, span, block, $div, hText, mount, $span } from '@/api';
 
 describe('block', () => {
   it('basic', async () => {

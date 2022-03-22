@@ -4,8 +4,8 @@ import {
   getDocument,
   getHead,
   setAttribute,
-} from '@hopejs/renderer';
-import { logError } from '@hopejs/shared';
+} from '@/renderer';
+import { logError } from '@/shared';
 
 const styleElements: Record<string, HTMLStyleElement> = {};
 

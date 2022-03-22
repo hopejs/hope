@@ -3,8 +3,8 @@ import {
   createFragment,
   appendChild,
   createElementNS,
-} from '@hopejs/renderer';
-import { getLast, isElement, LIFECYCLE_KEYS, NS } from '@hopejs/shared';
+} from '@/renderer';
+import { getLast, isElement, LIFECYCLE_KEYS, NS } from '@/shared';
 
 export type BlockFragment = DocumentFragment & {
   _elementStack: HopeElement[];

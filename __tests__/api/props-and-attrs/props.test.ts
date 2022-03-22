@@ -4,11 +4,11 @@ import {
   getCurrntBlockFragment,
   HopeElement,
   nextTick,
-} from '@hopejs/runtime-core';
-import { reactive } from '@hopejs/reactivity';
-import { delay, LIFECYCLE_KEYS } from '@hopejs/shared';
-import { createElement } from '@hopejs/renderer';
-import { div, $div, block, defineComponent, hText, mount } from '../../src';
+} from '@/core';
+import { reactive } from '@/reactivity';
+import { delay, LIFECYCLE_KEYS } from '@/shared';
+import { createElement } from '@/renderer';
+import { div, $div, block, defineComponent, hText, mount } from '@/api';
 
 describe('props', () => {
   const KEY = '_hopejs_test';

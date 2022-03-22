@@ -1,5 +1,5 @@
-import { getCurrentElement } from '@hopejs/runtime-core';
-import { forEachObj, isFunction, normalizeStyle } from '@hopejs/shared';
+import { getCurrentElement } from '@/core';
+import { forEachObj, isFunction, normalizeStyle } from '@/shared';
 import { autoUpdate } from '../autoUpdate';
 
 export type CSSStyle = {
