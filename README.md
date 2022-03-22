@@ -1,6 +1,6 @@
 # Hope
 
-一个用原生 JavaScript 编写 UI 的库，支持组件化和基于 [@vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity) 的响应式，且不需要虚拟 DOM，所以整体代码非常精简。状态更新后，直接更新相应 DOM，高性能更新 UI。
+一个用原生 JavaScript 编写 UI 的库，支持组件化和基于 [@vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity) 的响应式（目前准备去掉它，因为它体积太大了，我想到了另一种更好的更新策略），且不需要虚拟 DOM，所以整体代码非常精简。状态更新后，直接更新相应 DOM，高性能更新 UI。
 
 ## 快速开始
 
