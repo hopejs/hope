@@ -5,7 +5,7 @@
     "src/*"
   ],
   "scripts": {
-    "test": "rollup -c & jest",
+    "test": "jest",
     "dev": "cross-env NODE_ENV=development rollup -c",
     "build": "cross-env NODE_ENV=production rollup -c",
     "build:cjs": "tsc --module commonjs --outDir packages/hope/dist/lib",
