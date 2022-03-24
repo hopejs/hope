@@ -42,3 +42,4 @@ export declare function once(fn: Function & {
  */
 export declare function getScopeIdVersion(css: string, scopeId: string): string;
 export declare function addScopeForSelector(selector: string, scopeId: string): string;
+export declare function NOOP(): void;

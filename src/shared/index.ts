@@ -181,3 +181,5 @@ function isAnimationSelector(selector: string) {
     return true;
   return false;
 }
+
+export function NOOP() {}
