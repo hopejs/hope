@@ -33,6 +33,12 @@ import { mount } from './render';
 import { onUnmounted } from './lifecycle';
 import { setEvent } from './props-and-attrs/event';
 import { setPropsForComponent } from './props-and-attrs/props';
+import {
+  getCurrentComponent,
+  pushToParent,
+  setBackToParent,
+  setCurrentComponent,
+} from '@/core/scheduler';
 
 interface ComponentOptions<
   P = Record<string, any>,
@@ -55,7 +61,10 @@ export type ComponentStartTag<P = any> = (
 ) => any;
 export type ComponentEndTag = (...arg: any[]) => any;
 
-type Component<P = any, S = any> = [ComponentStartTag<P>, ComponentEndTag] & {
+export type Component<P = any, S = any> = [
+  ComponentStartTag<P>,
+  ComponentEndTag
+] & {
   mount: (options: MountOptions<P, S> | string | Element) => any;
 };
 
@@ -87,6 +96,10 @@ export function defineComponent<P, S>(
 ) {
   cid++;
   const startTag = (props?: any) => {
+    const updateQueue = Object.create(null);
+    pushToParent(getCurrentComponent(), updateQueue);
+    setCurrentComponent(updateQueue);
+
     const container = getContainer();
     const startPlaceholder = createPlaceholder(
       `${setup.name || 'component'} start`
@@ -173,20 +186,22 @@ export function defineComponent<P, S>(
     appendChild(container, endPlaceholder);
 
     incrementComponentInstanceCount(componentId);
+    setBackToParent();
   };
 
   const result: Component<P, S> = [startTag, endTag] as any;
-
   result.mount = (options: MountOptions<P, S> | string | Element): P => {
     if (isString(options) || isElement(options)) {
       options = { target: options, props: reactive({}) as P };
     }
 
-    options.props = (isReactive(options.props)
-      ? options.props
-      : isObject(options.props)
-      ? reactive(options.props as any)
-      : reactive({})) as P;
+    options.props = (
+      isReactive(options.props)
+        ? options.props
+        : isObject(options.props)
+        ? reactive(options.props as any)
+        : reactive({})
+    ) as P;
 
     startTag();
     endTag(options);
