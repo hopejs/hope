@@ -156,7 +156,12 @@ function setCssRule(
     const value = style[key as any];
     if (!value) return;
     if (isFunction(value)) {
-      autoUpdate(() => (cssRuleStyle[key as any] = value()));
+      let oldValue: any;
+      autoUpdate(() => {
+        const newValue = value();
+        if (oldValue === newValue) return;
+        cssRuleStyle[key as any] = oldValue = newValue;
+      });
     } else {
       cssRuleStyle[key as any] = value;
     }
