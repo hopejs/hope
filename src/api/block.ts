@@ -17,7 +17,7 @@ import {
 import { isFunction, LIFECYCLE_KEYS } from '@/shared';
 import { autoUpdate } from './autoUpdate';
 
-enum BlockTypes {
+export enum BlockTypes {
   hFor = 'hFor',
   hIf = 'hIf',
 }
