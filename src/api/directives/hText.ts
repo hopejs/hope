@@ -10,7 +10,12 @@ export function hText(value: string | (() => string)) {
 
   const textNode = createTextNode('');
   if (isFunction(value)) {
-    autoUpdate(() => (textNode.textContent = value()));
+    let oldValue: any;
+    autoUpdate(() => {
+      const newValue = value();
+      if (oldValue === newValue) return;
+      textNode.textContent = oldValue = newValue;
+    });
   } else {
     textNode.textContent = value;
   }
