@@ -10,7 +10,12 @@ export function hComment(value: string | (() => string)) {
 
   const comment = createComment('');
   if (isFunction(value)) {
-    autoUpdate(() => (comment.textContent = value()));
+    let oldValue: any;
+    autoUpdate(() => {
+      const newValue = value();
+      if (oldValue === newValue) return;
+      comment.textContent = oldValue = newValue;
+    });
   } else {
     comment.textContent = value;
   }
