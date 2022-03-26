@@ -1,9 +1,4 @@
-import {
-  start,
-  end,
-  addScopeId,
-  getCurrentElement,
-} from '@/core';
+import { start, end, addScopeId, getCurrentElement } from '@/core';
 import { forEachObj, isFunction, isOn, parseEventName } from '@/shared';
 import { autoUpdate } from './autoUpdate';
 import { setAtrrs, Attrs } from './props-and-attrs/attrs';
@@ -149,15 +144,12 @@ export const [feComponentTransfer, $feComponentTransfer] = makeTag(
   'feComponentTransfer'
 );
 export const [feComposite, $feComposite] = makeTag('feComposite');
-export const [feConvolveMatrix, $feConvolveMatrix] = makeTag(
-  'feConvolveMatrix'
-);
-export const [feDiffuseLighting, $feDiffuseLighting] = makeTag(
-  'feDiffuseLighting'
-);
-export const [feDisplacementMap, $feDisplacementMap] = makeTag(
-  'feDisplacementMap'
-);
+export const [feConvolveMatrix, $feConvolveMatrix] =
+  makeTag('feConvolveMatrix');
+export const [feDiffuseLighting, $feDiffuseLighting] =
+  makeTag('feDiffuseLighting');
+export const [feDisplacementMap, $feDisplacementMap] =
+  makeTag('feDisplacementMap');
 export const [feDistantLight, $feDistantLight] = makeTag('feDistantLight');
 export const [feFlood, $feFlood] = makeTag('feFlood');
 export const [feFuncA, $feFuncA] = makeTag('feFuncA');
@@ -171,9 +163,8 @@ export const [feMergeNode, $feMergeNode] = makeTag('feMergeNode');
 export const [feMorphology, $feMorphology] = makeTag('feMorphology');
 export const [feOffset, $feOffset] = makeTag('feOffset');
 export const [fePointLight, $fePointLight] = makeTag('fePointLight');
-export const [feSpecularLighting, $feSpecularLighting] = makeTag(
-  'feSpecularLighting'
-);
+export const [feSpecularLighting, $feSpecularLighting] =
+  makeTag('feSpecularLighting');
 export const [feSpotLight, $feSpotLight] = makeTag('feSpotLight');
 export const [feTile, $feTile] = makeTag('feTile');
 export const [feTurbulence, $feTurbulence] = makeTag('feTurbulence');
@@ -252,13 +243,25 @@ function prosessAttrOrProp(value: any, key: string) {
   const el = getCurrentElement() as any;
   if (shouldSetAsProp(el, key, isFunction(value) ? value() : value)) {
     if (isFunction(value)) {
-      autoUpdate(() => prosessProps(el, value(), key));
+      let oldValue: any;
+      autoUpdate(() => {
+        const newValue = value();
+        if (oldValue === newValue) return;
+        oldValue = newValue;
+        prosessProps(el, newValue, key);
+      });
     } else {
       prosessProps(el, value, key);
     }
   } else {
     if (isFunction(value)) {
-      autoUpdate(() => prosessAtrrs(el, value(), key));
+      let oldValue: any;
+      autoUpdate(() => {
+        const newValue = value();
+        if (oldValue === newValue) return;
+        oldValue = newValue;
+        prosessAtrrs(el, newValue, key);
+      });
     } else {
       prosessAtrrs(el, value, key);
     }
