@@ -21,8 +21,12 @@ export function hShow(value: any | (() => any)) {
   const cache = createElement('div');
   const placeholder = createPlaceholder('hShow');
   if (isFunction(value)) {
+    let oldValue: any;
     autoUpdate(() => {
-      if (value()) {
+      const newValue = value();
+      if (oldValue === newValue) return;
+      oldValue = newValue;
+      if (newValue) {
         showElement(currentElement!, cache, placeholder);
       } else {
         hideElement(currentElement!, cache, placeholder);
