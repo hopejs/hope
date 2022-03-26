@@ -74,6 +74,16 @@ export function startUpdate() {
   }
 }
 
+/**
+ * Remove from parent component
+ * @param component
+ */
+export function removeComponent(component: UpdateQueue) {
+  if (component.p?.c) {
+    component.p.c = component.p.c.filter((item) => item !== component);
+  }
+}
+
 function runTask(component: UpdateQueue) {
   component.uq?.forEach((fn) => fn());
   component.c?.forEach(runTask);
