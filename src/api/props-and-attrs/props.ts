@@ -59,7 +59,12 @@ export function setPropsForComponent(props: any) {
   const componentProps = getComponentProps();
   forEachObj(props, (value, key) => {
     if (isFunction(value)) {
-      autoUpdate(() => (componentProps![key as string] = value()));
+      let oldValue: any;
+      autoUpdate(() => {
+        const newValue = value();
+        if (oldValue === newValue) return;
+        componentProps![key as string] = oldValue = newValue;
+      });
     } else {
       componentProps![key as string] = value;
     }
