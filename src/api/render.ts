@@ -1,6 +1,16 @@
 import { isElement, isString, logError } from '@/shared';
-import { mount as coreMount, flushPostFlushCbs } from '@/core';
+import { getFragment, mount as coreMount } from '@/core';
 import { querySelector } from '@/renderer';
+import { Component } from './defineComponent';
+import { setRoot } from '@/core/scheduler';
+
+export function render(component: Component) {
+  const [start, end] = component;
+  setRoot(component);
+  start();
+  end();
+  return getFragment();
+}
 
 export function mount(containerOrSelector: string | Element) {
   const container = normalizeContainer(containerOrSelector);
@@ -9,7 +19,6 @@ export function mount(containerOrSelector: string | Element) {
     // 有利于提高首次渲染速度。
     setTimeout(() => {
       coreMount(container);
-      flushPostFlushCbs();
     });
   }
 }
