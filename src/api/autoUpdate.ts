@@ -1,19 +1,16 @@
-import { effect, stop } from '@/reactivity';
-import {
-  callUpdated,
-  getLifecycleHandlers,
-  queueJob,
-} from '@/core';
-import { onElementUnmounted } from './lifecycle';
+import { callUpdated, getLifecycleHandlers } from '@/core';
+import { getCurrentComponent, removeComponent } from '@/core/scheduler';
+import { onUnmounted } from './lifecycle';
 
 export function autoUpdate(block: () => any) {
   const { updatedHandlers } = getLifecycleHandlers();
-  const ef = effect(
-    () => {
-      block();
-      updatedHandlers && callUpdated(updatedHandlers);
-    },
-    { scheduler: queueJob }
-  );
-  onElementUnmounted(() => stop(ef));
+  const currentComponent = getCurrentComponent();
+  block();
+  updatedHandlers && callUpdated(updatedHandlers);
+  currentComponent?.uq?.push(block);
+  onUnmounted(() => {
+    if (currentComponent) {
+      removeComponent(currentComponent);
+    }
+  });
 }
