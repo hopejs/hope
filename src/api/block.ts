@@ -67,7 +67,7 @@ export function block(
         if (oldValue === newValue) return;
         oldValue = newValue;
         setBlockFragment(blockFragment);
-        newValue ? range() : elseRange();
+        newValue ? range() : elseRange?.();
         resetBlockFragment();
         insertBlockFragment(blockFragment, start, end);
       });
@@ -78,7 +78,7 @@ export function block(
         range(item, index);
       });
     } else if (type === BlockTypes.hIf) {
-      value ? range() : elseRange();
+      value ? range() : elseRange?.();
     }
   }
 }
