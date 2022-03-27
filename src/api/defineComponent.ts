@@ -35,6 +35,7 @@ import {
   getCurrentComponent,
   pushToParent,
   setBackToParent,
+  setComponentOfNeedUpdate,
   setCurrentComponent,
 } from '@/core/scheduler';
 
@@ -97,6 +98,7 @@ export function defineComponent<P, S>(
     const updateQueue = Object.create(null);
     pushToParent(getCurrentComponent(), updateQueue);
     setCurrentComponent(updateQueue);
+    setComponentOfNeedUpdate(updateQueue);
 
     const container = getContainer();
     const startPlaceholder = createPlaceholder(

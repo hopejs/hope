@@ -1,6 +1,6 @@
 import { getCurrentElement, HopeElement, nextTick } from '@/core';
-import { hComment, div, $div } from '@/api';
-import { LIFECYCLE_KEYS } from '@/shared';
+import { hComment, div, $div, defineComponent } from '@/api';
+import { refresh } from '@/core/scheduler';
 
 describe('hComment', () => {
   it('basic', () => {
@@ -12,16 +12,23 @@ describe('hComment', () => {
 
   it('reactivity', async () => {
     const state = { name: 'a' };
+    let el: HopeElement;
 
-    div();
-    hComment(() => state.name);
-    const el = getCurrentElement();
-    expect(el?.innerHTML).toBe(`<!--a-->`);
-    $div();
+    const [com, $com] = defineComponent(() => {
+      div();
+      hComment(() => state.name);
+      el = getCurrentElement()!;
+      expect(el?.innerHTML).toBe(`<!--a-->`);
+      $div();
+    });
+
+    com();
+    $com();
 
     state.name = 'b';
+    refresh();
     await nextTick();
-    expect(el?.innerHTML).toBe(`<!--b-->`);
+    expect(el!?.innerHTML).toBe(`<!--b-->`);
   });
 
   it('elementUnmounted', () => {

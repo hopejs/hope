@@ -4,12 +4,11 @@ import {
   end,
   getCurrentElement,
   getCurrntBlockFragment,
-  HopeElement,
   shouldAsSVG,
   nextTick,
   start,
 } from '@/core';
-import { delay, LIFECYCLE_KEYS, NS } from '@/shared';
+import { delay, NS } from '@/shared';
 import { div, span, $div, hText, mount, $span } from '@/api';
 import { hIf } from '@/api/directives/hIf';
 

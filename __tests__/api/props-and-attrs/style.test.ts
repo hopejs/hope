@@ -1,5 +1,4 @@
-import { getCurrentElement, HopeElement, nextTick } from '@/core';
-import { LIFECYCLE_KEYS } from '@/shared';
+import { getCurrentElement, nextTick } from '@/core';
 import { div, $div } from '@/api';
 
 describe('style', () => {

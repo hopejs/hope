@@ -78,9 +78,7 @@ describe('props', () => {
     // 清空之前测试添加到 fragment 的内容
     clearFragmentChildren();
 
-    let startPlaceholder: HopeElement;
     testComponent({ a: () => 'a' });
-    startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
     $testComponent();
 
     const container = createElement('div');

@@ -1,5 +1,5 @@
-import { getCurrentElement, HopeElement, nextTick } from '@/core';
-import { delay, LIFECYCLE_KEYS } from '@/shared';
+import { nextTick } from '@/core';
+import { delay } from '@/shared';
 import { hShow, mount, div, $div } from '@/api';
 
 describe('hShow', () => {
