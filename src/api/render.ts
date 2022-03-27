@@ -2,11 +2,9 @@ import { isElement, isString, logError } from '@/shared';
 import { getFragment, mount as coreMount } from '@/core';
 import { querySelector } from '@/renderer';
 import { Component } from './defineComponent';
-import { setRoot } from '@/core/scheduler';
 
 export function render(component: Component) {
   const [start, end] = component;
-  setRoot(component);
   start();
   end();
   return getFragment();

@@ -1,6 +1,5 @@
 import { getCurrentElement, HopeElement, nextTick } from '@/core';
-import { reactive } from '@/reactivity';
-import { hComment, div, $div, block } from '@/api';
+import { hComment, div, $div } from '@/api';
 import { LIFECYCLE_KEYS } from '@/shared';
 
 describe('hComment', () => {
@@ -12,7 +11,7 @@ describe('hComment', () => {
   });
 
   it('reactivity', async () => {
-    const state = reactive({ name: 'a' });
+    const state = { name: 'a' };
 
     div();
     hComment(() => state.name);
@@ -27,12 +26,10 @@ describe('hComment', () => {
 
   it('elementUnmounted', () => {
     let el: HopeElement;
-    block(() => {
-      div();
-      hComment(() => 'name');
-      el = getCurrentElement()!;
-      $div();
-    });
+    div();
+    hComment(() => 'name');
+    el = getCurrentElement()!;
+    $div();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
@@ -40,12 +37,10 @@ describe('hComment', () => {
 
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
-    block(() => {
-      div();
-      hComment('name');
-      el = getCurrentElement()!;
-      $div();
-    });
+    div();
+    hComment('name');
+    el = getCurrentElement()!;
+    $div();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);

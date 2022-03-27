@@ -21,14 +21,12 @@ import {
 } from '@/core';
 import {
   isString,
-  isObject,
   getLast,
   isElement,
   forEachObj,
   isOn,
   parseEventName,
 } from '@/shared';
-import { isReactive, reactive } from '@/reactivity';
 import { mount } from './render';
 import { onUnmounted } from './lifecycle';
 import { setEvent } from './props-and-attrs/event';
@@ -192,16 +190,10 @@ export function defineComponent<P, S>(
   const result: Component<P, S> = [startTag, endTag] as any;
   result.mount = (options: MountOptions<P, S> | string | Element): P => {
     if (isString(options) || isElement(options)) {
-      options = { target: options, props: reactive({}) as P };
+      options = { target: options, props: {} as P };
     }
 
-    options.props = (
-      isReactive(options.props)
-        ? options.props
-        : isObject(options.props)
-        ? reactive(options.props as any)
-        : reactive({})
-    ) as P;
+    options.props = options.props || ({} as P);
 
     startTag();
     endTag(options);

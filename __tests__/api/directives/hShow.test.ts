@@ -1,7 +1,6 @@
-import { reactive } from '@/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@/core';
 import { delay, LIFECYCLE_KEYS } from '@/shared';
-import { hShow, mount, div, $div, block } from '@/api';
+import { hShow, mount, div, $div } from '@/api';
 
 describe('hShow', () => {
   it('basic', async () => {
@@ -22,7 +21,7 @@ describe('hShow', () => {
   });
 
   it('reactivity', async () => {
-    const show = reactive({ value: true });
+    const show = { value: true };
 
     div();
     hShow(() => show.value);
@@ -38,7 +37,7 @@ describe('hShow', () => {
   });
 
   it('nest element', async () => {
-    const show = reactive({ value: false });
+    const show = { value: false };
 
     div();
     hShow(() => show.value);
@@ -57,12 +56,10 @@ describe('hShow', () => {
 
   it('elementUnmounted', () => {
     let el: HopeElement;
-    block(() => {
-      div();
-      hShow(() => true);
-      el = getCurrentElement()!;
-      $div();
-    });
+    div();
+    hShow(() => true);
+    el = getCurrentElement()!;
+    $div();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
@@ -70,12 +67,10 @@ describe('hShow', () => {
 
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
-    block(() => {
-      div();
-      hShow(true);
-      el = getCurrentElement()!;
-      $div();
-    });
+    div();
+    hShow(true);
+    el = getCurrentElement()!;
+    $div();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);

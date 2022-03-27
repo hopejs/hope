@@ -1,4 +1,3 @@
-import { reactive } from '@/reactivity';
 import { createElement } from '@/renderer';
 import {
   clearFragmentChildren,
@@ -11,25 +10,24 @@ import {
   start,
 } from '@/core';
 import { delay, LIFECYCLE_KEYS, NS } from '@/shared';
-import { div, span, block, $div, hText, mount, $span } from '@/api';
+import { div, span, $div, hText, mount, $span } from '@/api';
+import { hIf } from '@/api/directives/hIf';
 
-describe('block', () => {
+describe('hIf', () => {
   it('basic', async () => {
-    const state = reactive({
+    const state = {
       toggle: true,
-    });
+    };
 
-    block(() => {
-      if (state.toggle) {
-        div();
+    hIf(() => state.toggle, () => {
+      div();
         hText('1');
-        $div();
-      } else {
-        span();
+      $div();
+    }, () => {
+      span();
         hText('2');
-        $span();
-      }
-    });
+      $span();
+    })
 
     const container = document.createElement('div');
     mount(container);
@@ -46,19 +44,17 @@ describe('block', () => {
 
   it('reactivity & remove', async () => {
     let el: Element;
-    const state = reactive({
+    const state = {
       show: true,
       text: 'a',
-    });
+    };
 
-    block(() => {
-      if (state.show) {
-        div();
+    hIf(() => state.show, () => {
+      div();
         hText(() => state.text);
         el = getCurrentElement()!;
-        $div();
-      }
-    });
+      $div();
+    })
     const container = document.createElement('div');
     mount(container);
     await delay();
@@ -91,12 +87,12 @@ describe('block', () => {
   });
 
   it('nest element', async () => {
-    block(() => {
+    hIf(true, () => {
       div();
       div();
       $div();
       $div();
-    });
+    })
 
     const container = document.createElement('div');
     mount(container);
@@ -107,8 +103,8 @@ describe('block', () => {
   });
 
   it('nest block', async () => {
-    block(() => {
-      block(() => {
+    hIf(true, () => {
+      hIf(true, () => {
         div();
         $div();
       });
@@ -123,9 +119,9 @@ describe('block', () => {
   });
 
   it('nest block & nest element', async () => {
-    block(() => {
+    hIf(true, () => {
       div();
-      block(() => {
+      hIf(true, () => {
         div();
         $div();
       });
@@ -141,10 +137,10 @@ describe('block', () => {
   });
 
   it('nest block & not nest element', async () => {
-    block(() => {
+    hIf(true, () => {
       div();
       $div();
-      block(() => {
+      hIf(true, () => {
         div();
         $div();
       });
@@ -160,11 +156,11 @@ describe('block', () => {
 
   it('elementUnmounted', () => {
     let el: HopeElement;
-    block(() => {
+    hIf(true, () => {
       div();
       el = getCurrentElement()!;
       $div();
-      block(() => {
+      hIf(true, () => {
         div();
         $div();
       });
@@ -173,10 +169,10 @@ describe('block', () => {
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
 
     let el2: HopeElement;
-    block(() => {
+    hIf(true, () => {
       div();
       el2 = getCurrentElement()!;
-      block(() => {
+      hIf(true, () => {
         div();
         $div();
       });
@@ -191,13 +187,13 @@ describe('block', () => {
   });
 
   it('with shouldAsSVG', () => {
-    block(() => {
+    hIf(true, () => {
       expect(shouldAsSVG('')).toBe(false);
       expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(false);
     });
 
     start('svg');
-    block(() => {
+    hIf(true, () => {
       expect(shouldAsSVG('')).toBe(true);
       expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
     });
@@ -206,26 +202,24 @@ describe('block', () => {
 
   it('dynamic & shouldAsSVG', async () => {
     clearFragmentChildren();
-    const state = reactive({ show: true });
+    const state = { show: true };
 
     start('svg');
-    block(() => {
-      if (state.show) {
-        start('foreignObject');
-        expect(shouldAsSVG('')).toBe(false);
-        expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
-        expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
-        end();
-      } else {
-        start('foreignObject');
-        start('div');
-        expect(shouldAsSVG('')).toBe(false);
-        expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
-        expect(getCurrentElement()!.namespaceURI).toBe(NS.XHTML);
-        end();
-        end();
-      }
-    });
+    hIf(() => state.show, () => {
+      start('foreignObject');
+      expect(shouldAsSVG('')).toBe(false);
+      expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
+      expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
+      end();
+    }, () => {
+      start('foreignObject');
+      start('div');
+      expect(shouldAsSVG('')).toBe(false);
+      expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
+      expect(getCurrentElement()!.namespaceURI).toBe(NS.XHTML);
+      end();
+      end();
+    })
     end();
 
     const container = createElement('div');

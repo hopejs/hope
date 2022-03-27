@@ -1,9 +1,7 @@
-import { reactive } from '@/reactivity';
 import { canUseLifecycle } from '@/core';
 import { delay } from '@/shared';
 import {
   div,
-  block,
   ComponentEndTag,
   ComponentStartTag,
   defineComponent,
@@ -16,6 +14,7 @@ import {
   onUnmounted,
   onUpdated,
 } from '@/api';
+import { hIf } from '@/api/directives/hIf';
 
 describe('lifecycle', () => {
   const common = async (
@@ -26,7 +25,7 @@ describe('lifecycle', () => {
     const updated = jest.fn();
     // 元素的卸载钩子
     const elementUnmounted = jest.fn();
-    const state = reactive({ text: 'a', show: true });
+    const state = { text: 'a', show: true };
 
     const [com, $com] = defineComponent<any, any>(({ props }) => {
       onMounted(mounted);
@@ -95,23 +94,19 @@ describe('lifecycle', () => {
 
   it('basic', async () => {
     await common((com, $com, state) => {
-      block(() => {
-        if (state.show) {
-          com({ text: () => state.text });
-          $com();
-        }
+      hIf(() => state.show, () => {
+        com({ text: () => state.text });
+        $com();
       });
     });
   });
 
   it('nest block', async () => {
     await common((com, $com, state) => {
-      block(() => {
-        block(() => {
-          if (state.show) {
-            com({ text: () => state.text });
-            $com();
-          }
+      hIf(true, () => {
+        hIf(() => state.show, () => {
+          com({ text: () => state.text });
+          $com();
         });
       });
     });
@@ -119,12 +114,12 @@ describe('lifecycle', () => {
 
   it('div inner', async () => {
     await common((com, $com, state) => {
-      block(() => {
+      hIf(true, () => {
         div();
-        if (state.show) {
-          com({ text: () => state.text });
-          $com();
-        }
+          hIf(() => state.show, () => {
+            com({ text: () => state.text });
+            $com();
+          })
         $div();
       });
     });
@@ -132,22 +127,22 @@ describe('lifecycle', () => {
 
   it('div brother', async () => {
     await common((com, $com, state) => {
-      block(() => {
+      hIf(true, () => {
         div();
         $div();
-        if (state.show) {
+        hIf(() => state.show, () => {
           com({ text: () => state.text });
           $com();
-        }
+        })
       });
     });
 
     await common((com, $com, state) => {
-      block(() => {
-        if (state.show) {
+      hIf(true, () => {
+        hIf(() => state.show, () => {
           com({ text: () => state.text });
           $com();
-        }
+        })
         div();
         $div();
       });
@@ -156,105 +151,103 @@ describe('lifecycle', () => {
 
   it('nest if & nest block', async () => {
     await common((com, $com, state) => {
-      block(() => {
-        if (state.show) {
-          block(() => {
-            if (state.show) {
-              com({ text: () => state.text });
-              $com();
-            }
-          });
-        }
+      hIf(true, () => {
+        hIf(() => state.show, () => {
+          hIf(() => state.show, () => {
+            com({ text: () => state.text });
+            $com();
+          })
+        })
       });
     });
   });
 
   it('nest block & if block', async () => {
     await common((com, $com, state) => {
-      block(() => {
-        if (state.show) {
-          block(() => {
+      hIf(true, () => {
+        hIf(() => state.show, () => {
+          hIf(true, () => {
             com({ text: () => state.text });
             $com();
           });
-        }
+        })
       });
     });
 
     await common((com, $com, state) => {
-      block(() => {
-        if (state.show) {
-          block(() => {
+      hIf(true, () => {
+        hIf(() => state.show, () => {
+          hIf(true, () => {
             div();
             com({ text: () => state.text });
             $com();
             $div();
           });
-        }
+        })
       });
     });
 
     await common((com, $com, state) => {
-      block(() => {
-        if (state.show) {
-          block(() => {
+      hIf(true, () => {
+        hIf(() => state.show, () => {
+          hIf(true, () => {
             div();
             $div();
             com({ text: () => state.text });
             $com();
           });
-        }
+        })
       });
     });
 
     await common((com, $com, state) => {
-      block(() => {
-        if (state.show) {
-          block(() => {
+      hIf(true, () => {
+        hIf(() => state.show, () => {
+          hIf(true, () => {
             com({ text: () => state.text });
             $com();
             div();
             $div();
           });
-        }
+        })
       });
     });
 
     await common((com, $com, state) => {
-      block(() => {
-        if (state.show) {
+      hIf(true, () => {
+        hIf(() => state.show, () => {
           div();
           $div();
-          block(() => {
+          hIf(true, () => {
             com({ text: () => state.text });
             $com();
           });
-        }
+        })
       });
     });
 
     await common((com, $com, state) => {
-      block(() => {
-        if (state.show) {
+      hIf(true, () => {
+        hIf(() => state.show, () => {
           div();
-          block(() => {
+          hIf(true, () => {
             com({ text: () => state.text });
             $com();
           });
           $div();
-        }
+        })
       });
     });
 
     await common((com, $com, state) => {
-      block(() => {
+      hIf(true, () => {
         div();
-        if (state.show) {
-          block(() => {
+        hIf(() => state.show, () => {
+          hIf(true, () => {
             com({ text: () => state.text });
             $com();
           });
-        }
+        })
         $div();
       });
     });

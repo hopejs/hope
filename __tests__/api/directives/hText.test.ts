@@ -1,7 +1,6 @@
-import { reactive } from '@/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@/core';
 import { LIFECYCLE_KEYS } from '@/shared';
-import { div, $div, hText, block } from '@/api';
+import { div, $div, hText } from '@/api';
 
 describe('hText', () => {
   it('basic', () => {
@@ -12,7 +11,7 @@ describe('hText', () => {
   });
 
   it('reactivity', async () => {
-    const content = reactive({ value: 'text' });
+    const content = { value: 'text' };
 
     div();
     hText(() => content.value);
@@ -27,12 +26,10 @@ describe('hText', () => {
 
   it('elementUnmounted', () => {
     let el: HopeElement;
-    block(() => {
-      div();
-      hText(() => 'text');
-      el = getCurrentElement()!;
-      $div();
-    });
+    div();
+    hText(() => 'text');
+    el = getCurrentElement()!;
+    $div();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
@@ -40,12 +37,10 @@ describe('hText', () => {
 
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
-    block(() => {
-      div();
-      hText('text');
-      el = getCurrentElement()!;
-      $div();
-    });
+    div();
+    hText('text');
+    el = getCurrentElement()!;
+    $div();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);

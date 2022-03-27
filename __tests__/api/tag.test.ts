@@ -1,7 +1,6 @@
 import { createElement } from '@/renderer';
 import { getCurrentElement, mount, nextTick } from '@/core';
 import { delay } from '@/shared';
-import { reactive } from '@/reactivity';
 import { $div, div } from '@/api';
 
 describe('tag props', () => {
@@ -39,7 +38,7 @@ describe('tag props', () => {
   });
 
   it('class & reactivity', async () => {
-    const state = reactive({ name: 'a', isActive: true });
+    const state = { name: 'a', isActive: true };
 
     // string
     div({ class: () => state.name });
@@ -142,7 +141,7 @@ describe('tag props', () => {
   });
 
   it('style & reactivity', async () => {
-    const state = reactive({ color: 'red' });
+    const state = { color: 'red' };
 
     // property is a function
     div({ style: { color: () => state.color } });
@@ -194,7 +193,7 @@ describe('tag props', () => {
     expect(container.innerHTML).toBe('<div id="id-name"></div>');
 
     // reactivity
-    const state = reactive({ id: 'a' });
+    const state = { id: 'a' };
     div({ id: () => state.id });
     $div();
     mount(container);

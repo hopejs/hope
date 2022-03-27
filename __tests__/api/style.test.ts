@@ -1,5 +1,4 @@
 import { getStyleSheet, nextTick } from '@/core';
-import { reactive } from '@/reactivity';
 import { defineComponent, s } from '@/api';
 import { getCurrentCid } from '@/api/defineComponent';
 
@@ -67,7 +66,7 @@ describe('style', () => {
   });
 
   it('reactivity & addCssRule', async () => {
-    const state = reactive({ color: 'red' });
+    const state = { color: 'red' };
     const sheet = common(1, () => {
       s('.class-name', {
         backgroundColor: () => state.color,

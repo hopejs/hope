@@ -5,10 +5,9 @@ import {
   HopeElement,
   nextTick,
 } from '@/core';
-import { reactive } from '@/reactivity';
 import { delay, LIFECYCLE_KEYS } from '@/shared';
 import { createElement } from '@/renderer';
-import { div, $div, block, defineComponent, hText, mount } from '@/api';
+import { div, $div, defineComponent, hText, mount } from '@/api';
 
 describe('props', () => {
   const KEY = '_hopejs_test';
@@ -31,7 +30,7 @@ describe('props', () => {
   });
 
   it('reactivity', async () => {
-    const state = reactive({ name: 'a' });
+    const state = { name: 'a' };
 
     div({ [KEY]: () => state.name });
     const el = getCurrentElement();
@@ -46,7 +45,7 @@ describe('props', () => {
   });
 
   it('reactivity object', async () => {
-    const props = reactive({ [KEY]: 'a' });
+    const props = { [KEY]: 'a' };
 
     div(props);
     const el = getCurrentElement();
@@ -57,11 +56,9 @@ describe('props', () => {
 
   it('elementUnmounted', () => {
     let el: HopeElement;
-    block(() => {
-      div({ [KEY]: () => 'name' });
-      el = getCurrentElement()!;
-      $div();
-    });
+    div({ [KEY]: () => 'name' });
+    el = getCurrentElement()!;
+    $div();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
@@ -69,11 +66,9 @@ describe('props', () => {
 
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
-    block(() => {
-      div({ [KEY]: 'name' });
-      el = getCurrentElement()!;
-      $div();
-    });
+    div({ [KEY]: 'name' });
+    el = getCurrentElement()!;
+    $div();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
@@ -84,11 +79,9 @@ describe('props', () => {
     clearFragmentChildren();
 
     let startPlaceholder: HopeElement;
-    block(() => {
-      testComponent({ a: () => 'a' });
-      startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
-      $testComponent();
-    });
+    testComponent({ a: () => 'a' });
+    startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
+    $testComponent();
 
     const container = createElement('div');
     mount(container);
@@ -103,11 +96,9 @@ describe('props', () => {
 
   it('elementUnmounted & no reactivity & with component', async () => {
     let startPlaceholder: HopeElement;
-    block(() => {
-      testComponent({ b: 'b' });
-      startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
-      $testComponent();
-    });
+    testComponent({ b: 'b' });
+    startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
+    $testComponent();
 
     const container = createElement('div');
     mount(container);

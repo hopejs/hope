@@ -1,4 +1,4 @@
-export { getCurrentElement } from '@/core';
+export { getCurrentElement, nextTick } from '@/core';
 
 export * from './tags';
 export * from './render';

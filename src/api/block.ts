@@ -31,7 +31,7 @@ export function block(
   type: BlockTypes.hIf,
   value: any | (() => any),
   range: () => void,
-  elseRange: () => void
+  elseRange?: () => void
 ): void;
 export function block(
   type: BlockTypes,

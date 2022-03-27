@@ -1,8 +1,8 @@
-import { reactive } from '@/reactivity';
 import { getCurrentElement, nextTick } from '@/core';
 import { delay } from '@/shared';
-import { div, defineComponent, $div, hText, mount, block } from '@/api';
+import { div, defineComponent, $div, hText, mount } from '@/api';
 import { isBetweenStartAndEnd } from '@/api/defineComponent';
+import { hIf } from '@/api/directives/hIf';
 
 describe('defineComponent', () => {
   it('basic', async () => {
@@ -38,7 +38,7 @@ describe('defineComponent', () => {
   });
 
   it('props', async () => {
-    const p = reactive({ name: 'a' });
+    const p = { name: 'a' };
     const [person, $person] = defineComponent<any, any>(({ props }) => {
       div();
       hText(() => props.name);
@@ -96,7 +96,7 @@ describe('defineComponent', () => {
       hText(() => props.a);
       $div();
     });
-    block(() => {
+    hIf(true, () => {
       div();
       $div();
       com({ a: () => 'b' });
@@ -115,9 +115,9 @@ describe('defineComponent', () => {
       div();
       $div();
     });
-    block(() => {
+    hIf(true, () => {
       div();
-      block(() => {
+      hIf(true, () => {
         com();
         $com();
       });
@@ -130,9 +130,9 @@ describe('defineComponent', () => {
       `<!--block start--><div><!--block start--><!--component start--><div></div><!--component end--><!--block end--></div><!--block end-->`
     );
 
-    block(() => {
+    hIf(true, () => {
       div();
-      block(() => {
+      hIf(true, () => {
         div();
         $div();
       });

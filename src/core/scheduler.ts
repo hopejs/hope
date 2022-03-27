@@ -21,24 +21,11 @@ interface UpdateQueue {
 }
 
 /**
- * Root component of app
- */
-let root: UpdateQueue;
-
-/**
  * Root component that currently needs to be updated
  */
 let componentOfNeedUpdate: UpdateQueue | null = null;
 
 let currentComponent: UpdateQueue | null = null;
-
-export function setRoot(component: UpdateQueue) {
-  root = component;
-}
-
-export function getRoot() {
-  return root;
-}
 
 export function setComponentOfNeedUpdate(com: UpdateQueue) {
   componentOfNeedUpdate = com;
