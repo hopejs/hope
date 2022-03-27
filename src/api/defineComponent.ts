@@ -90,7 +90,7 @@ const componentCssRuleId: Record<string, number | undefined> = {};
 
 let betweenStartAndEnd = false;
 
-export function defineComponent<P, S>(
+export function defineComponent<P, S = any>(
   setup: (options: ComponentOptions<P, S>) => any
 ) {
   cid++;

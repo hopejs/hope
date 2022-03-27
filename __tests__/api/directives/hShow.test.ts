@@ -1,57 +1,86 @@
 import { nextTick } from '@/core';
 import { delay } from '@/shared';
-import { hShow, mount, div, $div } from '@/api';
+import { hShow, mount, div, $div, defineComponent } from '@/api';
+import { refresh } from '@/core/scheduler';
 
 describe('hShow', () => {
   it('basic', async () => {
-    div();
-    hShow(true);
-    $div();
+    const [com, $com] = defineComponent<{ show: boolean }>(({ props }) => {
+      div();
+      hShow(props.show);
+      $div();
+    });
+
+    com({ show: true });
+    $com();
     const container = document.createElement('div');
     mount(container);
     await delay();
-    expect(container.innerHTML).toBe(`<div></div>`);
+    expect(container.innerHTML).toBe(
+      `<!--component start--><div></div><!--component end-->`
+    );
 
-    div();
-    hShow(false);
-    $div();
+    com({ show: false });
+    $com();
     mount(container);
     await delay();
-    expect(container.innerHTML).toBe(`<!--hShow-->`);
+    expect(container.innerHTML).toBe(
+      `<!--component start--><!--hShow--><!--component end-->`
+    );
   });
 
   it('reactivity', async () => {
-    const show = { value: true };
+    let show = true;
 
-    div();
-    hShow(() => show.value);
-    $div();
+    const [com, $com] = defineComponent<{ show: boolean }>(({ props }) => {
+      div();
+      hShow(() => props.show);
+      $div();
+    });
+
+    com({ show: () => show });
+    $com();
     const container = document.createElement('div');
     mount(container);
     await delay();
-    expect(container.innerHTML).toBe(`<div></div>`);
+    expect(container.innerHTML).toBe(
+      `<!--component start--><div></div><!--component end-->`
+    );
 
-    show.value = false;
+    show = false;
+    refresh();
     await nextTick();
-    expect(container.innerHTML).toBe(`<!--hShow-->`);
+    expect(container.innerHTML).toBe(
+      `<!--component start--><!--hShow--><!--component end-->`
+    );
   });
 
   it('nest element', async () => {
-    const show = { value: false };
+    let show = false;
 
-    div();
-    hShow(() => show.value);
-    div();
-    $div();
-    $div();
+    const [com, $com] = defineComponent<{ show: boolean }>(({ props }) => {
+      div();
+      hShow(() => props.show);
+      div();
+      $div();
+      $div();
+    });
+
+    com({ show: () => show });
+    $com();
     const container = document.createElement('div');
     mount(container);
     await delay();
-    expect(container.innerHTML).toBe(`<!--hShow-->`);
+    expect(container.innerHTML).toBe(
+      `<!--component start--><!--hShow--><!--component end-->`
+    );
 
-    show.value = true;
+    show = true;
+    refresh();
     await nextTick();
-    expect(container.innerHTML).toBe(`<div><div></div></div>`);
+    expect(container.innerHTML).toBe(
+      `<!--component start--><div><div></div></div><!--component end-->`
+    );
   });
 
   it('elementUnmounted', () => {
