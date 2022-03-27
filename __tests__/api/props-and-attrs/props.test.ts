@@ -8,50 +8,74 @@ import {
 import { delay, LIFECYCLE_KEYS } from '@/shared';
 import { createElement } from '@/renderer';
 import { div, $div, defineComponent, hText, mount } from '@/api';
+import { refresh } from '@/core/scheduler';
 
 describe('props', () => {
   const KEY = '_hopejs_test';
-  const [testComponent, $testComponent] = defineComponent<any, any>(
-    ({ props }) => {
-      div();
-      hText(props.a);
-      hText(props.b);
-      $div();
-    }
-  );
+  const [com, $com] = defineComponent<any, any>(({ props }) => {
+    div();
+    hText(props.a);
+    hText(props.b);
+    $div();
+  });
 
   it('basic', () => {
-    div({ [KEY]: '123' });
-    // @ts-ignore
-    expect(getCurrentElement()!.outerHTML).toBe(
-      '<div _hopejs_test="123"></div>'
-    );
-    $div();
+    // 清空之前测试添加到 fragment 的内容
+    clearFragmentChildren();
+
+    const [com, $com] = defineComponent(() => {
+      div({ [KEY]: '123' });
+      // @ts-ignore
+      expect(getCurrentElement()!.outerHTML).toBe(
+        '<div _hopejs_test="123"></div>'
+      );
+      $div();
+    });
+
+    com();
+    $com();
   });
 
   it('reactivity', async () => {
-    const state = { name: 'a' };
+    // 清空之前测试添加到 fragment 的内容
+    clearFragmentChildren();
 
-    div({ [KEY]: () => state.name });
-    const el = getCurrentElement();
-    // @ts-ignore
-    expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
-    $div();
+    const [com, $com] = defineComponent(async () => {
+      const state = { name: 'a' };
 
-    state.name = 'b';
-    await nextTick();
-    // @ts-ignore
-    expect(el.outerHTML).toBe('<div _hopejs_test="b"></div>');
+      div({ [KEY]: () => state.name });
+      const el = getCurrentElement();
+      // @ts-ignore
+      expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
+      $div();
+
+      state.name = 'b';
+      refresh();
+      await nextTick();
+      // @ts-ignore
+      expect(el.outerHTML).toBe('<div _hopejs_test="b"></div>');
+    });
+
+    com();
+    $com();
   });
 
   it('reactivity object', async () => {
-    const props = { [KEY]: 'a' };
+    // 清空之前测试添加到 fragment 的内容
+    clearFragmentChildren();
 
-    div(props);
-    const el = getCurrentElement();
-    // @ts-ignore
-    expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
-    $div();
+    const [com, $com] = defineComponent(() => {
+      const props = { [KEY]: 'a' };
+
+      div(props);
+      const el = getCurrentElement();
+      // @ts-ignore
+      expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
+      $div();
+    });
+
+    com();
+    $com();
   });
 
   it('elementUnmounted', () => {
@@ -78,8 +102,8 @@ describe('props', () => {
     // 清空之前测试添加到 fragment 的内容
     clearFragmentChildren();
 
-    testComponent({ a: () => 'a' });
-    $testComponent();
+    com({ a: () => 'a' });
+    $com();
 
     const container = createElement('div');
     mount(container);
@@ -88,24 +112,33 @@ describe('props', () => {
     // @ts-ignore
     expect(startPlaceholder[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
     expect(container.innerHTML).toBe(
-      '<!--block start--><!--component start--><div>a</div><!--component end--><!--block end-->'
+      '<!--component start--><div>a</div><!--component end-->'
     );
   });
 
   it('elementUnmounted & no reactivity & with component', async () => {
     let startPlaceholder: HopeElement;
-    testComponent({ b: 'b' });
+    com({ b: 'b' });
     startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
-    $testComponent();
+    $com();
+
+    // @ts-ignore
+    expect(startPlaceholder[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
+  });
+
+  it('no reactivity & with component', async () => {
+    // 清空之前测试添加到 fragment 的内容
+    clearFragmentChildren();
+
+    com({ b: 'b' });
+    $com();
 
     const container = createElement('div');
     mount(container);
     await delay();
 
-    // @ts-ignore
-    expect(startPlaceholder[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
     expect(container.innerHTML).toBe(
-      '<!--block start--><!--component start--><div>b</div><!--component end--><!--block end-->'
+      '<!--component start--><div>b</div><!--component end-->'
     );
   });
 });
