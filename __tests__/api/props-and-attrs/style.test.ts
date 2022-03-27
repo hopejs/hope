@@ -1,36 +1,53 @@
 import { getCurrentElement, nextTick } from '@/core';
-import { div, $div } from '@/api';
+import { div, $div, defineComponent } from '@/api';
+import { refresh } from '@/core/scheduler';
 
 describe('style', () => {
   it('basic', () => {
-    div({ style: { color: 'red' } });
-    const el = getCurrentElement();
-    expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
-    $div();
+    const [com, $com] = defineComponent(() => {
+      div({ style: { color: 'red' } });
+      const el = getCurrentElement();
+      expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
+      $div();
+    });
+
+    com();
+    $com();
   });
 
   it('array', () => {
-    const obj1 = { color: 'red' };
-    const obj2 = { backgroundColor: 'red' };
-    div({ style: [obj1, obj2] });
-    const el = getCurrentElement();
-    expect(el?.outerHTML).toBe(
-      `<div style="color: red; background-color: red;"></div>`
-    );
-    $div();
+    const [com, $com] = defineComponent(() => {
+      const obj1 = { color: 'red' };
+      const obj2 = { backgroundColor: 'red' };
+      div({ style: [obj1, obj2] });
+      const el = getCurrentElement();
+      expect(el?.outerHTML).toBe(
+        `<div style="color: red; background-color: red;"></div>`
+      );
+      $div();
+    });
+
+    com();
+    $com();
   });
 
   it('reactivity', async () => {
-    const color = { value: 'red' };
+    const [com, $com] = defineComponent(async () => {
+      const color = { value: 'red' };
 
-    div({ style: () => ({ color: color.value }) });
-    const el = getCurrentElement();
-    expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
-    $div();
+      div({ style: () => ({ color: color.value }) });
+      const el = getCurrentElement();
+      expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
+      $div();
 
-    color.value = 'blue';
-    await nextTick();
-    expect(el?.outerHTML).toBe(`<div style="color: blue;"></div>`);
+      color.value = 'blue';
+      refresh();
+      await nextTick();
+      expect(el?.outerHTML).toBe(`<div style="color: blue;"></div>`);
+    });
+
+    com();
+    $com();
   });
 
   it('elementUnmounted', () => {
