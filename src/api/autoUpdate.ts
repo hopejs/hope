@@ -4,10 +4,12 @@ import { onUnmounted } from './lifecycle';
 
 export function autoUpdate(block: () => any) {
   const { updatedHandlers } = getLifecycleHandlers();
-  const currentComponent = getCurrentComponent()!;
+  const currentComponent = getCurrentComponent();
   block();
-  currentComponent.uq?.push(block);
-  currentComponent.ulh || (currentComponent.ulh = updatedHandlers);
+  if (currentComponent) {
+    currentComponent.uq?.push(block);
+    currentComponent.ulh || (currentComponent.ulh = updatedHandlers);
+  }
   onUnmounted(() => {
     if (currentComponent) {
       removeComponent(currentComponent);

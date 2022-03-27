@@ -1,6 +1,5 @@
 import { createElement } from '@/renderer';
 import { delay } from '@/shared';
-import { reactive } from '@/reactivity';
 import { getCurrentElement } from '@/core';
 import { div, defineComponent, $div, mount, nextTick } from '@/api';
 
@@ -22,7 +21,7 @@ describe('component', () => {
     );
 
     // reactivity
-    const state = reactive({ text: 'a' });
+    const state = { text: 'a' };
     com({ text: () => state.text });
     $com();
     mount(container);
