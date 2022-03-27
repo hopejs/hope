@@ -1,4 +1,4 @@
-import { getCurrentElement, nextTick } from '@/core';
+import { getCurrentElement, HopeElement, nextTick } from '@/core';
 import { div, $div, defineComponent } from '@/api';
 import { refresh } from '@/core/scheduler';
 

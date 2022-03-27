@@ -1,4 +1,4 @@
-import { nextTick } from '@/core';
+import { getCurrentElement, HopeElement, nextTick } from '@/core';
 import { delay } from '@/shared';
 import { hShow, mount, div, $div, defineComponent } from '@/api';
 import { refresh } from '@/core/scheduler';

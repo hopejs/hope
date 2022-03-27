@@ -7,6 +7,7 @@ import {
   shouldAsSVG,
   nextTick,
   start,
+  HopeElement,
 } from '@/core';
 import { delay, NS } from '@/shared';
 import { div, span, $div, hText, mount, $span } from '@/api';
