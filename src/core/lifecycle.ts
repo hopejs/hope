@@ -1,4 +1,5 @@
-import { queuePostFlushCb, SchedulerCbs } from './scheduler';
+import { isArray } from '@/shared';
+import { nextTick } from './nextTick';
 
 interface Lifecycle {
   mountedHandlers: any[];
@@ -26,20 +27,25 @@ export function getLifecycleHandlers() {
   return currentLifecycle || ({} as Lifecycle);
 }
 
-export function callMounted(handlers: SchedulerCbs) {
-  queuePostFlushCb(handlers);
+export function callMounted(
+  handlers: (() => void) | (() => void) | (() => void)[]
+) {
+  const fn = isArray(handlers)
+    ? () => handlers.forEach((handler) => handler())
+    : handlers;
+  nextTick(fn);
 }
 
-export function callUnmounted(handlers: SchedulerCbs) {
-  queuePostFlushCb(handlers);
+export function callUnmounted(handlers: (() => void) | (() => void)[]) {
+  isArray(handlers) ? handlers.forEach((handler) => handler()) : handlers();
 }
 
-export function callUpdated(handlers: SchedulerCbs) {
-  queuePostFlushCb(handlers);
+export function callUpdated(handlers: (() => void) | (() => void)[]) {
+  isArray(handlers) ? handlers.forEach((handler) => handler()) : handlers();
 }
 
-export function callElementUnmounted(handlers: SchedulerCbs) {
-  queuePostFlushCb(handlers);
+export function callElementUnmounted(handlers: (() => void) | (() => void)[]) {
+  isArray(handlers) ? handlers.forEach((handler) => handler()) : handlers();
 }
 
 /**

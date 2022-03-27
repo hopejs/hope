@@ -1,4 +1,11 @@
+import { callUpdated } from './lifecycle';
+import { nextTick } from './nextTick';
+
 interface UpdateQueue {
+  /**
+   * Update lifecycle handler
+   */
+  ulh: (() => void)[];
   /**
    * Queues that need to be updated
    */
@@ -67,13 +74,6 @@ export function pushToParent(
   }
 }
 
-export function startUpdate() {
-  const needUpdate = getComponentOfNeedUpdate();
-  if (needUpdate) {
-    runTask(needUpdate);
-  }
-}
-
 /**
  * Remove from parent component
  * @param component
@@ -84,7 +84,22 @@ export function removeComponent(component: UpdateQueue) {
   }
 }
 
+/**
+ * Update the status of the entire page
+ */
+export function refresh() {
+  nextTick(startUpdate);
+}
+
 function runTask(component: UpdateQueue) {
   component.uq?.forEach((fn) => fn());
   component.c?.forEach(runTask);
+}
+
+function startUpdate() {
+  const needUpdate = getComponentOfNeedUpdate();
+  if (needUpdate) {
+    runTask(needUpdate);
+    callUpdated(needUpdate.ulh);
+  }
 }
