@@ -2,6 +2,7 @@ import { createElement } from '@/renderer';
 import { delay } from '@/shared';
 import { getCurrentElement } from '@/core';
 import { div, defineComponent, $div, mount, nextTick } from '@/api';
+import { refresh } from '@/core/scheduler';
 
 describe('component', () => {
   const container = createElement('div');
@@ -30,6 +31,7 @@ describe('component', () => {
       '<!--component start--><div class="a"></div><!--component end-->'
     );
     state.text = 'b';
+    refresh();
     await nextTick();
     expect(container.innerHTML).toBe(
       '<!--component start--><div class="b"></div><!--component end-->'
