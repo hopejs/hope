@@ -1,5 +1,4 @@
-import { callUpdated } from './lifecycle';
-import { nextTick } from './nextTick';
+import { nextTick } from "./nextTick";
 
 interface UpdateQueue {
   /**
@@ -27,15 +26,17 @@ let componentOfNeedUpdate: UpdateQueue | null = null;
 
 let currentComponent: UpdateQueue | null = null;
 
-export function setComponentOfNeedUpdate(com: UpdateQueue) {
-  componentOfNeedUpdate = com;
+export function setComponentOfNeedUpdate(com: UpdateQueue | null) {
+  if (com) {
+    componentOfNeedUpdate = com;
+  }
 }
 
 export function getComponentOfNeedUpdate() {
   return componentOfNeedUpdate;
 }
 
-export function setCurrentComponent(component: UpdateQueue) {
+export function setCurrentComponent(component: UpdateQueue | null) {
   currentComponent = component;
 }
 
@@ -57,6 +58,7 @@ export function pushToParent(
   component: UpdateQueue
 ) {
   if (parentComponent) {
+    component.p = parentComponent;
     (parentComponent.c || (parentComponent.c = [])).push(component);
   }
 }
@@ -87,6 +89,5 @@ function startUpdate() {
   const needUpdate = getComponentOfNeedUpdate();
   if (needUpdate) {
     runTask(needUpdate);
-    callUpdated(needUpdate.ulh);
   }
 }

@@ -1,4 +1,5 @@
-import { start, end, addScopeId, getCurrentElement } from '@/core';
+import { start, end, addScopeId, getCurrentElement, callUpdated } from '@/core';
+import { getCurrentComponent } from '@/core/scheduler';
 import { forEachObj, isFunction, isOn, parseEventName } from '@/shared';
 import { autoUpdate } from './autoUpdate';
 import { setAtrrs, Attrs } from './props-and-attrs/attrs';
@@ -243,24 +244,28 @@ function prosessAttrOrProp(value: any, key: string) {
   const el = getCurrentElement() as any;
   if (shouldSetAsProp(el, key, isFunction(value) ? value() : value)) {
     if (isFunction(value)) {
+      const currentComponent = getCurrentComponent()!;
       let oldValue: any;
       autoUpdate(() => {
         const newValue = value();
         if (oldValue === newValue) return;
         oldValue = newValue;
         prosessProps(el, newValue, key);
+        callUpdated(currentComponent.ulh);
       });
     } else {
       prosessProps(el, value, key);
     }
   } else {
     if (isFunction(value)) {
+      const currentComponent = getCurrentComponent()!;
       let oldValue: any;
       autoUpdate(() => {
         const newValue = value();
         if (oldValue === newValue) return;
         oldValue = newValue;
         prosessAtrrs(el, newValue, key);
+        callUpdated(currentComponent.ulh);
       });
     } else {
       prosessAtrrs(el, value, key);

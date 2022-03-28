@@ -1,6 +1,7 @@
-import { getCurrentElement } from '@/core';
-import { forEachObj, isFunction, normalizeStyle } from '@/shared';
-import { autoUpdate } from '../autoUpdate';
+import { callUpdated, getCurrentElement } from "@/core";
+import { getCurrentComponent } from "@/core/scheduler";
+import { forEachObj, isFunction, normalizeStyle } from "@/shared";
+import { autoUpdate } from "../autoUpdate";
 
 export type CSSStyle = {
   [P in keyof CSSStyleDeclaration]?:
@@ -14,6 +15,7 @@ export function setStyle(value: any) {
   const style = (getCurrentElement() as HTMLElement | SVGElement).style;
 
   if (isFunction(value)) {
+    const currentComponent = getCurrentComponent()!;
     let oldValue: any;
     autoUpdate(() => {
       const newValue = value();
@@ -22,15 +24,18 @@ export function setStyle(value: any) {
       forEachObj(normalizeStyle(newValue)!, (v: any, key) => {
         style[key as any] = v;
       });
+      callUpdated(currentComponent.ulh);
     });
   } else {
     forEachObj(normalizeStyle(value)!, (v: any, key) => {
       if (isFunction(v)) {
+        const currentComponent = getCurrentComponent()!;
         let oldValue: any;
         autoUpdate(() => {
           const newValue = v();
           if (oldValue === newValue) return;
           style[key as any] = oldValue = newValue;
+          callUpdated(currentComponent.ulh);
         });
       } else {
         style[key as any] = v;

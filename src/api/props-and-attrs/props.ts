@@ -1,5 +1,5 @@
 import { setAttribute } from '@/renderer';
-import { getComponentProps } from '@/core';
+import { callUpdated, getComponentProps } from '@/core';
 import {
   forEachObj,
   isFunction,
@@ -8,6 +8,7 @@ import {
   logError,
 } from '@/shared';
 import { autoUpdate } from '../autoUpdate';
+import { getCurrentComponent } from '@/core/scheduler';
 
 export type Props<T> = {
   [K in keyof T]?: T[K] | (() => T[K] | void);
@@ -59,11 +60,13 @@ export function setPropsForComponent(props: any) {
   const componentProps = getComponentProps();
   forEachObj(props, (value, key) => {
     if (isFunction(value)) {
+      const currentComponent = getCurrentComponent()!;
       let oldValue: any;
       autoUpdate(() => {
         const newValue = value();
         if (oldValue === newValue) return;
         componentProps![key as string] = oldValue = newValue;
+        callUpdated(currentComponent.ulh);
       });
     } else {
       componentProps![key as string] = value;

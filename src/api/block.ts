@@ -3,23 +3,25 @@ import {
   createPlaceholder,
   insertBefore,
   removeChild,
-} from '@/renderer';
+} from "@/renderer";
 import {
   callElementUnmounted,
   callUnmounted,
+  callUpdated,
   createBlockFragment,
   destroy,
   getContainer,
   HopeElement,
   resetBlockFragment,
   setBlockFragment,
-} from '@/core';
-import { isFunction, LIFECYCLE_KEYS } from '@/shared';
-import { autoUpdate } from './autoUpdate';
+} from "@/core";
+import { isFunction, LIFECYCLE_KEYS } from "@/shared";
+import { autoUpdate } from "./autoUpdate";
+import { getCurrentComponent } from "@/core/scheduler";
 
 export enum BlockTypes {
-  hFor = 'hFor',
-  hIf = 'hIf',
+  hFor = "hFor",
+  hIf = "hIf",
 }
 
 export function block<T>(
@@ -40,8 +42,9 @@ export function block(
   elseRange?: any
 ): void {
   if (isFunction(value)) {
-    const start = createPlaceholder('block start');
-    const end = createPlaceholder('block end');
+    const currentComponent = getCurrentComponent()!;
+    const start = createPlaceholder("block start");
+    const end = createPlaceholder("block end");
     const container = getContainer();
     appendChild(container, start);
     appendChild(container, end);
@@ -59,6 +62,7 @@ export function block(
         });
         resetBlockFragment();
         insertBlockFragment(blockFragment, start, end);
+        callUpdated(currentComponent.ulh);
       });
     } else if (type === BlockTypes.hIf) {
       let oldValue: any;
@@ -70,6 +74,7 @@ export function block(
         newValue ? range() : elseRange?.();
         resetBlockFragment();
         insertBlockFragment(blockFragment, start, end);
+        callUpdated(currentComponent.ulh);
       });
     }
   } else {
