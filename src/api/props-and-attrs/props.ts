@@ -66,7 +66,7 @@ export function setPropsForComponent(props: any) {
         const newValue = value();
         if (oldValue === newValue) return;
         componentProps![key as string] = oldValue = newValue;
-        callUpdated(currentComponent.ulh);
+        callUpdated(currentComponent.ulh!);
       });
     } else {
       componentProps![key as string] = value;

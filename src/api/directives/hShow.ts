@@ -33,7 +33,7 @@ export function hShow(value: any | (() => any)) {
       } else {
         hideElement(currentElement!, cache, placeholder);
       }
-      callUpdated(currentComponent.ulh);
+      callUpdated(currentComponent.ulh!);
     });
   } else {
     if (value) {

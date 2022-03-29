@@ -18,7 +18,7 @@ export function setClass(value: any) {
       const newValue = value();
       if (oldValue === newValue) return;
       currentElement!.className = oldValue = newValue;
-      callUpdated(currentComponent.ulh);
+      callUpdated(currentComponent.ulh!);
     });
   } else {
     currentElement!.className = value;

@@ -24,7 +24,7 @@ export function setStyle(value: any) {
       forEachObj(normalizeStyle(newValue)!, (v: any, key) => {
         style[key as any] = v;
       });
-      callUpdated(currentComponent.ulh);
+      callUpdated(currentComponent.ulh!);
     });
   } else {
     forEachObj(normalizeStyle(value)!, (v: any, key) => {
@@ -35,7 +35,7 @@ export function setStyle(value: any) {
           const newValue = v();
           if (oldValue === newValue) return;
           style[key as any] = oldValue = newValue;
-          callUpdated(currentComponent.ulh);
+          callUpdated(currentComponent.ulh!);
         });
       } else {
         style[key as any] = v;

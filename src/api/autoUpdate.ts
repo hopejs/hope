@@ -1,23 +1,25 @@
-import { getLifecycleHandlers } from '@/core';
-import { getCurrentComponent } from '@/core/scheduler';
-import { onElementUnmounted } from './lifecycle';
+import { getLifecycleHandlers } from "@/core";
+import {
+  getCurrentComponent,
+  removeComponent,
+  removeTask,
+} from "@/core/scheduler";
+import { onElementUnmounted, onUnmounted } from "./lifecycle";
 
 export function autoUpdate(block: () => any) {
-  const { updatedHandlers } = getLifecycleHandlers();
   const currentComponent = getCurrentComponent();
+  if (!currentComponent) return;
+
+  const lifecycle = getLifecycleHandlers();
+  (currentComponent.uq || (currentComponent.uq = [])).push(block);
+  currentComponent.ulh || (currentComponent.ulh = lifecycle?.updatedHandlers);
+  onElementUnmounted(() => {
+    removeTask(currentComponent, block);
+  });
+  onUnmounted(() => {
+    if (currentComponent) {
+      removeComponent(currentComponent);
+    }
+  });
   block();
-  if (currentComponent) {
-    (currentComponent.uq || (currentComponent.uq = [])).push(block);
-    currentComponent.ulh || (currentComponent.ulh = updatedHandlers);
-    onElementUnmounted(() => {
-      currentComponent.uq = currentComponent.uq?.filter(
-        (item) => item !== block
-      );
-    });
-    // onUnmounted(() => {
-    //   if (currentComponent) {
-    //     removeComponent(currentComponent);
-    //   }
-    // });
-  }
 }

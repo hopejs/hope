@@ -17,7 +17,7 @@ export function hComment(value: string | (() => string)) {
       const newValue = value();
       if (oldValue === newValue) return;
       comment.textContent = oldValue = newValue;
-      callUpdated(currentComponent.ulh);
+      callUpdated(currentComponent.ulh!);
     });
   } else {
     comment.textContent = value;

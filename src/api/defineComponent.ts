@@ -1,4 +1,4 @@
-import { appendChild, createPlaceholder, removeChild } from '@/renderer';
+import { appendChild, createPlaceholder, removeChild } from "@/renderer";
 import {
   getContainer,
   getCurrntBlockFragment,
@@ -18,7 +18,7 @@ import {
   resetSlots,
   setSlots,
   setQueueAddScope,
-} from '@/core';
+} from "@/core";
 import {
   isString,
   getLast,
@@ -26,18 +26,18 @@ import {
   forEachObj,
   isOn,
   parseEventName,
-} from '@/shared';
-import { mount } from './render';
-import { onUnmounted } from './lifecycle';
-import { setEvent } from './props-and-attrs/event';
-import { setPropsForComponent } from './props-and-attrs/props';
+} from "@/shared";
+import { mount } from "./render";
+import { onUnmounted } from "./lifecycle";
+import { setEvent } from "./props-and-attrs/event";
+import { setPropsForComponent } from "./props-and-attrs/props";
 import {
   getCurrentComponent,
   pushToParent,
   setBackToParent,
   setComponentOfNeedUpdate,
   setCurrentComponent,
-} from '@/core/scheduler';
+} from "@/core/scheduler";
 
 interface ComponentOptions<
   P = Record<string, any>,
@@ -80,7 +80,7 @@ const stackForAddScope: Function[][] = [];
 
 const styleTypes: Record<
   string,
-  Record<'hasDynamic' | 'hasStatic', boolean>
+  Record<"hasDynamic" | "hasStatic", boolean>
 > = {};
 
 // 记录某一个组件的实例个数
@@ -99,10 +99,11 @@ export function defineComponent<P, S = any>(
     pushToParent(getCurrentComponent(), updateQueue);
     setCurrentComponent(updateQueue);
     setComponentOfNeedUpdate(updateQueue);
+    setLifecycleHandlers();
 
     const container = getContainer();
     const startPlaceholder = createPlaceholder(
-      `${setup.name || 'component'} start`
+      `${setup.name || "component"} start`
     );
     appendChild(container, startPlaceholder);
     pushStartToBlockFragment(startPlaceholder);
@@ -130,11 +131,6 @@ export function defineComponent<P, S = any>(
     } = {}
   ) => {
     betweenStartAndEnd = false;
-
-    // 放在 end 标签，可以确保组件指令函数中的数据
-    // 更新时正确的调用组件的父组件的生命周期钩子
-    setLifecycleHandlers();
-
     dsid++;
     dsidStack.push(dsid);
     cidStack.push(startTag.cid);
@@ -180,13 +176,14 @@ export function defineComponent<P, S = any>(
     resetLifecycleHandlers();
 
     const endPlaceholder: any = createPlaceholder(
-      `${setup.name || 'component'} end`
+      `${setup.name || "component"} end`
     );
     const container = getContainer();
     appendChild(container, endPlaceholder);
 
     incrementComponentInstanceCount(componentId);
     setBackToParent();
+    setComponentOfNeedUpdate(getCurrentComponent());
   };
 
   const result: Component<P, S> = [startTag, endTag] as any;
@@ -250,7 +247,7 @@ export function getComponentCssRuleId(
   groupId?: (number | string)[]
 ) {
   if (groupId && groupId.length) {
-    return groupId.join('-') + '-' + componentCssRuleId[componentId];
+    return groupId.join("-") + "-" + componentCssRuleId[componentId];
   }
   return componentCssRuleId[componentId];
 }

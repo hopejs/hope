@@ -251,7 +251,7 @@ function prosessAttrOrProp(value: any, key: string) {
         if (oldValue === newValue) return;
         oldValue = newValue;
         prosessProps(el, newValue, key);
-        callUpdated(currentComponent.ulh);
+        callUpdated(currentComponent.ulh!);
       });
     } else {
       prosessProps(el, value, key);
@@ -265,7 +265,7 @@ function prosessAttrOrProp(value: any, key: string) {
         if (oldValue === newValue) return;
         oldValue = newValue;
         prosessAtrrs(el, newValue, key);
-        callUpdated(currentComponent.ulh);
+        callUpdated(currentComponent.ulh!);
       });
     } else {
       prosessAtrrs(el, value, key);

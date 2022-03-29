@@ -4,7 +4,7 @@ interface UpdateQueue {
   /**
    * Update lifecycle handler
    */
-  ulh: (() => void)[];
+  ulh?: (() => void)[];
   /**
    * Queues that need to be updated
    */
@@ -27,9 +27,10 @@ let componentOfNeedUpdate: UpdateQueue | null = null;
 let currentComponent: UpdateQueue | null = null;
 
 export function setComponentOfNeedUpdate(com: UpdateQueue | null) {
-  if (com) {
-    componentOfNeedUpdate = com;
+  if (!com) {
+    return;
   }
+  componentOfNeedUpdate = com;
 }
 
 export function getComponentOfNeedUpdate() {
@@ -78,6 +79,10 @@ export function removeComponent(component: UpdateQueue) {
  */
 export function refresh() {
   nextTick(startUpdate);
+}
+
+export function removeTask(currentComponent: UpdateQueue, task: () => void) {
+  currentComponent.uq = currentComponent.uq?.filter((item) => item !== task);
 }
 
 function runTask(component: UpdateQueue) {

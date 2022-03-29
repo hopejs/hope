@@ -17,7 +17,11 @@ import {
 } from "@/core";
 import { isFunction, LIFECYCLE_KEYS } from "@/shared";
 import { autoUpdate } from "./autoUpdate";
-import { getCurrentComponent } from "@/core/scheduler";
+import {
+  getCurrentComponent,
+  removeTask,
+  setCurrentComponent,
+} from "@/core/scheduler";
 
 export enum BlockTypes {
   hFor = "hFor",
@@ -52,30 +56,54 @@ export function block(
     const blockFragment = createBlockFragment();
     if (type === BlockTypes.hFor) {
       let oldValue: any[];
-      autoUpdate(() => {
+      const task = () => {
+        // 此时说明该 block 已经被删除
+        if (!start.nextSibling) {
+          return removeTask(currentComponent, task);
+        }
+
         const newValue = value();
         if (oldValue === newValue) return;
         oldValue = newValue;
+
+        /**
+         * 恢复上下文
+         */
+        setCurrentComponent(currentComponent);
+
         setBlockFragment(blockFragment);
         newValue.forEach((item: any, index: number) => {
           range(item, index);
         });
         resetBlockFragment();
         insertBlockFragment(blockFragment, start, end);
-        callUpdated(currentComponent.ulh);
-      });
+        callUpdated(currentComponent.ulh!);
+      };
+      autoUpdate(task);
     } else if (type === BlockTypes.hIf) {
       let oldValue: any;
-      autoUpdate(() => {
+      const task = () => {
+        // 此时说明该 block 已经被删除
+        if (!start.nextSibling) {
+          return removeTask(currentComponent, task);
+        }
+
         const newValue = value();
         if (oldValue === newValue) return;
         oldValue = newValue;
+
+        /**
+         * 恢复上下文
+         */
+        setCurrentComponent(currentComponent);
+
         setBlockFragment(blockFragment);
         newValue ? range() : elseRange?.();
         resetBlockFragment();
         insertBlockFragment(blockFragment, start, end);
-        callUpdated(currentComponent.ulh);
-      });
+        callUpdated(currentComponent.ulh!);
+      };
+      autoUpdate(task);
     }
   } else {
     if (type === BlockTypes.hFor) {

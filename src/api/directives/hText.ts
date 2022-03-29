@@ -17,7 +17,7 @@ export function hText(value: string | (() => string)) {
       const newValue = value();
       if (oldValue === newValue) return;
       textNode.textContent = oldValue = newValue;
-      callUpdated(currentComponent.ulh);
+      callUpdated(currentComponent.ulh!);
     });
   } else {
     textNode.textContent = value;

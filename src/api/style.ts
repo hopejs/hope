@@ -164,7 +164,7 @@ function setCssRule(
         const newValue = value();
         if (oldValue === newValue) return;
         cssRuleStyle[key as any] = oldValue = newValue;
-        callUpdated(currentComponent.ulh);
+        callUpdated(currentComponent.ulh!);
       });
     } else {
       cssRuleStyle[key as any] = value;
