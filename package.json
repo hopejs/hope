@@ -15,7 +15,6 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "@vue/reactivity":"^3.0.0",
     "@vue/shared":"^3.0.0"
   },
   "devDependencies": {
