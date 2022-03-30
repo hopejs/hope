@@ -1,7 +1,7 @@
-import { callUpdated, getCurrentElement } from "@/core";
-import { getCurrentComponent } from "@/core/scheduler";
-import { forEachObj, isFunction, normalizeStyle } from "@/shared";
-import { autoUpdate } from "../autoUpdate";
+import { callUpdated, getCurrentElement } from '@/core';
+import { getCurrentComponent } from '@/core/scheduler';
+import { forEachObj, isFunction, logError, normalizeStyle } from '@/shared';
+import { autoUpdate } from '../autoUpdate';
 
 export type CSSStyle = {
   [P in keyof CSSStyleDeclaration]?:
@@ -22,6 +22,9 @@ export function setStyle(value: any) {
       if (oldValue === newValue) return;
       oldValue = newValue;
       forEachObj(normalizeStyle(newValue)!, (v: any, key) => {
+        if (__DEV__ && isFunction(v)) {
+          return logError(`属性不允许嵌套函数`);
+        }
         style[key as any] = v;
       });
       callUpdated(currentComponent.ulh!);
