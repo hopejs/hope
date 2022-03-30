@@ -1,22 +1,22 @@
-import { clearFragmentChildren, getCurrentElement, nextTick } from "@/core";
-import { delay } from "@/shared";
-import { div, defineComponent, $div, hText, mount } from "@/api";
-import { isBetweenStartAndEnd } from "@/api/defineComponent";
-import { hIf } from "@/api/directives/hIf";
-import { refresh } from "@/core/scheduler";
+import { clearFragmentChildren, getCurrentElement, nextTick } from '@/core';
+import { delay } from '@/shared';
+import { div, defineComponent, $div, hText, mount } from '@/api';
+import { isBetweenStartAndEnd } from '@/api/defineComponent';
+import { hIf } from '@/api/directives/hIf';
+import { refresh } from '@/core/scheduler';
+import { comWithSlot } from '../common';
 
-describe("defineComponent", () => {
-  it("basic", async () => {
+describe('defineComponent', () => {
+  it('basic', async () => {
     clearFragmentChildren();
-    const [helloWorld, $helloWorld] = defineComponent(() => {
+
+    comWithSlot(() => {
       div();
-      hText("Hello World");
+      hText('Hello World');
       $div();
     });
 
-    const container = document.createElement("div");
-    helloWorld();
-    $helloWorld();
+    const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
@@ -24,15 +24,15 @@ describe("defineComponent", () => {
     );
   });
 
-  it("mount", async () => {
+  it('mount', async () => {
     clearFragmentChildren();
     const HelloWorld = defineComponent(() => {
       div();
-      hText("Hello Hope");
+      hText('Hello Hope');
       $div();
     });
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     HelloWorld.mount(container);
     await delay();
     expect(container.innerHTML).toBe(
@@ -40,9 +40,9 @@ describe("defineComponent", () => {
     );
   });
 
-  it("props", async () => {
+  it('props', async () => {
     clearFragmentChildren();
-    const p = { name: "a" };
+    const p = { name: 'a' };
     const [person, $person] = defineComponent<{ name: string }>(({ props }) => {
       div();
       hText(() => props.name);
@@ -52,14 +52,14 @@ describe("defineComponent", () => {
     person({ name: () => p.name });
     $person();
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
       `<!--component start--><div>a</div><!--component end-->`
     );
 
-    p.name = "b";
+    p.name = 'b';
     refresh();
     await nextTick();
     expect(container.innerHTML).toBe(
@@ -67,13 +67,13 @@ describe("defineComponent", () => {
     );
   });
 
-  it("emit", async () => {
+  it('emit', async () => {
     clearFragmentChildren();
     let el: Element;
     const [person, $person] = defineComponent<any, any>(({ emit }) => {
       div({
         onClick: () => {
-          emit && emit("testClick", 123);
+          emit && emit('testClick', 123);
         },
       });
       el = getCurrentElement()!;
@@ -87,35 +87,33 @@ describe("defineComponent", () => {
     person({ onTestClick: fn });
     $person();
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     await delay();
 
     // @ts-ignore
-    el.dispatchEvent(new CustomEvent("click"));
+    el.dispatchEvent(new CustomEvent('click'));
     expect(fn).toBeCalledTimes(1);
   });
 
-  it("block & component", async () => {
+  it('block & component', async () => {
     clearFragmentChildren();
     const [com, $com] = defineComponent<{ a: string }>(({ props }) => {
       div();
       hText(() => props.a);
       $div();
     });
-    const [test, $test] = defineComponent(() => {
+
+    comWithSlot(() => {
       hIf(true, () => {
         div();
         $div();
-        com({ a: () => "b" });
+        com({ a: () => 'b' });
         $com();
       });
     });
 
-    test();
-    $test();
-
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
@@ -123,14 +121,14 @@ describe("defineComponent", () => {
     );
   });
 
-  it("nest block & component", async () => {
+  it('nest block & component', async () => {
     clearFragmentChildren();
     const [com, $com] = defineComponent<any, any>(() => {
       div();
       $div();
     });
 
-    const [test1, $test1] = defineComponent(() => {
+    comWithSlot(() => {
       hIf(
         () => true,
         () => {
@@ -143,17 +141,14 @@ describe("defineComponent", () => {
         }
       );
     });
-
-    test1();
-    $test1();
-    const container1 = document.createElement("div");
+    const container1 = document.createElement('div');
     mount(container1);
     await delay();
     expect(container1.innerHTML).toBe(
       `<!--component start--><!--block start--><div><!--component start--><div></div><!--component end--></div><!--block end--><!--component end-->`
     );
 
-    const [test2, $test2] = defineComponent(() => {
+    comWithSlot(() => {
       hIf(
         () => true,
         () => {
@@ -168,10 +163,7 @@ describe("defineComponent", () => {
         }
       );
     });
-
-    test2();
-    $test2();
-    const container2 = document.createElement("div");
+    const container2 = document.createElement('div');
     mount(container2);
     await delay();
     expect(container2.innerHTML).toBe(
@@ -179,7 +171,7 @@ describe("defineComponent", () => {
     );
   });
 
-  it("isBetweenStartAndEnd", async () => {
+  it('isBetweenStartAndEnd', async () => {
     clearFragmentChildren();
     const [com, $com] = defineComponent<any, any>(() => {
       div();
@@ -192,12 +184,12 @@ describe("defineComponent", () => {
     $com();
     expect(isBetweenStartAndEnd()).toBe(false);
 
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     await delay();
 
     expect(container.innerHTML).toBe(
-      "<!--component start--><div></div><!--component end-->"
+      '<!--component start--><div></div><!--component end-->'
     );
   });
 });

@@ -1,10 +1,11 @@
 import { getCurrentElement } from '@/core';
 import { delay } from '@/shared';
 import { div, $div, defineComponent, mount } from '@/api';
+import { comWithSlot } from '../../common';
 
 describe('event', () => {
   it('basic', () => {
-    const [com, $com] = defineComponent(() => {
+    comWithSlot(() => {
       const fn = jest.fn();
 
       div({ onClick: fn });
@@ -16,13 +17,10 @@ describe('event', () => {
       el?.dispatchEvent(new CustomEvent('click'));
       expect(fn).toBeCalledTimes(2);
     });
-
-    com();
-    $com();
   });
 
   it('modifier & once', () => {
-    const [com, $com] = defineComponent(() => {
+    comWithSlot(() => {
       const fn = jest.fn();
 
       div({ onClick$once: fn });
@@ -34,9 +32,6 @@ describe('event', () => {
       el?.dispatchEvent(new CustomEvent('click'));
       expect(fn).toBeCalledTimes(1);
     });
-
-    com();
-    $com();
   });
 
   it('modifier & once with component', async () => {

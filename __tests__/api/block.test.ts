@@ -13,6 +13,7 @@ import { delay, NS, LIFECYCLE_KEYS } from '@/shared';
 import { div, span, $div, hText, mount, $span, defineComponent } from '@/api';
 import { hIf } from '@/api/directives/hIf';
 import { refresh } from '@/core/scheduler';
+import { comWithSlot } from '../common';
 
 describe('hIf', () => {
   it('basic', async () => {
@@ -115,7 +116,8 @@ describe('hIf', () => {
 
   it('nest element', async () => {
     clearFragmentChildren();
-    const [com, $com] = defineComponent(() => {
+
+    comWithSlot(() => {
       hIf(true, () => {
         div();
         div();
@@ -123,9 +125,6 @@ describe('hIf', () => {
         $div();
       });
     });
-
-    com();
-    $com();
 
     const container = document.createElement('div');
     mount(container);
@@ -137,7 +136,8 @@ describe('hIf', () => {
 
   it('nest block', async () => {
     clearFragmentChildren();
-    const [com, $com] = defineComponent(() => {
+
+    comWithSlot(() => {
       hIf(true, () => {
         hIf(true, () => {
           div();
@@ -145,9 +145,6 @@ describe('hIf', () => {
         });
       });
     });
-
-    com();
-    $com();
 
     const container = document.createElement('div');
     mount(container);
@@ -159,7 +156,8 @@ describe('hIf', () => {
 
   it('nest block & nest element', async () => {
     clearFragmentChildren();
-    const [com, $com] = defineComponent(() => {
+
+    comWithSlot(() => {
       hIf(true, () => {
         div();
         hIf(true, () => {
@@ -169,9 +167,6 @@ describe('hIf', () => {
         $div();
       });
     });
-
-    com();
-    $com();
 
     const container = document.createElement('div');
     mount(container);
@@ -183,7 +178,8 @@ describe('hIf', () => {
 
   it('nest block & not nest element', async () => {
     clearFragmentChildren();
-    const [com, $com] = defineComponent(() => {
+
+    comWithSlot(() => {
       hIf(true, () => {
         div();
         $div();
@@ -193,9 +189,6 @@ describe('hIf', () => {
         });
       });
     });
-
-    com();
-    $com();
 
     const container = document.createElement('div');
     mount(container);
@@ -210,7 +203,7 @@ describe('hIf', () => {
     let el: HopeElement;
     let el2: HopeElement;
 
-    const [com, $com] = defineComponent(() => {
+    comWithSlot(() => {
       hIf(true, () => {
         div();
         el = getCurrentElement()!;
@@ -235,9 +228,6 @@ describe('hIf', () => {
       );
     });
 
-    com();
-    $com();
-
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(void 0);
     // @ts-ignore
@@ -250,7 +240,8 @@ describe('hIf', () => {
 
   it('with shouldAsSVG', async () => {
     clearFragmentChildren();
-    const [com, $com] = defineComponent(() => {
+
+    comWithSlot(() => {
       hIf(
         () => true,
         () => {
@@ -269,9 +260,6 @@ describe('hIf', () => {
       );
       end();
     });
-
-    com();
-    $com();
   });
 
   it('dynamic & shouldAsSVG', async () => {

@@ -3,15 +3,7 @@ import { getCurrentElement, HopeElement, mount, nextTick } from '@/core';
 import { delay } from '@/shared';
 import { $div, defineComponent, div } from '@/api';
 import { refresh } from '@/core/scheduler';
-
-function common(slot: () => void) {
-  const [com, $com] = defineComponent(() => {
-    slot();
-  });
-
-  com();
-  $com();
-}
+import { comWithSlot } from '../common';
 
 describe('tag props', () => {
   const container = createElement('div');
@@ -56,7 +48,7 @@ describe('tag props', () => {
   });
 
   it('style', async () => {
-    common(() => {
+    comWithSlot(() => {
       div({ style: { color: 'red' } });
       $div();
     });
@@ -67,7 +59,7 @@ describe('tag props', () => {
     );
 
     // property is a function
-    common(() => {
+    comWithSlot(() => {
       div({ style: { color: () => 'red' } });
       $div();
     });
@@ -78,7 +70,7 @@ describe('tag props', () => {
     );
 
     // function
-    common(() => {
+    comWithSlot(() => {
       div({ style: () => ({ color: 'red' }) });
       $div();
     });
@@ -89,7 +81,7 @@ describe('tag props', () => {
     );
 
     // array
-    common(() => {
+    comWithSlot(() => {
       div({ style: [{ color: 'red' }, { width: '100px' }] });
       $div();
     });
@@ -104,7 +96,7 @@ describe('tag props', () => {
     const state = { color: 'red' };
 
     // property is a function
-    common(() => {
+    comWithSlot(() => {
       div({ style: { color: () => state.color } });
       $div();
     });
@@ -121,7 +113,7 @@ describe('tag props', () => {
     );
 
     // function
-    common(() => {
+    comWithSlot(() => {
       div({ style: () => ({ color: state.color }) });
       $div();
     });
@@ -138,7 +130,7 @@ describe('tag props', () => {
     );
 
     // array
-    common(() => {
+    comWithSlot(() => {
       div({ style: () => [{ color: state.color }] });
       $div();
     });
@@ -157,7 +149,7 @@ describe('tag props', () => {
 
   it('id', async () => {
     // basic
-    common(() => {
+    comWithSlot(() => {
       div({ id: 'id-name' });
       $div();
     });
@@ -169,7 +161,7 @@ describe('tag props', () => {
 
     // reactivity
     const state = { id: 'a' };
-    common(() => {
+    comWithSlot(() => {
       div({ id: () => state.id });
       $div();
     });
@@ -197,7 +189,7 @@ describe('tag props', () => {
     const handle = jest.fn();
     let el: HopeElement;
 
-    common(() => {
+    comWithSlot(() => {
       div({ onClick: handle });
       el = getCurrentElement()!;
       $div();
@@ -215,7 +207,7 @@ describe('tag props', () => {
     // modifier
     const handle2 = jest.fn();
     let el2: HopeElement;
-    common(() => {
+    comWithSlot(() => {
       div({ onClick$once: handle2 });
       el2 = getCurrentElement()!;
       $div();

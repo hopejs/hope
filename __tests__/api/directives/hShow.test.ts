@@ -1,12 +1,13 @@
-import { getCurrentElement, HopeElement, nextTick } from "@/core";
-import { delay } from "@/shared";
-import { hShow, mount, div, $div, defineComponent } from "@/api";
-import { refresh } from "@/core/scheduler";
-import { LIFECYCLE_KEYS } from "@/shared";
-import { hIf } from "@/api/directives/hIf";
+import { getCurrentElement, HopeElement, nextTick } from '@/core';
+import { delay } from '@/shared';
+import { hShow, mount, div, $div, defineComponent } from '@/api';
+import { refresh } from '@/core/scheduler';
+import { LIFECYCLE_KEYS } from '@/shared';
+import { hIf } from '@/api/directives/hIf';
+import { comWithSlot } from '../../common';
 
-describe("hShow", () => {
-  it("basic", async () => {
+describe('hShow', () => {
+  it('basic', async () => {
     const [com, $com] = defineComponent<{ show: boolean }>(({ props }) => {
       div();
       hShow(props.show);
@@ -15,7 +16,7 @@ describe("hShow", () => {
 
     com({ show: true });
     $com();
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
@@ -31,7 +32,7 @@ describe("hShow", () => {
     );
   });
 
-  it("reactivity", async () => {
+  it('reactivity', async () => {
     let show = true;
 
     const [com, $com] = defineComponent<{ show: boolean }>(({ props }) => {
@@ -42,7 +43,7 @@ describe("hShow", () => {
 
     com({ show: () => show });
     $com();
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
@@ -57,7 +58,7 @@ describe("hShow", () => {
     );
   });
 
-  it("nest element", async () => {
+  it('nest element', async () => {
     let show = false;
 
     const [com, $com] = defineComponent<{ show: boolean }>(({ props }) => {
@@ -70,7 +71,7 @@ describe("hShow", () => {
 
     com({ show: () => show });
     $com();
-    const container = document.createElement("div");
+    const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
@@ -85,7 +86,7 @@ describe("hShow", () => {
     );
   });
 
-  it("elementUnmounted", () => {
+  it('elementUnmounted', () => {
     let el: HopeElement;
 
     const [com, $com] = defineComponent(() => {
@@ -107,18 +108,15 @@ describe("hShow", () => {
     expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
   });
 
-  it("elementUnmounted & no reactivity", () => {
+  it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
 
-    const [com, $com] = defineComponent(() => {
+    comWithSlot(() => {
       div();
       hShow(true);
       el = getCurrentElement()!;
       $div();
     });
-
-    com();
-    $com();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);

@@ -3,63 +3,58 @@ import {
   getCurrentElement,
   HopeElement,
   nextTick,
-} from "@/core";
-import { delay, LIFECYCLE_KEYS } from "@/shared";
-import { createElement } from "@/renderer";
-import { div, $div, defineComponent, hText, mount } from "@/api";
-import { refresh } from "@/core/scheduler";
-import { hIf } from "@/api/directives/hIf";
+} from '@/core';
+import { delay, LIFECYCLE_KEYS } from '@/shared';
+import { createElement } from '@/renderer';
+import { div, $div, defineComponent, hText, mount } from '@/api';
+import { refresh } from '@/core/scheduler';
+import { hIf } from '@/api/directives/hIf';
+import { comWithSlot } from '../../common';
 
-describe("props", () => {
-  const KEY = "_hopejs_test";
+describe('props', () => {
+  const KEY = '_hopejs_test';
 
-  it("basic", () => {
+  it('basic', () => {
     // 清空之前测试添加到 fragment 的内容
     clearFragmentChildren();
 
-    const [com, $com] = defineComponent(() => {
-      div({ [KEY]: "123" });
+    comWithSlot(() => {
+      div({ [KEY]: '123' });
       // @ts-ignore
       expect(getCurrentElement()!.outerHTML).toBe(
         '<div _hopejs_test="123"></div>'
       );
       $div();
     });
-
-    com();
-    $com();
   });
 
-  it("reactivity", async () => {
+  it('reactivity', async () => {
     // 清空之前测试添加到 fragment 的内容
     clearFragmentChildren();
+    const state = { name: 'a' };
+    let el: HopeElement;
 
-    const [com, $com] = defineComponent(async () => {
-      const state = { name: "a" };
-
+    comWithSlot(() => {
       div({ [KEY]: () => state.name });
-      const el = getCurrentElement();
+      el = getCurrentElement()!;
       // @ts-ignore
       expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
       $div();
-
-      state.name = "b";
-      refresh();
-      await nextTick();
-      // @ts-ignore
-      expect(el.outerHTML).toBe('<div _hopejs_test="b"></div>');
     });
 
-    com();
-    $com();
+    state.name = 'b';
+    refresh();
+    await nextTick();
+    // @ts-ignore
+    expect(el.outerHTML).toBe('<div _hopejs_test="b"></div>');
   });
 
-  it("reactivity object", async () => {
+  it('reactivity object', async () => {
     // 清空之前测试添加到 fragment 的内容
     clearFragmentChildren();
 
-    const [com, $com] = defineComponent(() => {
-      const props = { [KEY]: "a" };
+    comWithSlot(() => {
+      const props = { [KEY]: 'a' };
 
       div(props);
       const el = getCurrentElement();
@@ -67,49 +62,40 @@ describe("props", () => {
       expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
       $div();
     });
-
-    com();
-    $com();
   });
 
-  it("elementUnmounted", () => {
+  it('elementUnmounted', () => {
     let el: HopeElement;
 
-    const [com, $com] = defineComponent(() => {
+    comWithSlot(() => {
       hIf(
         () => true,
         () => {
-          div({ [KEY]: () => "name" });
+          div({ [KEY]: () => 'name' });
           el = getCurrentElement()!;
           $div();
         }
       );
     });
 
-    com();
-    $com();
-
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
   });
 
-  it("elementUnmounted & no reactivity", () => {
+  it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
 
-    const [com, $com] = defineComponent(() => {
-      div({ [KEY]: "name" });
+    comWithSlot(() => {
+      div({ [KEY]: 'name' });
       el = getCurrentElement()!;
       $div();
     });
-
-    com();
-    $com();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
   });
 
-  it("no reactivity & with component", async () => {
+  it('no reactivity & with component', async () => {
     // 清空之前测试添加到 fragment 的内容
     clearFragmentChildren();
     const [com, $com] = defineComponent<any, any>(({ props }) => {
@@ -119,15 +105,15 @@ describe("props", () => {
       $div();
     });
 
-    com({ b: "b" });
+    com({ b: 'b' });
     $com();
 
-    const container = createElement("div");
+    const container = createElement('div');
     mount(container);
     await delay();
 
     expect(container.innerHTML).toBe(
-      "<!--component start--><div>b</div><!--component end-->"
+      '<!--component start--><div>b</div><!--component end-->'
     );
   });
 });

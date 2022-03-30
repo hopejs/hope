@@ -1,27 +1,25 @@
-import { getCurrentElement, HopeElement, nextTick } from "@/core";
-import { hComment, div, $div, defineComponent } from "@/api";
-import { refresh } from "@/core/scheduler";
-import { LIFECYCLE_KEYS } from "@/shared";
-import { hIf } from "@/api/directives/hIf";
+import { getCurrentElement, HopeElement, nextTick } from '@/core';
+import { hComment, div, $div } from '@/api';
+import { refresh } from '@/core/scheduler';
+import { LIFECYCLE_KEYS } from '@/shared';
+import { hIf } from '@/api/directives/hIf';
+import { comWithSlot } from '../../common';
 
-describe("hComment", () => {
-  it("basic", () => {
-    const [com, $com] = defineComponent(() => {
+describe('hComment', () => {
+  it('basic', () => {
+    comWithSlot(() => {
       div();
-      hComment("");
-      expect(getCurrentElement()?.innerHTML).toBe("<!---->");
+      hComment('');
+      expect(getCurrentElement()?.innerHTML).toBe('<!---->');
       $div();
     });
-
-    com();
-    $com();
   });
 
-  it("reactivity", async () => {
-    const state = { name: "a" };
+  it('reactivity', async () => {
+    const state = { name: 'a' };
     let el: HopeElement;
 
-    const [com, $com] = defineComponent(() => {
+    comWithSlot(() => {
       div();
       hComment(() => state.name);
       el = getCurrentElement()!;
@@ -29,48 +27,40 @@ describe("hComment", () => {
       $div();
     });
 
-    com();
-    $com();
-
-    state.name = "b";
+    state.name = 'b';
     refresh();
     await nextTick();
     expect(el!?.innerHTML).toBe(`<!--b-->`);
   });
 
-  it("elementUnmounted", () => {
+  it('elementUnmounted', () => {
     let el: HopeElement;
 
-    const [com, $com] = defineComponent(() => {
+    comWithSlot(() => {
       hIf(
         () => true,
         () => {
           div();
-          hComment(() => "name");
+          hComment(() => 'name');
           el = getCurrentElement()!;
           $div();
         }
       );
     });
 
-    com();
-    $com();
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
   });
 
-  it("elementUnmounted & no reactivity", () => {
+  it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
 
-    const [com, $com] = defineComponent(() => {
+    comWithSlot(() => {
       div();
-      hComment("name");
+      hComment('name');
       el = getCurrentElement()!;
       $div();
-    });
-
-    com();
-    $com();
+    })
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
