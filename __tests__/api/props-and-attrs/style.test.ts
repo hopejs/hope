@@ -1,11 +1,13 @@
-import { getCurrentElement, HopeElement, nextTick } from '@/core';
-import { div, $div, defineComponent } from '@/api';
-import { refresh } from '@/core/scheduler';
+import { getCurrentElement, HopeElement, nextTick } from "@/core";
+import { div, $div, defineComponent } from "@/api";
+import { refresh } from "@/core/scheduler";
+import { LIFECYCLE_KEYS } from "@/shared";
+import { hIf } from "@/api/directives/hIf";
 
-describe('style', () => {
-  it('basic', () => {
+describe("style", () => {
+  it("basic", () => {
     const [com, $com] = defineComponent(() => {
-      div({ style: { color: 'red' } });
+      div({ style: { color: "red" } });
       const el = getCurrentElement();
       expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
       $div();
@@ -15,10 +17,10 @@ describe('style', () => {
     $com();
   });
 
-  it('array', () => {
+  it("array", () => {
     const [com, $com] = defineComponent(() => {
-      const obj1 = { color: 'red' };
-      const obj2 = { backgroundColor: 'red' };
+      const obj1 = { color: "red" };
+      const obj2 = { backgroundColor: "red" };
       div({ style: [obj1, obj2] });
       const el = getCurrentElement();
       expect(el?.outerHTML).toBe(
@@ -31,16 +33,16 @@ describe('style', () => {
     $com();
   });
 
-  it('reactivity', async () => {
+  it("reactivity", async () => {
     const [com, $com] = defineComponent(async () => {
-      const color = { value: 'red' };
+      const color = { value: "red" };
 
       div({ style: () => ({ color: color.value }) });
       const el = getCurrentElement();
       expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
       $div();
 
-      color.value = 'blue';
+      color.value = "blue";
       refresh();
       await nextTick();
       expect(el?.outerHTML).toBe(`<div style="color: blue;"></div>`);
@@ -50,21 +52,36 @@ describe('style', () => {
     $com();
   });
 
-  it('elementUnmounted', () => {
+  it("elementUnmounted", () => {
     let el: HopeElement;
-    div({ style: () => ({ color: 'red' }) });
-    el = getCurrentElement()!;
-    $div();
+    const [com, $com] = defineComponent(() => {
+      hIf(
+        () => true,
+        () => {
+          div({ style: () => ({ color: "red" }) });
+          el = getCurrentElement()!;
+          $div();
+        }
+      );
+    });
+
+    com();
+    $com();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
   });
 
-  it('elementUnmounted & no reactivity', () => {
+  it("elementUnmounted & no reactivity", () => {
     let el: HopeElement;
-    div({ style: { color: 'red' } });
-    el = getCurrentElement()!;
-    $div();
+    const [com, $com] = defineComponent(() => {
+      div({ style: { color: "red" } });
+      el = getCurrentElement()!;
+      $div();
+    });
+
+    com();
+    $com();
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
