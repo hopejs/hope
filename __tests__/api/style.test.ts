@@ -1,6 +1,7 @@
 import { getStyleSheet, nextTick } from '@/core';
 import { defineComponent, s } from '@/api';
 import { getCurrentCid } from '@/api/defineComponent';
+import { refresh } from '@/core/scheduler';
 
 describe('style', () => {
   const common = (number: number, block: () => void) => {
@@ -77,6 +78,7 @@ describe('style', () => {
     expect(sheet.cssRules[0].style.backgroundColor).toBe('red');
 
     state.color = 'blue';
+    refresh();
     await nextTick();
     // @ts-ignore
     expect(sheet.cssRules[0].style.backgroundColor).toBe('blue');
