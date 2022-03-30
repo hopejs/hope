@@ -111,7 +111,7 @@ export function getLast<T>(stack: T[]): T | undefined {
 }
 
 export function logError(err: string) {
-  console.error(`[Hope error]: ${err}`);
+  throw new Error(`[Hope error]: ${err}`);
 }
 
 export function logWarn(warn: string) {

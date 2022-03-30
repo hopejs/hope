@@ -1,6 +1,6 @@
 import { nextTick } from "./nextTick";
 
-interface UpdateQueue {
+export interface UpdateQueue {
   /**
    * Update lifecycle handler
    */
