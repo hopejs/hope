@@ -3,8 +3,8 @@ import {
   createFragment,
   appendChild,
   createElementNS,
-} from '@/renderer';
-import { getLast, isElement, LIFECYCLE_KEYS, NS } from '@/shared';
+} from "@/renderer";
+import { getLast, isElement, LIFECYCLE_KEYS, NS } from "@/shared";
 
 export type BlockFragment = DocumentFragment & {
   _elementStack: HopeElement[];
@@ -60,7 +60,7 @@ export function end() {
 }
 
 export function mount(container: Element) {
-  container.innerHTML = '';
+  container.innerHTML = "";
   appendChild(container, fragment);
 }
 
@@ -76,7 +76,7 @@ export function createBlockFragment() {
   const result = createFragment() as BlockFragment;
   result._elementStack = [];
   // 表示在 block 中创建的元素是否是 svg
-  result._shouldAsSVG = shouldAsSVG('');
+  result._shouldAsSVG = shouldAsSVG("");
   return result;
 }
 
@@ -102,7 +102,7 @@ export function getFragment() {
 }
 
 export function clearFragmentChildren() {
-  const container = createElement('div');
+  const container = createElement("div");
   mount(container);
 }
 
@@ -115,13 +115,13 @@ export function getTagNameStack() {
 }
 
 export function shouldAsSVG(tagName: string) {
-  if (tagName === 'svg') return true;
+  if (tagName === "svg") return true;
   const tagNameStack = getTagNameStack();
   let length = tagNameStack.length;
 
   while (length--) {
-    if (tagNameStack[length] === 'foreignObject') return false;
-    if (tagNameStack[length] === 'svg') return true;
+    if (tagNameStack[length] === "foreignObject") return false;
+    if (tagNameStack[length] === "svg") return true;
   }
 
   // 如果一个元素在一个 block 中，则会在 fragment 中保存
