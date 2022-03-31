@@ -20,3 +20,4 @@ export {
 } from './style-sheet/getStyleSheet';
 export { keyframes } from './style-sheet/keyframes';
 export { media } from './style-sheet/media';
+export { refresh } from './scheduler';

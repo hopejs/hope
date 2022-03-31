@@ -30,7 +30,7 @@ export enum BlockTypes {
 
 export function block<T>(
   type: BlockTypes.hFor,
-  value: T | (() => T),
+  value: T[] | (() => T[]),
   range: (item: T, index: number) => void
 ): void;
 export function block(
