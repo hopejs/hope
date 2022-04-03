@@ -1,116 +1,148 @@
-import { reactive } from '@/reactivity';
 import { createElement } from '@/renderer';
 import {
   clearFragmentChildren,
   end,
   getCurrentElement,
   getCurrntBlockFragment,
-  HopeElement,
   shouldAsSVG,
   nextTick,
   start,
+  HopeElement,
 } from '@/core';
-import { delay, LIFECYCLE_KEYS, NS } from '@/shared';
-import { div, span, block, $div, hText, mount, $span } from '@/api';
+import { delay, NS, LIFECYCLE_KEYS } from '@/shared';
+import { div, span, $div, hText, mount, $span, defineComponent } from '@/api';
+import { hIf } from '@/api/directives/hIf';
+import { refresh } from '@/core/scheduler';
+import { comWithSlot } from '../common';
 
-describe('block', () => {
+describe('hIf', () => {
   it('basic', async () => {
-    const state = reactive({
+    const state = {
       toggle: true,
+    };
+    const [com, $com] = defineComponent<{ toggle: boolean }>(({ props }) => {
+      hIf(
+        () => props.toggle,
+        () => {
+          div();
+          hText('1');
+          $div();
+        },
+        () => {
+          span();
+          hText('2');
+          $span();
+        }
+      );
     });
 
-    block(() => {
-      if (state.toggle) {
-        div();
-        hText('1');
-        $div();
-      } else {
-        span();
-        hText('2');
-        $span();
-      }
-    });
+    com({ toggle: () => state.toggle });
+    $com();
 
     const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
-      '<!--block start--><div>1</div><!--block end-->'
+      '<!--component start--><!--block start--><div>1</div><!--block end--><!--component end-->'
     );
     state.toggle = false;
+    refresh();
     await nextTick();
     expect(container.innerHTML).toBe(
-      '<!--block start--><span>2</span><!--block end-->'
+      '<!--component start--><!--block start--><span>2</span><!--block end--><!--component end-->'
     );
   });
 
   it('reactivity & remove', async () => {
+    clearFragmentChildren();
     let el: Element;
-    const state = reactive({
+    const state = {
       show: true,
       text: 'a',
-    });
+    };
 
-    block(() => {
-      if (state.show) {
-        div();
-        hText(() => state.text);
-        el = getCurrentElement()!;
-        $div();
+    const [com, $com] = defineComponent<{ show: boolean; text: string }>(
+      ({ props }) => {
+        hIf(
+          () => props.show,
+          () => {
+            div();
+            hText(() => props.text);
+            el = getCurrentElement()!;
+            $div();
+          }
+        );
       }
-    });
+    );
+
+    com({ show: () => state.show, text: () => state.text });
+    $com();
+
     const container = document.createElement('div');
     mount(container);
     await delay();
 
     expect(container.innerHTML).toBe(
-      `<!--block start--><div>a</div><!--block end-->`
+      `<!--component start--><!--block start--><div>a</div><!--block end--><!--component end-->`
     );
     // @ts-ignore
     expect(el.outerHTML).toBe(`<div>a</div>`);
 
     state.text = 'b';
+    refresh();
     await nextTick();
     expect(container.innerHTML).toBe(
-      `<!--block start--><div>b</div><!--block end-->`
+      `<!--component start--><!--block start--><div>b</div><!--block end--><!--component end-->`
     );
     // @ts-ignore
     expect(el.outerHTML).toBe(`<div>b</div>`);
 
     state.show = false;
+    refresh();
     await nextTick();
-    expect(container.innerHTML).toBe(`<!--block start--><!--block end-->`);
+    expect(container.innerHTML).toBe(
+      `<!--component start--><!--block start--><!--block end--><!--component end-->`
+    );
     // @ts-ignore
     expect(el.outerHTML).toBe(`<div>b</div>`);
 
     // 已经 remove 的元素不应该再被响应
     state.text = 'c';
+    refresh();
     await nextTick();
     // @ts-ignore
     expect(el.outerHTML).toBe(`<div>b</div>`);
   });
 
   it('nest element', async () => {
-    block(() => {
-      div();
-      div();
-      $div();
-      $div();
+    clearFragmentChildren();
+
+    comWithSlot(() => {
+      hIf(true, () => {
+        div();
+        div();
+        $div();
+        $div();
+      });
     });
 
     const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
-      `<!--block start--><div><div></div></div><!--block end-->`
+      `<!--component start--><div><div></div></div><!--component end-->`
     );
   });
 
   it('nest block', async () => {
-    block(() => {
-      block(() => {
-        div();
-        $div();
+    clearFragmentChildren();
+
+    comWithSlot(() => {
+      hIf(true, () => {
+        hIf(true, () => {
+          div();
+          $div();
+        });
       });
     });
 
@@ -118,35 +150,43 @@ describe('block', () => {
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
-      `<!--block start--><!--block start--><div></div><!--block end--><!--block end-->`
+      `<!--component start--><div></div><!--component end-->`
     );
   });
 
   it('nest block & nest element', async () => {
-    block(() => {
-      div();
-      block(() => {
+    clearFragmentChildren();
+
+    comWithSlot(() => {
+      hIf(true, () => {
         div();
+        hIf(true, () => {
+          div();
+          $div();
+        });
         $div();
       });
-      $div();
     });
 
     const container = document.createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
-      `<!--block start--><div><!--block start--><div></div><!--block end--></div><!--block end-->`
+      `<!--component start--><div><div></div></div><!--component end-->`
     );
   });
 
   it('nest block & not nest element', async () => {
-    block(() => {
-      div();
-      $div();
-      block(() => {
+    clearFragmentChildren();
+
+    comWithSlot(() => {
+      hIf(true, () => {
         div();
         $div();
+        hIf(true, () => {
+          div();
+          $div();
+        });
       });
     });
 
@@ -154,34 +194,42 @@ describe('block', () => {
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
-      `<!--block start--><div></div><!--block start--><div></div><!--block end--><!--block end-->`
+      `<!--component start--><div></div><div></div><!--component end-->`
     );
   });
 
-  it('elementUnmounted', () => {
+  it('elementUnmounted', async () => {
+    clearFragmentChildren();
     let el: HopeElement;
-    block(() => {
-      div();
-      el = getCurrentElement()!;
-      $div();
-      block(() => {
-        div();
-        $div();
-      });
-    });
-    // @ts-ignore
-    expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
-
     let el2: HopeElement;
-    block(() => {
-      div();
-      el2 = getCurrentElement()!;
-      block(() => {
+
+    comWithSlot(() => {
+      hIf(true, () => {
         div();
+        el = getCurrentElement()!;
         $div();
+        hIf(true, () => {
+          div();
+          $div();
+        });
       });
-      $div();
+
+      hIf(
+        () => true,
+        () => {
+          div({ class: () => 'nothing' });
+          el2 = getCurrentElement()!;
+          hIf(true, () => {
+            div();
+            $div();
+          });
+          $div();
+        }
+      );
     });
+
+    // @ts-ignore
+    expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(void 0);
     // @ts-ignore
     expect(el2[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
     // @ts-ignore
@@ -190,67 +238,86 @@ describe('block', () => {
     );
   });
 
-  it('with shouldAsSVG', () => {
-    block(() => {
-      expect(shouldAsSVG('')).toBe(false);
-      expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(false);
-    });
+  it('with shouldAsSVG', async () => {
+    clearFragmentChildren();
 
-    start('svg');
-    block(() => {
-      expect(shouldAsSVG('')).toBe(true);
-      expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
+    comWithSlot(() => {
+      hIf(
+        () => true,
+        () => {
+          expect(shouldAsSVG('')).toBe(false);
+          expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(false);
+        }
+      );
+
+      start('svg');
+      hIf(
+        () => true,
+        () => {
+          expect(shouldAsSVG('')).toBe(true);
+          expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
+        }
+      );
+      end();
     });
-    end();
   });
 
   it('dynamic & shouldAsSVG', async () => {
     clearFragmentChildren();
-    const state = reactive({ show: true });
-
-    start('svg');
-    block(() => {
-      if (state.show) {
-        start('foreignObject');
-        expect(shouldAsSVG('')).toBe(false);
-        expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
-        expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
-        end();
-      } else {
-        start('foreignObject');
-        start('div');
-        expect(shouldAsSVG('')).toBe(false);
-        expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
-        expect(getCurrentElement()!.namespaceURI).toBe(NS.XHTML);
-        end();
-        end();
-      }
+    const state = { show: true };
+    const [com, $com] = defineComponent<{ show: boolean }>(({ props }) => {
+      start('svg');
+      hIf(
+        () => props.show,
+        () => {
+          start('foreignObject');
+          expect(shouldAsSVG('')).toBe(false);
+          expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
+          expect(getCurrentElement()!.namespaceURI).toBe(NS.SVG);
+          end();
+        },
+        () => {
+          start('foreignObject');
+          start('div');
+          expect(shouldAsSVG('')).toBe(false);
+          expect(getCurrntBlockFragment()!._shouldAsSVG).toBe(true);
+          expect(getCurrentElement()!.namespaceURI).toBe(NS.XHTML);
+          end();
+          end();
+        }
+      );
+      end();
     });
-    end();
+
+    com({ show: () => state.show });
+    $com();
 
     const container = createElement('div');
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
-      '<svg><!--block start--><foreignObject></foreignObject><!--block end--></svg>'
+      '<!--component start--><svg><!--block start--><foreignObject></foreignObject><!--block end--></svg><!--component end-->'
     );
 
     state.show = false;
+    refresh();
     await nextTick();
     expect(container.innerHTML).toBe(
-      '<svg><!--block start--><foreignObject><div></div></foreignObject><!--block end--></svg>'
+      '<!--component start--><svg><!--block start--><foreignObject><div></div></foreignObject><!--block end--></svg><!--component end-->'
     );
 
     state.show = true;
+    refresh();
     await nextTick();
     expect(container.innerHTML).toBe(
-      '<svg><!--block start--><foreignObject></foreignObject><!--block end--></svg>'
+      '<!--component start--><svg><!--block start--><foreignObject></foreignObject><!--block end--></svg><!--component end-->'
     );
 
     state.show = false;
+    refresh();
     await nextTick();
     expect(container.innerHTML).toBe(
-      '<svg><!--block start--><foreignObject><div></div></foreignObject><!--block end--></svg>'
+      '<!--component start--><svg><!--block start--><foreignObject><div></div></foreignObject><!--block end--></svg><!--component end-->'
     );
   });
 });

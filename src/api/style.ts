@@ -1,4 +1,5 @@
 import {
+  callUpdated,
   createCssRule,
   keyframes as keyframesFromCore,
   media as mediaFromCore,
@@ -22,6 +23,7 @@ import {
   setHasStatic,
 } from './defineComponent';
 import { autoUpdate } from './autoUpdate';
+import { getCurrentComponent } from '@/core/scheduler';
 
 type Functional<T> = { [P in keyof T]?: T[P] | (() => T[P]) | undefined };
 
@@ -156,7 +158,14 @@ function setCssRule(
     const value = style[key as any];
     if (!value) return;
     if (isFunction(value)) {
-      autoUpdate(() => (cssRuleStyle[key as any] = value()));
+      const currentComponent = getCurrentComponent()!;
+      let oldValue: any;
+      autoUpdate(() => {
+        const newValue = value();
+        if (oldValue === newValue) return;
+        cssRuleStyle[key as any] = oldValue = newValue;
+        callUpdated(currentComponent.ulh!);
+      });
     } else {
       cssRuleStyle[key as any] = value;
     }

@@ -1,6 +1,7 @@
 import { addEventListener } from '@/renderer';
 import { getComponentOn, getCurrentElement } from '@/core';
 import { isArray, isFunction, once } from '@/shared';
+import { refresh } from '@/core/scheduler';
 
 type Modifier = 'capture' | 'once' | 'passive' | string;
 
@@ -29,12 +30,12 @@ export function setEvent(eventName: string, modifier: any, listener?: any) {
 
   const currentElement = getCurrentElement();
   if (isFunction(modifier)) {
-    addEventListener(currentElement!, eventName, modifier);
+    addEventListener(currentElement!, eventName, withRefresh(modifier));
   } else {
     addEventListener(
       currentElement!,
       eventName,
-      listener,
+      withRefresh(listener),
       normalizeOptions(modifier)
     );
   }
@@ -72,13 +73,20 @@ function processComponentOn(eventName: string, modifier: any, listener?: any) {
   const componentOn = getComponentOn();
 
   if (isFunction(modifier)) {
-    componentOn![eventName] = modifier;
+    componentOn![eventName] = withRefresh(modifier);
   } else {
     modifier = normalizeOptions(modifier);
     if (modifier?.once) {
-      componentOn![eventName] = once(listener);
+      componentOn![eventName] = once(withRefresh(listener));
     } else {
-      componentOn![eventName] = listener;
+      componentOn![eventName] = withRefresh(listener);
     }
   }
+}
+
+function withRefresh(listener: (...params: any[]) => void) {
+  return (...params: any[]) => {
+    listener(...params);
+    refresh();
+  };
 }

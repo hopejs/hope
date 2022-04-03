@@ -13,5 +13,7 @@
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "commentTranslate.multiLineMerge": false,
+  "commentTranslate.source": "Baidu"
 }

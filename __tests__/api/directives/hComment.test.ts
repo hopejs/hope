@@ -1,37 +1,51 @@
 import { getCurrentElement, HopeElement, nextTick } from '@/core';
-import { reactive } from '@/reactivity';
-import { hComment, div, $div, block } from '@/api';
+import { hComment, div, $div } from '@/api';
+import { refresh } from '@/core/scheduler';
 import { LIFECYCLE_KEYS } from '@/shared';
+import { hIf } from '@/api/directives/hIf';
+import { comWithSlot } from '../../common';
 
 describe('hComment', () => {
   it('basic', () => {
-    div();
-    hComment('');
-    expect(getCurrentElement()?.innerHTML).toBe('<!---->');
-    $div();
+    comWithSlot(() => {
+      div();
+      hComment('');
+      expect(getCurrentElement()?.innerHTML).toBe('<!---->');
+      $div();
+    });
   });
 
   it('reactivity', async () => {
-    const state = reactive({ name: 'a' });
+    const state = { name: 'a' };
+    let el: HopeElement;
 
-    div();
-    hComment(() => state.name);
-    const el = getCurrentElement();
-    expect(el?.innerHTML).toBe(`<!--a-->`);
-    $div();
+    comWithSlot(() => {
+      div();
+      hComment(() => state.name);
+      el = getCurrentElement()!;
+      expect(el?.innerHTML).toBe(`<!--a-->`);
+      $div();
+    });
 
     state.name = 'b';
+    refresh();
     await nextTick();
-    expect(el?.innerHTML).toBe(`<!--b-->`);
+    expect(el!?.innerHTML).toBe(`<!--b-->`);
   });
 
   it('elementUnmounted', () => {
     let el: HopeElement;
-    block(() => {
-      div();
-      hComment(() => 'name');
-      el = getCurrentElement()!;
-      $div();
+
+    comWithSlot(() => {
+      hIf(
+        () => true,
+        () => {
+          div();
+          hComment(() => 'name');
+          el = getCurrentElement()!;
+          $div();
+        }
+      );
     });
 
     // @ts-ignore
@@ -40,12 +54,13 @@ describe('hComment', () => {
 
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
-    block(() => {
+
+    comWithSlot(() => {
       div();
       hComment('name');
       el = getCurrentElement()!;
       $div();
-    });
+    })
 
     // @ts-ignore
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);

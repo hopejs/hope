@@ -619,14 +619,7 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@vue/reactivity@^3.0.0":
-  version "3.0.4"
-  resolved "https://registry.npm.taobao.org/@vue/reactivity/download/@vue/reactivity-3.0.4.tgz#b6599dd8271a745960a03f05744ccf7991ba5d8d"
-  integrity sha1-tlmd2CcadFlgoD8FdEzPeZG6XY0=
-  dependencies:
-    "@vue/shared" "3.0.4"
-
-"@vue/shared@3.0.4", "@vue/shared@^3.0.0":
+"@vue/shared@^3.0.0":
   version "3.0.4"
   resolved "https://registry.npm.taobao.org/@vue/shared/download/@vue/shared-3.0.4.tgz#6dc50f593bdfdeaa6183d1dbc15e2d45e7c6b8b3"
   integrity sha1-bcUPWTvf3qphg9HbwV4tRefGuLM=

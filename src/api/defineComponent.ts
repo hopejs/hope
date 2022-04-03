@@ -1,4 +1,4 @@
-import { appendChild, createPlaceholder, removeChild } from '@/renderer';
+import { appendChild, createPlaceholder, removeChild } from "@/renderer";
 import {
   getContainer,
   getCurrntBlockFragment,
@@ -18,21 +18,26 @@ import {
   resetSlots,
   setSlots,
   setQueueAddScope,
-} from '@/core';
+} from "@/core";
 import {
   isString,
-  isObject,
   getLast,
   isElement,
   forEachObj,
   isOn,
   parseEventName,
-} from '@/shared';
-import { isReactive, reactive } from '@/reactivity';
-import { mount } from './render';
-import { onUnmounted } from './lifecycle';
-import { setEvent } from './props-and-attrs/event';
-import { setPropsForComponent } from './props-and-attrs/props';
+} from "@/shared";
+import { mount } from "./render";
+import { onUnmounted } from "./lifecycle";
+import { setEvent } from "./props-and-attrs/event";
+import { setPropsForComponent } from "./props-and-attrs/props";
+import {
+  getCurrentComponent,
+  pushToParent,
+  setBackToParent,
+  setComponentOfNeedUpdate,
+  setCurrentComponent,
+} from "@/core/scheduler";
 
 interface ComponentOptions<
   P = Record<string, any>,
@@ -55,7 +60,10 @@ export type ComponentStartTag<P = any> = (
 ) => any;
 export type ComponentEndTag = (...arg: any[]) => any;
 
-type Component<P = any, S = any> = [ComponentStartTag<P>, ComponentEndTag] & {
+export type Component<P = any, S = any> = [
+  ComponentStartTag<P>,
+  ComponentEndTag
+] & {
   mount: (options: MountOptions<P, S> | string | Element) => any;
 };
 
@@ -72,7 +80,7 @@ const stackForAddScope: Function[][] = [];
 
 const styleTypes: Record<
   string,
-  Record<'hasDynamic' | 'hasStatic', boolean>
+  Record<"hasDynamic" | "hasStatic", boolean>
 > = {};
 
 // 记录某一个组件的实例个数
@@ -82,14 +90,20 @@ const componentCssRuleId: Record<string, number | undefined> = {};
 
 let betweenStartAndEnd = false;
 
-export function defineComponent<P, S>(
+export function defineComponent<P, S = any>(
   setup: (options: ComponentOptions<P, S>) => any
 ) {
   cid++;
   const startTag = (props?: any) => {
+    const updateQueue = Object.create(null);
+    pushToParent(getCurrentComponent(), updateQueue);
+    setCurrentComponent(updateQueue);
+    setComponentOfNeedUpdate(updateQueue);
+    setLifecycleHandlers();
+
     const container = getContainer();
     const startPlaceholder = createPlaceholder(
-      `${setup.name || 'component'} start`
+      `${setup.name || "component"} start`
     );
     appendChild(container, startPlaceholder);
     pushStartToBlockFragment(startPlaceholder);
@@ -117,11 +131,6 @@ export function defineComponent<P, S>(
     } = {}
   ) => {
     betweenStartAndEnd = false;
-
-    // 放在 end 标签，可以确保组件指令函数中的数据
-    // 更新时正确的调用组件的父组件的生命周期钩子
-    setLifecycleHandlers();
-
     dsid++;
     dsidStack.push(dsid);
     cidStack.push(startTag.cid);
@@ -167,26 +176,23 @@ export function defineComponent<P, S>(
     resetLifecycleHandlers();
 
     const endPlaceholder: any = createPlaceholder(
-      `${setup.name || 'component'} end`
+      `${setup.name || "component"} end`
     );
     const container = getContainer();
     appendChild(container, endPlaceholder);
 
     incrementComponentInstanceCount(componentId);
+    setBackToParent();
+    setComponentOfNeedUpdate(getCurrentComponent());
   };
 
   const result: Component<P, S> = [startTag, endTag] as any;
-
   result.mount = (options: MountOptions<P, S> | string | Element): P => {
     if (isString(options) || isElement(options)) {
-      options = { target: options, props: reactive({}) as P };
+      options = { target: options, props: {} as P };
     }
 
-    options.props = (isReactive(options.props)
-      ? options.props
-      : isObject(options.props)
-      ? reactive(options.props as any)
-      : reactive({})) as P;
+    options.props = options.props || ({} as P);
 
     startTag();
     endTag(options);
@@ -241,7 +247,7 @@ export function getComponentCssRuleId(
   groupId?: (number | string)[]
 ) {
   if (groupId && groupId.length) {
-    return groupId.join('-') + '-' + componentCssRuleId[componentId];
+    return groupId.join("-") + "-" + componentCssRuleId[componentId];
   }
   return componentCssRuleId[componentId];
 }

@@ -1,32 +1,37 @@
 import { getCurrentElement } from '@/core';
 import { delay } from '@/shared';
 import { div, $div, defineComponent, mount } from '@/api';
+import { comWithSlot } from '../../common';
 
 describe('event', () => {
   it('basic', () => {
-    const fn = jest.fn();
+    comWithSlot(() => {
+      const fn = jest.fn();
 
-    div({ onClick: fn });
-    const el = getCurrentElement();
-    $div();
+      div({ onClick: fn });
+      const el = getCurrentElement();
+      $div();
 
-    el?.dispatchEvent(new CustomEvent('click'));
-    expect(fn).toBeCalledTimes(1);
-    el?.dispatchEvent(new CustomEvent('click'));
-    expect(fn).toBeCalledTimes(2);
+      el?.dispatchEvent(new CustomEvent('click'));
+      expect(fn).toBeCalledTimes(1);
+      el?.dispatchEvent(new CustomEvent('click'));
+      expect(fn).toBeCalledTimes(2);
+    });
   });
 
   it('modifier & once', () => {
-    const fn = jest.fn();
+    comWithSlot(() => {
+      const fn = jest.fn();
 
-    div({ onClick$once: fn });
-    const el = getCurrentElement();
-    $div();
+      div({ onClick$once: fn });
+      const el = getCurrentElement();
+      $div();
 
-    el?.dispatchEvent(new CustomEvent('click'));
-    expect(fn).toBeCalledTimes(1);
-    el?.dispatchEvent(new CustomEvent('click'));
-    expect(fn).toBeCalledTimes(1);
+      el?.dispatchEvent(new CustomEvent('click'));
+      expect(fn).toBeCalledTimes(1);
+      el?.dispatchEvent(new CustomEvent('click'));
+      expect(fn).toBeCalledTimes(1);
+    });
   });
 
   it('modifier & once with component', async () => {

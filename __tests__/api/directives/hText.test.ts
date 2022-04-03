@@ -1,37 +1,53 @@
-import { reactive } from '@/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@/core';
 import { LIFECYCLE_KEYS } from '@/shared';
-import { div, $div, hText, block } from '@/api';
+import { div, $div, hText, defineComponent } from '@/api';
+import { refresh } from '@/core/scheduler';
+import { hIf } from '@/api/directives/hIf';
+import { comWithSlot } from '../../common';
 
 describe('hText', () => {
   it('basic', () => {
-    div();
-    hText('text');
-    expect(getCurrentElement()?.innerHTML).toBe(`text`);
-    $div();
+    comWithSlot(() => {
+      div();
+      hText('text');
+      expect(getCurrentElement()?.innerHTML).toBe(`text`);
+      $div();
+    });
   });
 
   it('reactivity', async () => {
-    const content = reactive({ value: 'text' });
+    let content = 'text';
+    let el: HopeElement;
+    const [com, $com] = defineComponent<{ text: string }>(({ props }) => {
+      div();
+      hText(() => props.text);
+      el = getCurrentElement()!;
+      $div();
+    });
 
-    div();
-    hText(() => content.value);
-    const el = getCurrentElement();
-    $div();
+    com({ text: () => content });
+    $com();
 
-    expect(el?.innerHTML).toBe(`text`);
-    content.value = '123';
+    expect(el!.innerHTML).toBe(`text`);
+    content = '123';
+    refresh();
     await nextTick();
-    expect(el?.innerHTML).toBe(`123`);
+    expect(el!.innerHTML).toBe(`123`);
   });
 
   it('elementUnmounted', () => {
     let el: HopeElement;
-    block(() => {
-      div();
-      hText(() => 'text');
-      el = getCurrentElement()!;
-      $div();
+
+    comWithSlot(() => {
+      hIf(
+        () => true,
+        () => {
+          div();
+          hText(() => 'text');
+          el = getCurrentElement()!;
+          $div();
+        }
+      );
     });
 
     // @ts-ignore
@@ -40,7 +56,8 @@ describe('hText', () => {
 
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
-    block(() => {
+
+    comWithSlot(() => {
       div();
       hText('text');
       el = getCurrentElement()!;

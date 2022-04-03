@@ -1,46 +1,63 @@
-import { reactive } from '@/reactivity';
 import { getCurrentElement, HopeElement, nextTick } from '@/core';
+import { div, $div } from '@/api';
+import { refresh } from '@/core/scheduler';
 import { LIFECYCLE_KEYS } from '@/shared';
-import { div, $div, block } from '@/api';
+import { hIf } from '@/api/directives/hIf';
+import { comWithSlot } from '../../common';
 
 describe('style', () => {
   it('basic', () => {
-    div({ style: { color: 'red' } });
-    const el = getCurrentElement();
-    expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
-    $div();
+    comWithSlot(() => {
+      div({ style: { color: 'red' } });
+      const el = getCurrentElement();
+      expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
+      $div();
+    });
   });
 
   it('array', () => {
-    const obj1 = { color: 'red' };
-    const obj2 = { backgroundColor: 'red' };
-    div({ style: [obj1, obj2] });
-    const el = getCurrentElement();
-    expect(el?.outerHTML).toBe(
-      `<div style="color: red; background-color: red;"></div>`
-    );
-    $div();
+    comWithSlot(() => {
+      const obj1 = { color: 'red' };
+      const obj2 = { backgroundColor: 'red' };
+      div({ style: [obj1, obj2] });
+      const el = getCurrentElement();
+      expect(el?.outerHTML).toBe(
+        `<div style="color: red; background-color: red;"></div>`
+      );
+      $div();
+    });
   });
 
   it('reactivity', async () => {
-    const color = reactive({ value: 'red' });
+    const color = { value: 'red' };
+    let el: HopeElement;
 
-    div({ style: () => ({ color: color.value }) });
-    const el = getCurrentElement();
-    expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
-    $div();
+    comWithSlot(() => {
+      div({ style: () => ({ color: color.value }) });
+      el = getCurrentElement()!;
+      expect(el?.outerHTML).toBe(`<div style="color: red;"></div>`);
+      $div();
+    });
 
     color.value = 'blue';
+    refresh();
     await nextTick();
+    //@ts-ignore
     expect(el?.outerHTML).toBe(`<div style="color: blue;"></div>`);
   });
 
   it('elementUnmounted', () => {
     let el: HopeElement;
-    block(() => {
-      div({ style: () => ({ color: 'red' }) });
-      el = getCurrentElement()!;
-      $div();
+
+    comWithSlot(() => {
+      hIf(
+        () => true,
+        () => {
+          div({ style: () => ({ color: 'red' }) });
+          el = getCurrentElement()!;
+          $div();
+        }
+      );
     });
 
     // @ts-ignore
@@ -49,7 +66,8 @@ describe('style', () => {
 
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
-    block(() => {
+
+    comWithSlot(() => {
       div({ style: { color: 'red' } });
       el = getCurrentElement()!;
       $div();

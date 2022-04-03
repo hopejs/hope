@@ -1,235 +1,223 @@
 import { createElement } from '@/renderer';
-import { getCurrentElement, mount, nextTick } from '@/core';
+import { getCurrentElement, HopeElement, mount, nextTick } from '@/core';
 import { delay } from '@/shared';
-import { reactive } from '@/reactivity';
-import { $div, div } from '@/api';
+import { $div, defineComponent, div } from '@/api';
+import { refresh } from '@/core/scheduler';
+import { comWithSlot } from '../common';
 
 describe('tag props', () => {
   const container = createElement('div');
 
   it('class', async () => {
-    // string
-    div({ class: 'class-name' });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div class="class-name"></div>');
+    const [com, $com] = defineComponent(() => {
+      div({ class: 'class-name' });
+      $div();
+    });
 
-    // object
-    div({ class: { 'class-name': true } });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div class="class-name"></div>');
+    com();
+    $com();
 
-    div({ class: { 'class-name': false } });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div></div>');
-
-    // array
-    div({ class: [{ 'class-name': true }, { 'second-name': true }] });
-    $div();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
-      '<div class="class-name second-name"></div>'
+      '<!--component start--><div class="class-name"></div><!--component end-->'
     );
   });
 
   it('class & reactivity', async () => {
-    const state = reactive({ name: 'a', isActive: true });
+    const state = { name: 'a', isActive: true };
+    const [com, $com] = defineComponent(() => {
+      div({ class: () => state.name });
+      $div();
+    });
 
-    // string
-    div({ class: () => state.name });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div class="a"></div>');
-    state.name = 'b';
-    await nextTick();
-    expect(container.innerHTML).toBe('<div class="b"></div>');
+    com();
+    $com();
 
-    // object
-    div({ class: { active: () => state.isActive } });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div class="active"></div>');
-    state.isActive = false;
-    await nextTick();
-    expect(container.innerHTML).toBe('<div></div>');
-
-    // nest function
-    div({ class: () => ({ active: () => state.isActive }) });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div></div>');
-    state.isActive = true;
-    await nextTick();
-    expect(container.innerHTML).toBe('<div class="active"></div>');
-
-    // function
-    div({ class: () => ({ active: state.isActive }) });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div class="active"></div>');
-    state.isActive = false;
-    await nextTick();
-    expect(container.innerHTML).toBe('<div></div>');
-
-    // function & array
-    div({ class: () => [{ active: state.isActive }] });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div></div>');
-    state.isActive = true;
-    await nextTick();
-    expect(container.innerHTML).toBe('<div class="active"></div>');
-
-    // array
-    div({ class: [{ active: () => state.isActive }] });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div class="active"></div>');
-    state.isActive = false;
-    await nextTick();
-    expect(container.innerHTML).toBe('<div></div>');
-  });
-
-  it('style', async () => {
-    // basic
-    div({ style: { color: 'red' } });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div style="color: red;"></div>');
-
-    // property is a function
-    div({ style: { color: () => 'red' } });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div style="color: red;"></div>');
-
-    // function
-    div({ style: () => ({ color: 'red' }) });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div style="color: red;"></div>');
-
-    // nest function
-    div({ style: () => ({ color: () => 'red' }) });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div style="color: red;"></div>');
-
-    // array
-    div({ style: [{ color: 'red' }, { width: '100px' }] });
-    $div();
     mount(container);
     await delay();
     expect(container.innerHTML).toBe(
-      '<div style="color: red; width: 100px;"></div>'
+      '<!--component start--><div class="a"></div><!--component end-->'
+    );
+    state.name = 'b';
+    refresh();
+    await nextTick();
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div class="b"></div><!--component end-->'
+    );
+  });
+
+  it('style', async () => {
+    comWithSlot(() => {
+      div({ style: { color: 'red' } });
+      $div();
+    });
+    mount(container);
+    await delay();
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: red;"></div><!--component end-->'
+    );
+
+    // property is a function
+    comWithSlot(() => {
+      div({ style: { color: () => 'red' } });
+      $div();
+    });
+    mount(container);
+    await delay();
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: red;"></div><!--component end-->'
+    );
+
+    // function
+    comWithSlot(() => {
+      div({ style: () => ({ color: 'red' }) });
+      $div();
+    });
+    mount(container);
+    await delay();
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: red;"></div><!--component end-->'
+    );
+
+    // array
+    comWithSlot(() => {
+      div({ style: [{ color: 'red' }, { width: '100px' }] });
+      $div();
+    });
+    mount(container);
+    await delay();
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: red; width: 100px;"></div><!--component end-->'
     );
   });
 
   it('style & reactivity', async () => {
-    const state = reactive({ color: 'red' });
+    const state = { color: 'red' };
 
     // property is a function
-    div({ style: { color: () => state.color } });
-    $div();
+    comWithSlot(() => {
+      div({ style: { color: () => state.color } });
+      $div();
+    });
     mount(container);
     await delay();
-    expect(container.innerHTML).toBe('<div style="color: red;"></div>');
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: red;"></div><!--component end-->'
+    );
     state.color = 'blue';
+    refresh();
     await nextTick();
-    expect(container.innerHTML).toBe('<div style="color: blue;"></div>');
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: blue;"></div><!--component end-->'
+    );
 
     // function
-    div({ style: () => ({ color: state.color }) });
-    $div();
+    comWithSlot(() => {
+      div({ style: () => ({ color: state.color }) });
+      $div();
+    });
     mount(container);
     await delay();
-    expect(container.innerHTML).toBe('<div style="color: blue;"></div>');
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: blue;"></div><!--component end-->'
+    );
     state.color = 'red';
+    refresh();
     await nextTick();
-    expect(container.innerHTML).toBe('<div style="color: red;"></div>');
-
-    // nest function
-    div({ style: () => ({ color: () => state.color }) });
-    $div();
-    mount(container);
-    await delay();
-    expect(container.innerHTML).toBe('<div style="color: red;"></div>');
-    state.color = 'blue';
-    await nextTick();
-    expect(container.innerHTML).toBe('<div style="color: blue;"></div>');
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: red;"></div><!--component end-->'
+    );
 
     // array
-    div({ style: () => [{ color: state.color }] });
-    $div();
+    comWithSlot(() => {
+      div({ style: () => [{ color: state.color }] });
+      $div();
+    });
     mount(container);
     await delay();
-    expect(container.innerHTML).toBe('<div style="color: blue;"></div>');
-    state.color = 'red';
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: red;"></div><!--component end-->'
+    );
+    state.color = 'black';
+    refresh();
     await nextTick();
-    expect(container.innerHTML).toBe('<div style="color: red;"></div>');
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div style="color: black;"></div><!--component end-->'
+    );
   });
 
   it('id', async () => {
     // basic
-    div({ id: 'id-name' });
-    $div();
+    comWithSlot(() => {
+      div({ id: 'id-name' });
+      $div();
+    });
     mount(container);
     await delay();
-    expect(container.innerHTML).toBe('<div id="id-name"></div>');
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div id="id-name"></div><!--component end-->'
+    );
 
     // reactivity
-    const state = reactive({ id: 'a' });
-    div({ id: () => state.id });
-    $div();
+    const state = { id: 'a' };
+    comWithSlot(() => {
+      div({ id: () => state.id });
+      $div();
+    });
     mount(container);
     await delay();
-    expect(container.innerHTML).toBe('<div id="a"></div>');
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div id="a"></div><!--component end-->'
+    );
     state.id = 'b';
+    refresh();
     await nextTick();
-    expect(container.innerHTML).toBe('<div id="b"></div>');
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div id="b"></div><!--component end-->'
+    );
     // 应该删除 id 属性
     state.id = null as any;
+    refresh();
     await nextTick();
-    expect(container.innerHTML).toBe('<div></div>');
+    expect(container.innerHTML).toBe(
+      '<!--component start--><div></div><!--component end-->'
+    );
   });
 
   it('event', async () => {
     const handle = jest.fn();
-    div({ onClick: handle });
-    const el = getCurrentElement()!;
-    $div();
+    let el: HopeElement;
+
+    comWithSlot(() => {
+      div({ onClick: handle });
+      el = getCurrentElement()!;
+      $div();
+    });
     mount(container);
     await delay();
+    //@ts-ignore
     el.dispatchEvent(new CustomEvent('click'));
+    ``;
     expect(handle).toBeCalledTimes(1);
+    //@ts-ignore
     el.dispatchEvent(new CustomEvent('click'));
     expect(handle).toBeCalledTimes(2);
 
     // modifier
     const handle2 = jest.fn();
-    div({ onClick$once: handle2 });
-    const el2 = getCurrentElement()!;
-    $div();
+    let el2: HopeElement;
+    comWithSlot(() => {
+      div({ onClick$once: handle2 });
+      el2 = getCurrentElement()!;
+      $div();
+    });
     mount(container);
     await delay();
+    //@ts-ignore
     el2.dispatchEvent(new CustomEvent('click'));
     expect(handle2).toBeCalledTimes(1);
+    //@ts-ignore
     el2.dispatchEvent(new CustomEvent('click'));
     expect(handle2).toBeCalledTimes(1);
   });

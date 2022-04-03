@@ -1,5 +1,6 @@
-import { getCurrentElement } from '@/core';
-import { forEachObj, isFunction, normalizeStyle } from '@/shared';
+import { callUpdated, getCurrentElement } from '@/core';
+import { getCurrentComponent } from '@/core/scheduler';
+import { forEachObj, isFunction, logError, normalizeStyle } from '@/shared';
 import { autoUpdate } from '../autoUpdate';
 
 export type CSSStyle = {
@@ -14,15 +15,31 @@ export function setStyle(value: any) {
   const style = (getCurrentElement() as HTMLElement | SVGElement).style;
 
   if (isFunction(value)) {
-    autoUpdate(() =>
-      forEachObj(normalizeStyle(value())!, (v: any, key) => {
-        style[key as any] = isFunction(v) ? v() : v;
-      })
-    );
+    const currentComponent = getCurrentComponent()!;
+    let oldValue: any;
+    autoUpdate(() => {
+      const newValue = value();
+      if (oldValue === newValue) return;
+      oldValue = newValue;
+      forEachObj(normalizeStyle(newValue)!, (v: any, key) => {
+        if (__DEV__ && isFunction(v)) {
+          return logError(`属性不允许嵌套函数`);
+        }
+        style[key as any] = v;
+      });
+      callUpdated(currentComponent.ulh!);
+    });
   } else {
     forEachObj(normalizeStyle(value)!, (v: any, key) => {
       if (isFunction(v)) {
-        autoUpdate(() => (style[key as any] = v()));
+        const currentComponent = getCurrentComponent()!;
+        let oldValue: any;
+        autoUpdate(() => {
+          const newValue = v();
+          if (oldValue === newValue) return;
+          style[key as any] = oldValue = newValue;
+          callUpdated(currentComponent.ulh!);
+        });
       } else {
         style[key as any] = v;
       }

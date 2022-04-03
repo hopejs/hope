@@ -1,66 +1,81 @@
 import {
   clearFragmentChildren,
   getCurrentElement,
-  getCurrntBlockFragment,
   HopeElement,
   nextTick,
 } from '@/core';
-import { reactive } from '@/reactivity';
 import { delay, LIFECYCLE_KEYS } from '@/shared';
 import { createElement } from '@/renderer';
-import { div, $div, block, defineComponent, hText, mount } from '@/api';
+import { div, $div, defineComponent, hText, mount } from '@/api';
+import { refresh } from '@/core/scheduler';
+import { hIf } from '@/api/directives/hIf';
+import { comWithSlot } from '../../common';
 
 describe('props', () => {
   const KEY = '_hopejs_test';
-  const [testComponent, $testComponent] = defineComponent<any, any>(
-    ({ props }) => {
-      div();
-      hText(props.a);
-      hText(props.b);
-      $div();
-    }
-  );
 
   it('basic', () => {
-    div({ [KEY]: '123' });
-    // @ts-ignore
-    expect(getCurrentElement()!.outerHTML).toBe(
-      '<div _hopejs_test="123"></div>'
-    );
-    $div();
+    // 清空之前测试添加到 fragment 的内容
+    clearFragmentChildren();
+
+    comWithSlot(() => {
+      div({ [KEY]: '123' });
+      // @ts-ignore
+      expect(getCurrentElement()!.outerHTML).toBe(
+        '<div _hopejs_test="123"></div>'
+      );
+      $div();
+    });
   });
 
   it('reactivity', async () => {
-    const state = reactive({ name: 'a' });
+    // 清空之前测试添加到 fragment 的内容
+    clearFragmentChildren();
+    const state = { name: 'a' };
+    let el: HopeElement;
 
-    div({ [KEY]: () => state.name });
-    const el = getCurrentElement();
-    // @ts-ignore
-    expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
-    $div();
+    comWithSlot(() => {
+      div({ [KEY]: () => state.name });
+      el = getCurrentElement()!;
+      // @ts-ignore
+      expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
+      $div();
+    });
 
     state.name = 'b';
+    refresh();
     await nextTick();
     // @ts-ignore
     expect(el.outerHTML).toBe('<div _hopejs_test="b"></div>');
   });
 
   it('reactivity object', async () => {
-    const props = reactive({ [KEY]: 'a' });
+    // 清空之前测试添加到 fragment 的内容
+    clearFragmentChildren();
 
-    div(props);
-    const el = getCurrentElement();
-    // @ts-ignore
-    expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
-    $div();
+    comWithSlot(() => {
+      const props = { [KEY]: 'a' };
+
+      div(props);
+      const el = getCurrentElement();
+      // @ts-ignore
+      expect(el.outerHTML).toBe('<div _hopejs_test="a"></div>');
+      $div();
+    });
   });
 
   it('elementUnmounted', () => {
     let el: HopeElement;
-    block(() => {
-      div({ [KEY]: () => 'name' });
-      el = getCurrentElement()!;
-      $div();
+
+    comWithSlot(() => {
+      hIf(
+        () => true,
+        () => {
+          div({ [KEY]: () => 'name' });
+          el = getCurrentElement()!;
+          $div();
+        }
+      );
     });
 
     // @ts-ignore
@@ -69,7 +84,8 @@ describe('props', () => {
 
   it('elementUnmounted & no reactivity', () => {
     let el: HopeElement;
-    block(() => {
+
+    comWithSlot(() => {
       div({ [KEY]: 'name' });
       el = getCurrentElement()!;
       $div();
@@ -79,44 +95,25 @@ describe('props', () => {
     expect(el[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
   });
 
-  it('elementUnmounted & with component', async () => {
+  it('no reactivity & with component', async () => {
     // 清空之前测试添加到 fragment 的内容
     clearFragmentChildren();
-
-    let startPlaceholder: HopeElement;
-    block(() => {
-      testComponent({ a: () => 'a' });
-      startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
-      $testComponent();
+    const [com, $com] = defineComponent<any, any>(({ props }) => {
+      div();
+      hText(props.a);
+      hText(props.b);
+      $div();
     });
+
+    com({ b: 'b' });
+    $com();
 
     const container = createElement('div');
     mount(container);
     await delay();
 
-    // @ts-ignore
-    expect(startPlaceholder[LIFECYCLE_KEYS.elementUnmounted]?.size).toBe(1);
     expect(container.innerHTML).toBe(
-      '<!--block start--><!--component start--><div>a</div><!--component end--><!--block end-->'
-    );
-  });
-
-  it('elementUnmounted & no reactivity & with component', async () => {
-    let startPlaceholder: HopeElement;
-    block(() => {
-      testComponent({ b: 'b' });
-      startPlaceholder = getCurrntBlockFragment()?._elementStack[0]!;
-      $testComponent();
-    });
-
-    const container = createElement('div');
-    mount(container);
-    await delay();
-
-    // @ts-ignore
-    expect(startPlaceholder[LIFECYCLE_KEYS.elementUnmounted]).toBe(undefined);
-    expect(container.innerHTML).toBe(
-      '<!--block start--><!--component start--><div>b</div><!--component end--><!--block end-->'
+      '<!--component start--><div>b</div><!--component end-->'
     );
   });
 });

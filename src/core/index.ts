@@ -5,14 +5,7 @@ export * from './component/event';
 export * from './component/slot';
 export * from './component/prop';
 export * from './component/scopeId';
-export {
-  nextTick,
-  queueJob,
-  queuePostFlushCb,
-  flushPostFlushCbs,
-  SchedulerCbs,
-  SchedulerJob,
-} from './scheduler';
+export * from './nextTick';
 
 // style sheet
 export {
@@ -27,3 +20,4 @@ export {
 } from './style-sheet/getStyleSheet';
 export { keyframes } from './style-sheet/keyframes';
 export { media } from './style-sheet/media';
+export { refresh } from './scheduler';
