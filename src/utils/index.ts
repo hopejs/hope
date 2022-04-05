@@ -23,3 +23,9 @@ export const isPromise = <T = any>(val: unknown): val is Promise<T> => {
 export const parseEventName = (eventName: string) => {
   return eventName.slice(2).toLocaleLowerCase();
 };
+export const forEachObj = <T extends Record<string, any>, K extends keyof T>(
+  obj: T,
+  cb: (value: T[K], key: K) => void
+) => {
+  (Object.keys(obj) as K[]).forEach((key) => cb(obj[key], key));
+};
