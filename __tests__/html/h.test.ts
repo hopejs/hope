@@ -1,10 +1,5 @@
-import {
-  getCurrentContainer,
-  getCurrentElement,
-  getFragment,
-  h,
-  init,
-} from '@/html';
+import { getCurrentContainer, getCurrentElement, getFragment, h } from '@/html';
+import { init } from '@/html/h';
 import { htmlNS, svgNS } from '@/utils';
 
 describe('html', () => {
