@@ -1,3 +1,6 @@
+export const htmlNS = 'http://www.w3.org/1999/xhtml';
+export const svgNS = 'http://www.w3.org/2000/svg';
+
 export const isOn = (key: string) => /^on[^a-z]/.test(key);
 export const objectToString = Object.prototype.toString;
 export const toTypeString = (value: unknown): string =>

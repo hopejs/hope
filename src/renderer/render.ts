@@ -1,18 +1,22 @@
+import { svgNS } from '@/utils';
 import { setProp } from './setProp';
 
-const svgNS = 'http://www.w3.org/2000/svg';
-
-const insert = (child: Node, parent: Element, anchor: Node) => {
+const insert = (
+  child: Node,
+  parent: Element | DocumentFragment,
+  anchor?: Node
+) => {
   parent.insertBefore(child, anchor || null);
 };
 
 const createFragment = () => document.createDocumentFragment();
 
 function createElement(tag: string, isSVG: true): SVGAElement;
-function createElement(tag: string, isSVG?: false): HTMLElement;
+function createElement(tag: string, isSVG: false): HTMLElement;
+function createElement(tag: string, isSVG: boolean): SVGAElement | HTMLElement;
 function createElement(
   tag: string,
-  isSVG?: boolean,
+  isSVG: boolean,
   isCustomizedBuiltIn?: string
 ) {
   return isSVG
