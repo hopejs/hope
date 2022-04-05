@@ -53,6 +53,13 @@ describe('html', () => {
     );
   });
 
+  it('div with object style', () => {
+    h.div({ style: { width: '100px', height: '100px' } });
+    expect(getCurrentElement()?.outerHTML).toBe(
+      `<div style=\"width: 100px; height: 100px;\"></div>`
+    );
+  });
+
   it('div with innerHTML', () => {
     h.div({ innerHTML: `<span></span>` });
     expect(getCurrentElement()?.outerHTML).toBe(`<div><span></span></div>`);

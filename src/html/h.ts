@@ -7,12 +7,15 @@ import {
 } from '@/renderer';
 import { forEachObj, isFunction, isString } from '@/utils';
 
+type PartialDeep<T> = {
+  [P in keyof T]?: PartialDeep<T[P]>;
+};
 type AllTagNameMap = HTMLElementTagNameMap & SVGElementTagNameMap;
 type TagNames = keyof AllTagNameMap;
 type H = {
-  [key in TagNames]: (
+  [tag in TagNames]: (
     props?:
-      | Partial<AllTagNameMap[key] | { class: string; style: string }>
+      | PartialDeep<{ class: string; style: string } | AllTagNameMap[tag]>
       | string
       | (() => void),
     children?: () => void | string
