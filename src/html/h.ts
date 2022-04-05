@@ -18,7 +18,7 @@ type H = {
       | PartialDeep<{ class: string; style: string } | AllTagNameMap[tag]>
       | string
       | (() => void),
-    children?: () => void | string
+    children?: (() => void) | string
   ) => void;
 };
 
@@ -37,7 +37,7 @@ export const init = /*#__PURE__*/ () => {
 
 export const h: H = new Proxy(Object.create(null), {
   get: (_: any, tagName: TagNames) => {
-    return (props?: any, children?: () => void | string) => {
+    return (props?: any, children?: (() => void) | string) => {
       let text: string;
       currentElement = createElement(
         tagName as any,
@@ -51,7 +51,7 @@ export const h: H = new Proxy(Object.create(null), {
         children = props = void 0;
       } else if (isString(children)) {
         text = children;
-        children = props = void 0;
+        children = void 0;
       }
       props && processProps(currentElement, props);
       if (text!) {
@@ -62,7 +62,7 @@ export const h: H = new Proxy(Object.create(null), {
         const container = currentContainer;
         const el = currentElement;
         currentContainer = currentElement;
-        children?.();
+        (children as any)?.();
         currentContainer = container;
         currentElement = el;
       }
