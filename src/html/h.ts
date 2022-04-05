@@ -1,9 +1,22 @@
-import { createElement, createFragment, insert, setProp } from '@/renderer';
-import { forEachObj, isFunction } from '@/utils';
+import {
+  createElement,
+  createFragment,
+  insert,
+  setElementText,
+  setProp,
+} from '@/renderer';
+import { forEachObj, isFunction, isString } from '@/utils';
 
-type TagNames = keyof (HTMLElementTagNameMap & SVGElementTagNameMap);
+type AllTagNameMap = HTMLElementTagNameMap & SVGElementTagNameMap;
+type TagNames = keyof AllTagNameMap;
 type H = {
-  [key in TagNames]: (props?: any) => void;
+  [key in TagNames]: (
+    props?:
+      | Partial<AllTagNameMap[key] | { class: string; style: string }>
+      | string
+      | (() => void),
+    children?: () => void | string
+  ) => void;
 };
 
 let currentElement: Element | null = null;
@@ -20,31 +33,43 @@ export const init = /*#__PURE__*/ () => {
 };
 
 export const h: H = new Proxy(Object.create(null), {
-  get: (_, tagName: TagNames) => {
-    return (props?: any, children?: () => any) => {
-      currentElement = createElement(tagName, shouldAsSVG(tagName));
+  get: (_: any, tagName: TagNames) => {
+    return (props?: any, children?: () => void | string) => {
+      let text: string;
+      currentElement = createElement(
+        tagName as any,
+        shouldAsSVG(tagName as any)
+      );
       if (isFunction(props)) {
         children = props;
-        props = null;
+        props = void 0;
+      } else if (isString(props)) {
+        text = props;
+        children = props = void 0;
+      } else if (isString(children)) {
+        text = children;
+        children = props = void 0;
       }
       props && processProps(currentElement, props);
-      insert(
-        currentElement,
-        currentContainer || fragment || (fragment = createFragment())
-      );
-      const container = currentContainer;
-      const el = currentElement;
-      currentContainer = currentElement;
-      children?.();
-      currentContainer = container;
-      currentElement = el;
+      if (text!) {
+        setElementText(currentElement, text);
+        insert(currentElement, currentContainer || getFragment());
+      } else {
+        insert(currentElement, currentContainer || getFragment());
+        const container = currentContainer;
+        const el = currentElement;
+        currentContainer = currentElement;
+        children?.();
+        currentContainer = container;
+        currentElement = el;
+      }
     };
   },
 });
 
 export const getCurrentElement = () => currentElement;
 export const getCurrentContainer = () => currentContainer;
-export const getFragment = () => fragment;
+export const getFragment = () => fragment || (fragment = createFragment());
 
 function shouldAsSVG(tagName: TagNames) {
   if (tagName === 'svg') return true;

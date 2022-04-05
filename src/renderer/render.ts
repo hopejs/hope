@@ -47,6 +47,8 @@ const cloneNode = (node: Node) => {
   return node.cloneNode(true);
 };
 
+const querySelector = (selector: string) => document.querySelector(selector);
+
 export {
   setProp,
   insert,
@@ -59,4 +61,5 @@ export {
   parentNode,
   nextSibling,
   cloneNode,
+  querySelector,
 };

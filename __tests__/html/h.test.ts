@@ -19,6 +19,12 @@ describe('html', () => {
     expect(getFragment()?.firstChild === getCurrentElement()).toBe(true);
   });
 
+  it('div with text', () => {
+    h.div('text');
+    expect(getCurrentElement()?.outerHTML).toBe(`<div>text</div>`);
+    expect(getFragment()?.firstElementChild?.outerHTML).toBe(`<div>text</div>`);
+  });
+
   it('nest Element', () => {
     h.div(() => {
       const container = getCurrentContainer();
