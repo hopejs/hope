@@ -22,12 +22,13 @@ export function getCurrentScope() {
   return currentScope;
 }
 
-function notify(scope: Scope) {
-  if (!scope.subs?.length) return;
+export function notify(scope: Scope | null) {
+  if (!scope?.subs?.length) return;
   scope.subs.forEach((sub) => sub());
 }
 
-function subscribe(scope: Scope, subscriber: Subscriber) {
+export function subscribe(scope: Scope | null, subscriber: Subscriber) {
+  if (!scope) return;
   (subscriber.scopes || (subscriber.scopes = [])).push(scope);
   (scope.subs || (scope.subs = [])).push(subscriber);
 }
