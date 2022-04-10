@@ -94,7 +94,7 @@ export const h: H = new Proxy(Object.create(null), {
 });
 
 export const getCurrentElement = () => currentElement;
-export const getCurrentContainer = () => currentContainer;
+export const getCurrentContainer = /*#__PURE__*/ () => currentContainer;
 export const getFragment = () => fragment || (fragment = createFragment());
 
 function shouldAsSVG(tagName: TagNames) {
