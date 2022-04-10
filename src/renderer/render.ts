@@ -3,10 +3,17 @@ import { setProp } from './setProp';
 
 const insert = (
   child: Node,
-  parent: Element | DocumentFragment,
+  parent: Element | DocumentFragment | ParentNode,
   anchor?: Node
 ) => {
   parent.insertBefore(child, anchor || null);
+};
+
+const remove = (child: Node) => {
+  const parent = child.parentNode;
+  if (parent) {
+    parent.removeChild(child);
+  }
 };
 
 const createFragment = () => document.createDocumentFragment();
@@ -52,6 +59,7 @@ const querySelector = (selector: string) => document.querySelector(selector);
 export {
   setProp,
   insert,
+  remove,
   createFragment,
   createElement,
   createText,
