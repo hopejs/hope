@@ -45,7 +45,7 @@ describe('makeScope', () => {
 
       makeScope(() => {
         const currentScope = getCurrentScope();
-        expect(currentScope?.parent).toBe(parent);
+        expect(currentScope?.p).toBe(parent);
         watch(
           () => text,
           (text) => {
@@ -81,7 +81,7 @@ describe('makeScope', () => {
 
       makeScope(() => {
         const currentScope = getCurrentScope();
-        expect(currentScope?.parent).toBe(parent);
+        expect(currentScope?.p).toBe(parent);
         watch(
           () => text,
           (text) => {

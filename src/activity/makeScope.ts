@@ -4,8 +4,10 @@ interface Subscriber {
 }
 
 export interface Scope {
-  parent?: Scope;
-  children?: Scope[];
+  /** parent */
+  p?: Scope;
+  /** children */
+  c?: Scope[];
   /** subscribers */
   subs?: (() => void)[];
 }
@@ -45,11 +47,11 @@ function initScope() {
   const parent = currentScope;
   currentScope = Object.create(null) as Scope;
   if (parent) {
-    (parent.children || (parent.children = [])).push(currentScope);
-    currentScope.parent = parent;
+    (parent.c || (parent.c = [])).push(currentScope);
+    currentScope.p = parent;
   }
 }
 
 function closeScope() {
-  currentScope = currentScope?.parent || null;
+  currentScope = currentScope?.p || null;
 }
