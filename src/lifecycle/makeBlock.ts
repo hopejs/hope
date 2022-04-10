@@ -1,4 +1,5 @@
 import { getCurrentElement, getFragment } from '@/html';
+import { error } from '@/log';
 import { createComment, createText, insert } from '@/renderer';
 
 interface Block {
@@ -16,11 +17,16 @@ export const makeBlock = (block: () => void) => {
   const start = createPlaceholderNode('block start');
   const end = createPlaceholderNode('block end');
   const container = getCurrentElement() || getFragment();
+  if (__DEV__ && container === null) {
+    return error(
+      `Must be passed to the render function as a component for rendering.`
+    );
+  }
 
   initBlock(start, end);
-  insert(start, container);
+  insert(start, container!);
   block();
-  insert(end, container);
+  insert(end, container!);
   closeBlock();
 };
 
