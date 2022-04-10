@@ -1,3 +1,4 @@
+import { watch } from '@/activity';
 import {
   createElement,
   createFragment,
@@ -47,9 +48,15 @@ export const init = /*#__PURE__*/ () => {
   fragment = null;
 };
 
+const setActivityText = (el: Element, text: () => string) => {
+  watch(text, (v) => {
+    setElementText(el, v);
+  });
+};
+
 export const h: H = new Proxy(Object.create(null), {
   get: (_: any, tagName: TagNames) => {
-    return (props?: any, children?: (() => void) | string) => {
+    return (props?: any, children?: (() => any) | string) => {
       let text: string;
       currentElement = createElement(
         tagName as any,
@@ -74,7 +81,11 @@ export const h: H = new Proxy(Object.create(null), {
         const container = currentContainer;
         const el = currentElement;
         currentContainer = currentElement;
-        (children as any)?.();
+        // If the returned value is a string,
+        // it is considered to be rendering a string in response
+        if (isString((children as any)?.())) {
+          setActivityText(el, children as () => string);
+        }
         currentContainer = container;
         currentElement = el;
       }
