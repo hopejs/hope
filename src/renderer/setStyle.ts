@@ -8,7 +8,7 @@ type CSSStyleDeclarationWithFn = {
     | (() => CSSStyleDeclaration[key]);
 };
 
-type StyleValue =
+export type StyleValue =
   | string
   | CSSStyleDeclarationWithFn
   | (() => string | CSSStyleDeclarationWithFn);

@@ -5,7 +5,15 @@ import {
   setElementText,
   setProp,
 } from '@/renderer';
+import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj, isFunction, isString } from '@/utils';
+
+/**
+ * Allows the value of an object to be a function that returns the same value
+ */
+type Functionalization<T> = {
+  [key in keyof T]: T[key] | (() => T[key]);
+};
 
 type PartialDeep<T> = {
   [P in keyof T]?: PartialDeep<T[P]>;
@@ -15,9 +23,13 @@ type TagNames = keyof AllTagNameMap;
 type H = {
   [tag in TagNames]: (
     props?:
-      | PartialDeep<{ class: string; style: string } | AllTagNameMap[tag]>
+      | PartialDeep<
+          | { class: string | (() => string); style: StyleValue }
+          | Functionalization<AllTagNameMap[tag]>
+        >
       | string
-      | (() => void),
+      | (() => void)
+      | Record<string, any | (() => any)>,
     children?: (() => void) | string
   ) => void;
 };
