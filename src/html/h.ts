@@ -1,4 +1,5 @@
 import { watch } from '@/activity';
+import { error } from '@/log';
 import {
   createElement,
   createFragment,
@@ -8,6 +9,7 @@ import {
 } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj, isFunction, isString } from '@/utils';
+import { getCurrentRenderTree, RenderTree } from './makeRender';
 
 /**
  * Allows the value of an object to be a function that returns the same value
@@ -35,10 +37,6 @@ type H = {
   ) => void;
 };
 
-let currentElement: Element | null = null;
-let currentContainer: Element | null = null;
-let fragment: DocumentFragment | null = null;
-
 const setActivityText = (el: Element, text: () => string) => {
   watch(text, (v) => {
     setElementText(el, v);
@@ -48,11 +46,18 @@ const setActivityText = (el: Element, text: () => string) => {
 export const h: H = new Proxy(Object.create(null), {
   get: (_: any, tagName: TagNames) => {
     return (props?: any, children?: (() => any) | string) => {
+      if (__DEV__ && getCurrentRenderTree() === null) {
+        return error(
+          `Must be passed to the render function as a component for rendering.`
+        );
+      }
+
       let text: string;
-      currentElement = createElement(
+      const currentElement = createElement(
         tagName as any,
         shouldAsSVG(tagName as any)
       );
+      setCurrentElement(currentElement);
       if (isFunction(props)) {
         children = props;
         props = void 0;
@@ -66,28 +71,48 @@ export const h: H = new Proxy(Object.create(null), {
       props && processProps(currentElement, props);
       if (text!) {
         setElementText(currentElement, text);
-        insert(currentElement, getCurrentContainer());
+        insert(currentElement, getCurrentContainer()!);
       } else {
-        insert(currentElement, getCurrentContainer());
-        const container = currentContainer;
+        insert(currentElement, getCurrentContainer()!);
+        const container = getCurrentContainer();
         const el = currentElement;
-        currentContainer = currentElement;
+        setCurrentContainer(currentElement);
         // If the returned value is a string,
         // it is considered to be rendering a string in response
         if (isString((children as any)?.())) {
           setActivityText(el, children as () => string);
         }
-        currentContainer = container;
-        currentElement = el;
+        setCurrentContainer(container);
+        setCurrentElement(el);
       }
     };
   },
 });
 
-export const getCurrentElement = () => currentElement;
-export const getCurrentContainer = /*#__PURE__*/ () =>
-  currentContainer || getFragment();
-export const getFragment = () => fragment || (fragment = createFragment());
+const setCurrentRenderTreeWithKey = (key: keyof RenderTree, value: any) => {
+  const renderTree = getCurrentRenderTree();
+  if (renderTree) {
+    renderTree[key] = value;
+  }
+};
+const setCurrentElement = (el: Element | DocumentFragment | null) => {
+  setCurrentRenderTreeWithKey('ce', el);
+};
+const setCurrentContainer = (el: Element | DocumentFragment | null) => {
+  setCurrentRenderTreeWithKey('cc', el);
+};
+
+export const getCurrentElement = () => getCurrentRenderTree()?.ce || null;
+export const getCurrentContainer = /*#__PURE__*/ () => {
+  const renderTree = getCurrentRenderTree();
+  if (renderTree === null) return null;
+  return renderTree.cc || renderTree.f || (renderTree.f = createFragment());
+};
+export const getFragment = () => {
+  const renderTree = getCurrentRenderTree();
+  if (renderTree === null) return null;
+  return renderTree.f || (renderTree.f = createFragment());
+};
 
 function shouldAsSVG(tagName: TagNames) {
   if (tagName === 'svg') return true;

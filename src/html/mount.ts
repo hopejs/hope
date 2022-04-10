@@ -1,7 +1,7 @@
 import { error } from '@/log';
 import { insert, querySelector } from '@/renderer';
 import { isString } from '@/utils';
-import { getFragment } from './h';
+import { getCurrentRenderTree, makeRender } from './makeRender';
 
 export function mount(fragment: DocumentFragment, container: string | Element) {
   container = normalizeContainer(container)!;
@@ -11,9 +11,14 @@ export function mount(fragment: DocumentFragment, container: string | Element) {
   insert(fragment, container);
 }
 
-export const render = (component: any) => {
-  component();
-  return getFragment();
+export const render = (component: () => any) => {
+  let result: DocumentFragment;
+  makeRender(() => {
+    component();
+    result = getCurrentRenderTree()!.f as DocumentFragment;
+  });
+  // @ts-ignore
+  return result;
 };
 
 function normalizeContainer(container: string | Element): Element | null {
