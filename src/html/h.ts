@@ -77,7 +77,7 @@ export const getFragment = () => fragment || (fragment = createFragment());
 function shouldAsSVG(tagName: TagNames) {
   if (tagName === 'svg') return true;
   let el = getCurrentElement();
-  // 如果为空则说明当前是整个页面的第一个元素。
+  // If it is blank, it indicates that it is currently the first element of the whole page.
   if (el == null) return false;
 
   do {
