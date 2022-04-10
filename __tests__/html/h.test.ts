@@ -10,7 +10,7 @@ describe('html', () => {
   it('div', () => {
     h.div();
     expect(getCurrentElement()?.outerHTML).toBe(`<div></div>`);
-    expect(getCurrentContainer()).toBe(null);
+    expect(getCurrentContainer()).toBe(getFragment());
     expect(getFragment()?.firstChild === getCurrentElement()).toBe(true);
   });
 
@@ -22,7 +22,7 @@ describe('html', () => {
 
   it('nest Element', () => {
     h.div(() => {
-      const container = getCurrentContainer();
+      const container = getCurrentContainer() as Element;
       const currentElement = getCurrentElement();
       h.span();
       expect(getCurrentElement()?.outerHTML).toBe(`<span></span>`);
@@ -30,7 +30,7 @@ describe('html', () => {
       expect(container?.outerHTML).toBe(`<div><span></span></div>`);
     });
     expect(getCurrentElement()?.outerHTML).toBe(`<div><span></span></div>`);
-    expect(getCurrentContainer()).toBe(null);
+    expect(getCurrentContainer()).toBe(getFragment());
     expect(getFragment()?.firstChild === getCurrentElement()).toBe(true);
   });
 

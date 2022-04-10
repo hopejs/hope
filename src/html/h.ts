@@ -75,9 +75,9 @@ export const h: H = new Proxy(Object.create(null), {
       props && processProps(currentElement, props);
       if (text!) {
         setElementText(currentElement, text);
-        insert(currentElement, currentContainer || getFragment());
+        insert(currentElement, getCurrentContainer());
       } else {
-        insert(currentElement, currentContainer || getFragment());
+        insert(currentElement, getCurrentContainer());
         const container = currentContainer;
         const el = currentElement;
         currentContainer = currentElement;
@@ -94,7 +94,8 @@ export const h: H = new Proxy(Object.create(null), {
 });
 
 export const getCurrentElement = () => currentElement;
-export const getCurrentContainer = /*#__PURE__*/ () => currentContainer;
+export const getCurrentContainer = /*#__PURE__*/ () =>
+  currentContainer || getFragment();
 export const getFragment = () => fragment || (fragment = createFragment());
 
 function shouldAsSVG(tagName: TagNames) {
