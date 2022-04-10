@@ -8,7 +8,7 @@ import {
   setProp,
 } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
-import { forEachObj, isFunction, isString } from '@/utils';
+import { forEachObj, isFunction, isNumber, isString } from '@/utils';
 import { getCurrentRenderTree, RenderTree } from './makeRender';
 
 /**
@@ -31,6 +31,7 @@ type H = {
           | Functionalization<AllTagNameMap[tag]>
         >
       | string
+      | number
       | (() => void)
       | Record<string, any | (() => any)>,
     children?: (() => void) | string
@@ -61,8 +62,8 @@ export const h: H = new Proxy(Object.create(null), {
       if (isFunction(props)) {
         children = props;
         props = void 0;
-      } else if (isString(props)) {
-        text = props;
+      } else if (isString(props) || isNumber(props)) {
+        text = String(props);
         children = props = void 0;
       } else if (isString(children)) {
         text = children;
