@@ -2,7 +2,7 @@ import { getCurrentElement, getFragment } from '@/html';
 import { error } from '@/log';
 import { createComment, createText, insert } from '@/renderer';
 
-interface Block {
+export interface Block {
   start: Node;
   end: Node;
   /** parent */
@@ -25,8 +25,8 @@ export const makeBlock = (block: () => void) => {
 
   initBlock(start, end);
   insert(start, container!);
-  block();
   insert(end, container!);
+  block();
   closeBlock();
 };
 

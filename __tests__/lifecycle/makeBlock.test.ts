@@ -9,7 +9,7 @@ describe('makeBlock', () => {
         block = getCurrentBlock();
         expect(block?.start).toBe(getFragment()!.firstChild);
         expect(getFragment()!.firstChild?.textContent).toBe(`block start`);
-        expect(getFragment()!.childNodes.length).toBe(1);
+        expect(getFragment()!.childNodes.length).toBe(2);
       });
     }
 
