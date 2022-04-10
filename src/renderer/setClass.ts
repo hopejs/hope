@@ -1,7 +1,26 @@
-export function setClass(el: Element, value: string, isSVG?: boolean) {
-  if (isSVG) {
-    el.setAttribute('class', value);
+import { watch } from '@/activity';
+import { isFunction } from '@/utils';
+
+export function setClass(
+  el: Element,
+  value: string | (() => string),
+  isSVG?: boolean
+) {
+  if (isFunction(value)) {
+    if (isSVG) {
+      watch(value, (v) => {
+        el.setAttribute('class', v);
+      });
+    } else {
+      watch(value, (v) => {
+        el.className = v;
+      });
+    }
   } else {
-    el.className = value;
+    if (isSVG) {
+      el.setAttribute('class', value);
+    } else {
+      el.className = value;
+    }
   }
 }

@@ -1,3 +1,12 @@
+import { watch } from '@/activity';
+import { isFunction } from '@/utils';
+
 export function setDomProp(el: any, key: any, value: any) {
-  el[key] = value;
+  if (isFunction(value)) {
+    watch(value, (v) => {
+      el[key] = v;
+    });
+  } else {
+    el[key] = value;
+  }
 }
