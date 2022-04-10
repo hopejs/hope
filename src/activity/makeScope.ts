@@ -10,6 +10,11 @@ interface Scope {
   subs?: (() => void)[];
 }
 
+interface Prop {
+  (): any;
+  s?: Scope | null;
+}
+
 let currentScope: Scope | null = null;
 
 export function makeScope(block: () => void) {
@@ -18,7 +23,10 @@ export function makeScope(block: () => void) {
   closeScope();
 }
 
-export function getCurrentScope() {
+export function getCurrentScope(prop?: Prop) {
+  if (prop) {
+    return prop.s || (prop.s = currentScope);
+  }
   return currentScope;
 }
 

@@ -10,7 +10,7 @@ export function watch<P>(prop: () => P, effect: (param: P) => void) {
     effect(newValue);
   };
   // TODO: 当组件被销毁的时候，要清除相关引用
-  const currentScope = getCurrentScope();
+  const currentScope = getCurrentScope(prop);
   subscribe(currentScope, block);
   block();
 }
