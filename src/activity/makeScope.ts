@@ -3,14 +3,14 @@ interface Subscriber {
   scopes?: Scope[];
 }
 
-interface Scope {
+export interface Scope {
   parent?: Scope;
   children?: Scope[];
   /** subscribers */
   subs?: (() => void)[];
 }
 
-interface Prop {
+export interface ScopeProp {
   (): any;
   s?: Scope | null;
 }
@@ -23,7 +23,7 @@ export function makeScope(block: () => void) {
   closeScope();
 }
 
-export function getCurrentScope(prop?: Prop) {
+export function getCurrentScope(prop?: ScopeProp) {
   if (prop) {
     return prop.s || (prop.s = currentScope);
   }
