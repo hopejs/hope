@@ -1,3 +1,4 @@
+import { error } from '@/log';
 import { insert, querySelector } from '@/renderer';
 import { isString } from '@/utils';
 import { getFragment } from './h';
@@ -5,7 +6,7 @@ import { getFragment } from './h';
 export function mount(fragment: DocumentFragment, container: string | Element) {
   container = normalizeContainer(container)!;
   if (__DEV__ && container == null) {
-    return console.error(`无效的容器`);
+    return error(`Invalid container.`);
   }
   insert(fragment, container);
 }
@@ -19,7 +20,7 @@ function normalizeContainer(container: string | Element): Element | null {
   if (isString(container)) {
     const result = querySelector(container);
     if (__DEV__ && !result) {
-      console.error(`找不到以 ${container} 为选择器的元素！`);
+      error(`Cannot find element with ${container} as selector.`);
     }
     return result;
   }
