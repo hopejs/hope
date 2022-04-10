@@ -1,12 +1,8 @@
 import { getCurrentElement, getFragment, h } from '@/html';
-import { getCurrentContainer, init } from '@/html/h';
+import { getCurrentContainer } from '@/html/h';
 import { htmlNS, svgNS } from '@/utils';
 
 describe('html', () => {
-  beforeEach(() => {
-    init();
-  });
-
   it('div', () => {
     h.div();
     expect(getCurrentElement()?.outerHTML).toBe(`<div></div>`);

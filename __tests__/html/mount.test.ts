@@ -1,12 +1,7 @@
 import { h, mount, render } from '@/html';
-import { init } from '@/html/h';
 import { createElement } from '@/renderer';
 
 describe('mount', () => {
-  beforeEach(() => {
-    init();
-  });
-
   it('create a component and mount', () => {
     function Foo() {
       h.div();

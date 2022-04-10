@@ -39,15 +39,6 @@ let currentElement: Element | null = null;
 let currentContainer: Element | null = null;
 let fragment: DocumentFragment | null = null;
 
-/**
- * for test
- */
-export const init = /*#__PURE__*/ () => {
-  currentElement = null;
-  currentContainer = null;
-  fragment = null;
-};
-
 const setActivityText = (el: Element, text: () => string) => {
   watch(text, (v) => {
     setElementText(el, v);
