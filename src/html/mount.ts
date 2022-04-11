@@ -1,6 +1,6 @@
 import { error } from '@/log';
 import { insert, querySelector } from '@/renderer';
-import { isString } from '@/utils';
+import { bfs, isString } from '@/utils';
 import { nextTick } from '..';
 import { getCurrentRenderTree, makeRender, RenderTree } from './makeRender';
 
@@ -35,11 +35,13 @@ export const render = (component: () => any): RenderResult => {
   return {
     fragment: result!.f as DocumentFragment,
     runMountedHandlers: () => {
-      if (result.om) {
-        result.om.forEach((handler) => handler());
-        // It will only run once
-        result.om = null;
-      }
+      bfs(result, (node) => {
+        if (node.om) {
+          node.om.forEach((handler) => handler());
+          // It will only run once
+          node.om = null;
+        }
+      });
     },
   };
 };

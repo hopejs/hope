@@ -34,3 +34,21 @@ export const forEachObj = <T extends Record<string, any>, K extends keyof T>(
 ) => {
   (Object.keys(obj) as K[]).forEach((key) => cb(obj[key], key));
 };
+
+/**
+ * breadth-first search
+ */
+export const bfs = <T extends Record<string, any>>(
+  root: T,
+  handler: (node: T) => void
+) => {
+  const queue = [root];
+  let index = 0;
+  do {
+    const node = queue[index++];
+    handler(node);
+    if (node.c) {
+      queue.push(...node.c);
+    }
+  } while (queue[index]);
+};
