@@ -1,7 +1,8 @@
 import { makeScope, watch } from '@/activity';
 import { getFragment, render } from '@/html';
 import { insert, nextSibling, parentNode, remove } from '@/renderer';
-import { isFunction } from '@/utils';
+import { bfs, isFunction } from '@/utils';
+import { nextTick } from '..';
 import { Block, getCurrentBlock, makeBlock } from './makeBlock';
 
 export const useBlock = <T>(
@@ -35,4 +36,14 @@ const removeNodes = (blockTree: Block) => {
     remove(next!);
     next = nextSibling(start);
   }
+  nextTick(() => {
+    bfs(blockTree, (node) => {
+      if (node.oum) {
+        node.oum.forEach((handler) => handler());
+        // It will only run once
+        node.oum = null;
+        node.c = null;
+      }
+    });
+  });
 };

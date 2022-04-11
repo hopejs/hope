@@ -8,7 +8,9 @@ export interface Block {
   /** parent */
   p?: Block;
   /** children */
-  c?: Block[];
+  c?: Block[] | null;
+  /** onUnmount */
+  oum?: (() => void)[] | null;
 }
 
 let currentBlock: Block | null = null;
@@ -46,6 +48,9 @@ const closeBlock = () => {
 };
 
 export const getCurrentBlock = () => currentBlock;
+
+export const addUnmountedHandler = (handler: () => void) =>
+  currentBlock && (currentBlock.oum || (currentBlock.oum = [])).push(handler);
 
 const createPlaceholderNode = (text: string) =>
   __DEV__ ? createComment(text) : createText('');
