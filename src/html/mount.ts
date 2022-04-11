@@ -1,24 +1,47 @@
 import { error } from '@/log';
 import { insert, querySelector } from '@/renderer';
 import { isString } from '@/utils';
-import { getCurrentRenderTree, makeRender } from './makeRender';
+import { nextTick } from '..';
+import { getCurrentRenderTree, makeRender, RenderTree } from './makeRender';
 
-export function mount(fragment: DocumentFragment, container: string | Element) {
+interface RenderResult {
+  fragment: DocumentFragment;
+  runMountedHandlers?: () => void;
+}
+
+export function mount(
+  fragment: DocumentFragment | RenderResult,
+  container: string | Element
+) {
+  let runMountedHandlers;
+  if (!(fragment instanceof DocumentFragment)) {
+    runMountedHandlers = fragment.runMountedHandlers;
+    fragment = fragment.fragment;
+  }
   container = normalizeContainer(container)!;
   if (__DEV__ && container == null) {
     return error(`Invalid container.`);
   }
   insert(fragment, container);
+  nextTick(runMountedHandlers);
 }
 
-export const render = (component: () => any) => {
-  let result: DocumentFragment;
+export const render = (component: () => any): RenderResult => {
+  let result: RenderTree;
   makeRender(() => {
     component();
-    result = getCurrentRenderTree()!.f as DocumentFragment;
+    result = getCurrentRenderTree()!;
   });
-  // @ts-ignore
-  return result;
+  return {
+    fragment: result!.f as DocumentFragment,
+    runMountedHandlers: () => {
+      if (result.om) {
+        result.om.forEach((handler) => handler());
+        // It will only run once
+        result.om = null;
+      }
+    },
+  };
 };
 
 function normalizeContainer(container: string | Element): Element | null {

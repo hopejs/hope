@@ -3,7 +3,7 @@ import { h, hFor, nextTick, render } from '@/api';
 
 describe('hFor', () => {
   it('basic', () => {
-    const fragment = render(() => {
+    const { fragment } = render(() => {
       hFor([1, 2, 3], (value) => {
         h.div(value);
       });
@@ -17,7 +17,7 @@ describe('hFor', () => {
 
   it('activity', async () => {
     let list = [1, 2, 3];
-    const fragment = render(() => {
+    const { fragment } = render(() => {
       hFor(
         () => list,
         (value) => {

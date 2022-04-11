@@ -13,7 +13,7 @@ describe('makeBlock', () => {
       });
     }
 
-    const fragment = render(foo);
+    const { fragment } = render(foo);
 
     expect(block?.end).toBe(fragment.lastChild);
     expect(getCurrentBlock()).toBe(null);

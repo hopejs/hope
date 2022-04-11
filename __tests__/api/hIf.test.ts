@@ -3,7 +3,7 @@ import { h, hIf, nextTick, render } from '@/api';
 
 describe('hIf', () => {
   it('basic', () => {
-    const fragment = render(() => {
+    const { fragment } = render(() => {
       hIf(true, () => {
         h.div();
       });
@@ -15,7 +15,7 @@ describe('hIf', () => {
 
   it('activity', async () => {
     let cond = true;
-    const fragment = render(() => {
+    const { fragment } = render(() => {
       hIf(
         () => cond,
         () => {

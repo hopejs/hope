@@ -13,7 +13,7 @@ export const useBlock = <T>(
       makeScope(() => {
         const blockTree = getCurrentBlock()!;
         watch(value, (v) => {
-          const fragment = render(() => component(v));
+          const { fragment } = render(() => component(v));
           removeNodes(blockTree);
           insert(
             fragment,
