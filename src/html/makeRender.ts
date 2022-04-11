@@ -9,6 +9,8 @@ export interface RenderTree {
   p?: RenderTree;
   /** children */
   c?: RenderTree[];
+  /** onMount */
+  om?: (() => void)[] | null;
 }
 
 let currentRenderTree: RenderTree | null = null;
@@ -20,6 +22,9 @@ export const makeRender = (block: () => void) => {
 };
 
 export const getCurrentRenderTree = () => currentRenderTree;
+export const addMountedHander = (handler: () => void) =>
+  currentRenderTree &&
+  (currentRenderTree.om || (currentRenderTree.om = [])).push(handler);
 
 const initRender = () => {
   const parent = currentRenderTree;
