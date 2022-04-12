@@ -16,11 +16,12 @@ export const useBlock = <T>(
         watch(value, (v) => {
           const { fragment } = render(() => component(v));
           removeNodes(blockTree);
-          insert(
-            fragment,
-            parentNode(blockTree.end) || getFragment()!,
-            blockTree.end
-          );
+          fragment &&
+            insert(
+              fragment,
+              parentNode(blockTree.end) || getFragment()!,
+              blockTree.end
+            );
         });
       });
     });
@@ -32,18 +33,20 @@ export const useBlock = <T>(
 const removeNodes = (blockTree: Block) => {
   const { start, end } = blockTree;
   let next = nextSibling(start);
+  if (next !== end && next !== null) {
+    nextTick(() => {
+      bfs(blockTree, (node) => {
+        if (node.oum) {
+          node.oum.forEach((handler) => handler());
+          // It will only run once
+          node.oum = null;
+          node.c = null;
+        }
+      });
+    });
+  }
   while (next !== end && next !== null) {
     remove(next!);
     next = nextSibling(start);
   }
-  nextTick(() => {
-    bfs(blockTree, (node) => {
-      if (node.oum) {
-        node.oum.forEach((handler) => handler());
-        // It will only run once
-        node.oum = null;
-        node.c = null;
-      }
-    });
-  });
 };
