@@ -2,7 +2,7 @@ import { getCurrentScope } from '@/activity/makeScope';
 import { refresh } from '@/activity/refresh';
 import { nextTick } from '@/api';
 import { defineComponent } from '@/component';
-import { h, mount, render } from '@/html';
+import { getCurrentElement, h, mount, render } from '@/html';
 import { createElement } from '@/renderer';
 
 describe('defineComponent', () => {
@@ -69,5 +69,26 @@ describe('defineComponent', () => {
     text = 'b';
     await nextTick();
     expect(container.innerHTML).toBe('<div><span>b</span></div>');
+  });
+
+  it('counter', async () => {
+    let currentElement: Element;
+    const counter = defineComponent(() => {
+      let count = 0;
+      const handleClick = () => count++;
+
+      h.button({ onClick: handleClick }, () => count);
+      currentElement = getCurrentElement()!;
+    });
+
+    const container = createElement('div', false);
+    mount(render(counter), container);
+
+    expect(container.innerHTML).toBe('<button>0</button>');
+
+    // @ts-ignore
+    currentElement.dispatchEvent(new Event('click'));
+    await nextTick();
+    expect(container.innerHTML).toBe('<button>1</button>');
   });
 });

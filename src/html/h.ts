@@ -34,13 +34,13 @@ type H = {
       | number
       | (() => void)
       | Record<string, any | (() => any)>,
-    children?: (() => void) | string
+    children?: (() => void) | string | number
   ) => void;
 };
 
-const setActivityText = (el: Element, text: () => string) => {
+const setActivityText = (el: Element, text: () => string | number) => {
   watch(text, (v) => {
-    setElementText(el, v);
+    setElementText(el, String(v));
   });
 };
 
@@ -65,8 +65,8 @@ export const h: H = new Proxy(Object.create(null), {
       } else if (isString(props) || isNumber(props)) {
         text = String(props);
         children = props = void 0;
-      } else if (isString(children)) {
-        text = children;
+      } else if (isString(children) || isNumber(children)) {
+        text = String(children);
         children = void 0;
       }
       props && processProps(currentElement, props);
@@ -80,8 +80,9 @@ export const h: H = new Proxy(Object.create(null), {
         setCurrentContainer(currentElement);
         // If the returned value is a string,
         // it is considered to be rendering a string in response
-        if (isString((children as any)?.())) {
-          setActivityText(el, children as () => string);
+        const childrenResult = (children as any)?.();
+        if (isString(childrenResult) || isNumber(childrenResult)) {
+          setActivityText(el, children as () => string | number);
         }
         setCurrentContainer(container);
         setCurrentElement(el);
