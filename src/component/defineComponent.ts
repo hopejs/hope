@@ -1,5 +1,4 @@
-import { makeScope } from '@/activity';
-import { getCurrentScope, Scope, ScopeProp } from '@/activity/makeScope';
+import { getCurrentScope, makeScope, Scope, ScopeProp } from '@/activity/makeScope';
 import { forEachObj, isFunction, isObject } from '@/utils';
 
 export function defineComponent<T extends (...params: any[]) => void>(

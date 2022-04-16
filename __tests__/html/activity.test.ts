@@ -1,5 +1,5 @@
-import { makeScope, refresh } from '@/activity';
-import { getCurrentScope } from '@/activity/makeScope';
+import { getCurrentScope, makeScope } from '@/activity/makeScope';
+import { refresh } from '@/activity/refresh';
 import { nextTick } from '@/api';
 import { getCurrentElement, h, render } from '@/html';
 

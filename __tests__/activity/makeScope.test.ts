@@ -1,5 +1,6 @@
-import { makeScope, refresh, watch } from '@/activity';
-import { getCurrentScope } from '@/activity/makeScope';
+import { watch } from '@/activity';
+import { getCurrentScope, makeScope } from '@/activity/makeScope';
+import { refresh } from '@/activity/refresh';
 import { nextTick } from '@/api';
 
 describe('makeScope', () => {

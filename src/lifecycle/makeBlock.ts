@@ -1,4 +1,5 @@
-import { getCurrentElement, getFragment } from '@/html';
+import { getCurrentElement } from '@/html';
+import { getFragment } from '@/html/h';
 import { error } from '@/log';
 import { createComment, createText, insert } from '@/renderer';
 

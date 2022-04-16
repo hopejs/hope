@@ -1,5 +1,5 @@
-import { refresh } from '@/activity';
 import { getCurrentScope } from '@/activity/makeScope';
+import { refresh } from '@/activity/refresh';
 import { h, hFor, nextTick, render } from '@/api';
 
 describe('hFor', () => {

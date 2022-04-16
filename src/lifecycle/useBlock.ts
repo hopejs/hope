@@ -1,5 +1,7 @@
-import { makeScope, watch } from '@/activity';
-import { getFragment, render } from '@/html';
+import { watch } from '@/activity';
+import { makeScope } from '@/activity/makeScope';
+import { render } from '@/html';
+import { getFragment } from '@/html/h';
 import { insert, nextSibling, parentNode, remove } from '@/renderer';
 import { bfs, isFunction } from '@/utils';
 import { nextTick } from '..';

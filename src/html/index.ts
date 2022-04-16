@@ -1,2 +1,2 @@
 export { mount, render } from './mount';
-export { h, getCurrentElement, getFragment } from './h';
+export { h, getCurrentElement } from './h';

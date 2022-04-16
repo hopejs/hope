@@ -1,5 +1,5 @@
-import { refresh } from '@/activity';
 import { getCurrentScope } from '@/activity/makeScope';
+import { refresh } from '@/activity/refresh';
 import { nextTick } from '@/api';
 import { defineComponent } from '@/component';
 import { h, mount, render } from '@/html';

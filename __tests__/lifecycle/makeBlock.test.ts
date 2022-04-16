@@ -1,4 +1,5 @@
-import { getFragment, render } from '@/html';
+import { render } from '@/html';
+import { getFragment } from '@/html/h';
 import { getCurrentBlock, makeBlock } from '@/lifecycle/makeBlock';
 
 describe('makeBlock', () => {
