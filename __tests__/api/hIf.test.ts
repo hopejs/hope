@@ -1,4 +1,4 @@
-import { getCurrentScope } from '@/activity/makeScope';
+import { getCurrentScope, makeScope } from '@/activity/makeScope';
 import { refresh } from '@/activity/refresh';
 import { h, hIf, nextTick, render } from '@/api';
 
@@ -17,17 +17,19 @@ describe('hIf', () => {
   it('activity', async () => {
     let cond = true;
     const { fragment } = render(() => {
-      hIf(
-        () => cond,
-        () => {
-          h.div('true');
-          refresh(getCurrentScope()!);
-        },
-        () => {
-          h.span('false');
-          refresh(getCurrentScope()!);
-        }
-      );
+      makeScope(() => {
+        hIf(
+          () => cond,
+          () => {
+            h.div('true');
+            refresh(getCurrentScope()!);
+          },
+          () => {
+            h.span('false');
+            refresh(getCurrentScope()!);
+          }
+        );
+      });
     });
 
     expect(fragment.childElementCount).toBe(1);

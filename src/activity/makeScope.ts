@@ -32,6 +32,10 @@ export function getCurrentScope(prop?: ScopeProp) {
   return currentScope;
 }
 
+export const setCurrentScope = (scope: Scope | null) => {
+  currentScope = scope;
+};
+
 export function notify(scope: Scope | null) {
   if (!scope?.subs?.length) return;
   scope.subs.forEach((sub) => sub());

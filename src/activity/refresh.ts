@@ -1,4 +1,4 @@
-import { nextTick } from '..';
+import { nextTick } from '@/api/scheduler';
 import { getCurrentScope, notify, Scope } from './makeScope';
 
 // void repeated refresh

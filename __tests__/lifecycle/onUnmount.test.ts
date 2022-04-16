@@ -1,4 +1,4 @@
-import { getCurrentScope } from '@/activity/makeScope';
+import { getCurrentScope, makeScope } from '@/activity/makeScope';
 import { refresh } from '@/activity/refresh';
 import { h, hIf, nextTick, render } from '@/api';
 import { onUnmount } from '@/lifecycle/onUnmount';
@@ -8,15 +8,17 @@ describe('onUnmount', () => {
     let show = true;
     const handler = jest.fn();
     render(() => {
-      hIf(
-        () => show,
-        () => {
-          h.div(() => {
-            onUnmount(handler);
-            refresh(getCurrentScope()!);
-          });
-        }
-      );
+      makeScope(() => {
+        hIf(
+          () => show,
+          () => {
+            h.div(() => {
+              onUnmount(handler);
+              refresh(getCurrentScope()!);
+            });
+          }
+        );
+      });
     });
 
     expect(handler).toBeCalledTimes(0);

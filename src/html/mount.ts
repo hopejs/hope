@@ -1,7 +1,7 @@
 import { error } from '@/log';
 import { insert, querySelector } from '@/renderer';
 import { bfs, isString } from '@/utils';
-import { nextTick } from '..';
+import { nextTick } from '@/api/scheduler';
 import { getCurrentRenderTree, makeRender, RenderTree } from './makeRender';
 
 interface RenderResult {

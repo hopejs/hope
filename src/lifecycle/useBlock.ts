@@ -1,10 +1,10 @@
 import { watch } from '@/activity';
-import { makeScope } from '@/activity/makeScope';
+import { getCurrentScope, setCurrentScope } from '@/activity/makeScope';
 import { render } from '@/html';
 import { getFragment } from '@/html/h';
 import { insert, nextSibling, parentNode, remove } from '@/renderer';
 import { bfs, isFunction } from '@/utils';
-import { nextTick } from '..';
+import { nextTick } from '@/api/scheduler';
 import { Block, getCurrentBlock, makeBlock } from './makeBlock';
 
 export const useBlock = <T>(
@@ -13,18 +13,20 @@ export const useBlock = <T>(
 ) => {
   if (isFunction(value)) {
     makeBlock(() => {
-      makeScope(() => {
-        const blockTree = getCurrentBlock()!;
-        watch(value, (v) => {
-          const { fragment } = render(() => component(v));
-          removeNodes(blockTree);
-          fragment &&
-            insert(
-              fragment,
-              parentNode(blockTree.end) || getFragment()!,
-              blockTree.end
-            );
-        });
+      const blockTree = getCurrentBlock()!;
+      const scopeTree = getCurrentScope();
+      watch(value, (v) => {
+        const oldScope = getCurrentScope();
+        setCurrentScope(scopeTree);
+        const { fragment } = render(() => component(v));
+        removeNodes(blockTree);
+        fragment &&
+          insert(
+            fragment,
+            parentNode(blockTree.end) || getFragment()!,
+            blockTree.end
+          );
+        setCurrentScope(oldScope);
       });
     });
   } else {
