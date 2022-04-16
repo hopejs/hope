@@ -1,4 +1,5 @@
 import { refresh } from '@/activity';
+import { getCurrentScope } from '@/activity/makeScope';
 import { h, hIf, nextTick, render } from '@/api';
 import { onUnmount } from '@/lifecycle/onUnmount';
 
@@ -12,7 +13,7 @@ describe('onUnmount', () => {
         () => {
           h.div(() => {
             onUnmount(handler);
-            refresh();
+            refresh(getCurrentScope()!);
           });
         }
       );

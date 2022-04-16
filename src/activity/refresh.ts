@@ -1,11 +1,10 @@
 import { nextTick } from '..';
-import { getCurrentScope, notify } from './makeScope';
+import { notify, Scope } from './makeScope';
 
 // void repeated refresh
 const memo = new WeakMap();
 
-export function refresh() {
-  const currentScope = getCurrentScope();
+export function refresh(currentScope: Scope) {
   if (currentScope && !memo.has(currentScope)) {
     nextTick(() => {
       memo.delete(currentScope);

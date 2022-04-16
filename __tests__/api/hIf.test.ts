@@ -1,4 +1,5 @@
 import { refresh } from '@/activity';
+import { getCurrentScope } from '@/activity/makeScope';
 import { h, hIf, nextTick, render } from '@/api';
 
 describe('hIf', () => {
@@ -20,11 +21,11 @@ describe('hIf', () => {
         () => cond,
         () => {
           h.div('true');
-          refresh();
+          refresh(getCurrentScope()!);
         },
         () => {
           h.span('false');
-          refresh();
+          refresh(getCurrentScope()!);
         }
       );
     });

@@ -20,7 +20,7 @@ describe('makeScope', () => {
       expect(result).toBe('1');
 
       text = '2';
-      refresh();
+      refresh(getCurrentScope()!);
     });
 
     await nextTick();
@@ -54,7 +54,7 @@ describe('makeScope', () => {
         );
         expect(result_2).toBe('1');
         text = '2';
-        refresh();
+        refresh(getCurrentScope()!);
       });
     });
 
@@ -91,7 +91,7 @@ describe('makeScope', () => {
         expect(result_2).toBe('1');
         text = '2';
       });
-      refresh();
+      refresh(getCurrentScope()!);
     });
 
     await nextTick();

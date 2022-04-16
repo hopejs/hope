@@ -1,4 +1,5 @@
 import { refresh } from '@/activity';
+import { getCurrentScope } from '@/activity/makeScope';
 import { nextTick } from '@/api';
 import { defineComponent } from '@/component';
 import { h, mount, render } from '@/html';
@@ -36,7 +37,7 @@ describe('defineComponent', () => {
     const parent = defineComponent(() => {
       h.div(() => text);
 
-      refresh();
+      refresh(getCurrentScope()!);
     });
 
     const container = createElement('div', false);
@@ -55,7 +56,7 @@ describe('defineComponent', () => {
         child({ text: () => text });
       });
 
-      refresh();
+      refresh(getCurrentScope()!);
     });
     const child = defineComponent((props: { text: () => string }) => {
       h.span(props.text);

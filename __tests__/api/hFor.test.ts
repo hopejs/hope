@@ -1,4 +1,5 @@
 import { refresh } from '@/activity';
+import { getCurrentScope } from '@/activity/makeScope';
 import { h, hFor, nextTick, render } from '@/api';
 
 describe('hFor', () => {
@@ -22,7 +23,7 @@ describe('hFor', () => {
         () => list,
         (value) => {
           h.div(value);
-          refresh();
+          refresh(getCurrentScope()!);
         }
       );
     });

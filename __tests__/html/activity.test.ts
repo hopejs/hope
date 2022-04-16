@@ -1,4 +1,5 @@
 import { makeScope, refresh } from '@/activity';
+import { getCurrentScope } from '@/activity/makeScope';
 import { nextTick } from '@/api';
 import { getCurrentElement, h, render } from '@/html';
 
@@ -12,7 +13,7 @@ describe('activity tag', () => {
         currentElement = getCurrentElement();
         expect(currentElement?.outerHTML).toBe(`<div class="a"></div>`);
 
-        refresh();
+        refresh(getCurrentScope()!);
       })
     );
 
@@ -33,7 +34,7 @@ describe('activity tag', () => {
           `<div style=\"color: red;\"></div>`
         );
 
-        refresh();
+        refresh(getCurrentScope()!);
       })
     );
 
@@ -54,7 +55,7 @@ describe('activity tag', () => {
           `<div style=\"color: red;\"></div>`
         );
 
-        refresh();
+        refresh(getCurrentScope()!);
       })
     );
 
@@ -75,7 +76,7 @@ describe('activity tag', () => {
           `<div style=\"color: red;\"></div>`
         );
 
-        refresh();
+        refresh(getCurrentScope()!);
       })
     );
 
@@ -94,7 +95,7 @@ describe('activity tag', () => {
         currentElement = getCurrentElement();
         expect(getCurrentElement()?.outerHTML).toBe(`<div><span></span></div>`);
 
-        refresh();
+        refresh(getCurrentScope()!);
       })
     );
 
@@ -115,11 +116,36 @@ describe('activity tag', () => {
           `<div somekey=\"a\"></div>`
         );
 
-        refresh();
+        refresh(getCurrentScope()!);
       })
     );
 
     value = `b`;
+    await nextTick();
+    // @ts-ignore
+    expect(currentElement.outerHTML).toBe(`<div somekey=\"b\"></div>`);
+  });
+
+  it('event', async () => {
+    let value = `a`;
+    let currentElement: Element | null = null;
+    render(() =>
+      makeScope(() => {
+        const scope = getCurrentScope()!;
+        const handleClick = () => {
+          value = 'b';
+          refresh(scope);
+        };
+
+        h.div({ somekey: () => value, onClick: handleClick });
+        currentElement = getCurrentElement();
+        expect(getCurrentElement()?.outerHTML).toBe(
+          `<div somekey=\"a\"></div>`
+        );
+      })
+    );
+
+    (currentElement as unknown as Element).dispatchEvent(new Event('click'));
     await nextTick();
     // @ts-ignore
     expect(currentElement.outerHTML).toBe(`<div somekey=\"b\"></div>`);
