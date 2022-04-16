@@ -1,3 +1,4 @@
+import { withRefresh } from '@/activity/refresh';
 import { error } from '@/log';
 import { isFunction } from '@/utils';
 
@@ -8,7 +9,7 @@ export function setEvent(
   options?: EventListenerOptions
 ) {
   if (isFunction(handler)) {
-    el.addEventListener(event, handler, options);
+    el.addEventListener(event, withRefresh(handler), options);
   } else if (__DEV__) {
     error(`Event listener must be a function.`);
   }
