@@ -131,10 +131,8 @@ describe('activity tag', () => {
     let currentElement: Element | null = null;
     render(() =>
       makeScope(() => {
-        const scope = getCurrentScope()!;
         const handleClick = () => {
           value = 'b';
-          refresh(scope);
         };
 
         h.div({ somekey: () => value, onClick: handleClick });
