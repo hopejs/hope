@@ -2,26 +2,26 @@ import { onUnmount } from '@/lifecycle/onUnmount';
 
 interface Subscriber {
   (): void;
-  scopes?: Scope[];
+  scopes?: ScopeTree[];
 }
 
-export interface Scope {
+export interface ScopeTree {
   /** parent */
-  p?: Scope;
+  p?: ScopeTree;
   /** children */
-  c?: Scope[];
+  c?: ScopeTree[];
   /** subscribers */
   subs?: (() => void)[];
 }
 
 export interface ScopeProp {
   (): any;
-  s?: Scope | null;
+  s?: ScopeTree | null;
 }
 
-let currentScope: Scope | null = null;
+let currentScope: ScopeTree | null = null;
 
-export function makeScope(block: () => void) {
+export function makeScopeTree(block: () => void) {
   initScope();
   block();
   closeScope();
@@ -34,16 +34,16 @@ export function getCurrentScope(prop?: ScopeProp) {
   return currentScope;
 }
 
-export const setCurrentScope = (scope: Scope | null) => {
+export const setCurrentScope = (scope: ScopeTree | null) => {
   currentScope = scope;
 };
 
-export function notify(scope: Scope | null) {
+export function notify(scope: ScopeTree | null) {
   if (!scope?.subs?.length) return;
   scope.subs.forEach((sub) => sub());
 }
 
-export function subscribe(scope: Scope | null, subscriber: Subscriber) {
+export function subscribe(scope: ScopeTree | null, subscriber: Subscriber) {
   if (!scope) return;
   // (subscriber.scopes || (subscriber.scopes = [])).push(scope);
   (scope.subs || (scope.subs = [])).push(subscriber);
@@ -51,7 +51,7 @@ export function subscribe(scope: Scope | null, subscriber: Subscriber) {
 
 function initScope() {
   const parent = currentScope;
-  currentScope = Object.create(null) as Scope;
+  currentScope = Object.create(null) as ScopeTree;
   if (parent) {
     (parent.c || (parent.c = [])).push(currentScope);
     currentScope.p = parent;

@@ -1,4 +1,4 @@
-import { getCurrentScope, makeScope } from '@/activity/makeScope';
+import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { nextTick } from '@/api';
 import { getCurrentElement, h, render } from '@/html';
@@ -8,7 +8,7 @@ describe('activity tag', () => {
     let name = 'a';
     let currentElement: Element | null = null;
     render(() =>
-      makeScope(() => {
+      makeScopeTree(() => {
         h.div({ class: () => name });
         currentElement = getCurrentElement();
         expect(currentElement?.outerHTML).toBe(`<div class="a"></div>`);
@@ -27,7 +27,7 @@ describe('activity tag', () => {
     let style = `color: red;`;
     let currentElement: Element | null = null;
     render(() =>
-      makeScope(() => {
+      makeScopeTree(() => {
         h.div({ style: () => style });
         currentElement = getCurrentElement();
         expect(getCurrentElement()?.outerHTML).toBe(
@@ -48,7 +48,7 @@ describe('activity tag', () => {
     let style = { color: 'red' };
     let currentElement: Element | null = null;
     render(() =>
-      makeScope(() => {
+      makeScopeTree(() => {
         h.div({ style: () => style });
         currentElement = getCurrentElement();
         expect(getCurrentElement()?.outerHTML).toBe(
@@ -69,7 +69,7 @@ describe('activity tag', () => {
     let color = 'red';
     let currentElement: Element | null = null;
     render(() =>
-      makeScope(() => {
+      makeScopeTree(() => {
         h.div({ style: { color: () => color } });
         currentElement = getCurrentElement();
         expect(getCurrentElement()?.outerHTML).toBe(
@@ -90,7 +90,7 @@ describe('activity tag', () => {
     let innerHTML = `<span></span>`;
     let currentElement: Element | null = null;
     render(() =>
-      makeScope(() => {
+      makeScopeTree(() => {
         h.div({ innerHTML: () => innerHTML });
         currentElement = getCurrentElement();
         expect(getCurrentElement()?.outerHTML).toBe(`<div><span></span></div>`);
@@ -109,7 +109,7 @@ describe('activity tag', () => {
     let value = `a`;
     let currentElement: Element | null = null;
     render(() =>
-      makeScope(() => {
+      makeScopeTree(() => {
         h.div({ somekey: () => value });
         currentElement = getCurrentElement();
         expect(getCurrentElement()?.outerHTML).toBe(
@@ -130,7 +130,7 @@ describe('activity tag', () => {
     let value = `a`;
     let currentElement: Element | null = null;
     render(() =>
-      makeScope(() => {
+      makeScopeTree(() => {
         const handleClick = () => {
           value = 'b';
         };

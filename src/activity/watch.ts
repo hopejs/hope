@@ -1,5 +1,5 @@
-import { getCurrentRenderTree, RenderTree } from '@/html/makeRender';
-import { getCurrentScope, subscribe } from './makeScope';
+import { getCurrentRenderTree, RenderTree } from '@/html/makeRenderTree';
+import { getCurrentScope, subscribe } from './makeScopeTree';
 
 export const watch = <P>(prop: () => P, effect: (param: P) => void) => {
   let oldValue: P;

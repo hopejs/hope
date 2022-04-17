@@ -1,4 +1,4 @@
-import { getCurrentScope } from '@/activity/makeScope';
+import { getCurrentScope } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { nextTick } from '@/api';
 import { defineComponent } from '@/component';

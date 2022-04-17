@@ -1,4 +1,4 @@
-import { getCurrentScope, makeScope } from '@/activity/makeScope';
+import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { h, hIf, nextTick, render } from '@/api';
 
@@ -17,7 +17,7 @@ describe('hIf', () => {
   it('activity', async () => {
     let cond = true;
     const { fragment } = render(() => {
-      makeScope(() => {
+      makeScopeTree(() => {
         hIf(
           () => cond,
           () => {

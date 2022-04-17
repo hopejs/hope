@@ -1,5 +1,5 @@
 import { watch } from '@/activity';
-import { getCurrentScope, makeScope } from '@/activity/makeScope';
+import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { nextTick } from '@/api';
 
@@ -8,7 +8,7 @@ describe('makeScope', () => {
     let text = '1';
     let result = '';
 
-    makeScope(() => {
+    makeScopeTree(() => {
       const currentScope = getCurrentScope();
       expect(currentScope).toEqual({});
 
@@ -33,7 +33,7 @@ describe('makeScope', () => {
     let result_1 = '';
     let result_2 = '';
 
-    makeScope(() => {
+    makeScopeTree(() => {
       const parent = getCurrentScope();
       expect(parent).toEqual({});
       watch(
@@ -44,7 +44,7 @@ describe('makeScope', () => {
       );
       expect(result_1).toBe('1');
 
-      makeScope(() => {
+      makeScopeTree(() => {
         const currentScope = getCurrentScope();
         expect(currentScope?.p).toBe(parent);
         watch(
@@ -69,7 +69,7 @@ describe('makeScope', () => {
     let result_1 = '';
     let result_2 = '';
 
-    makeScope(() => {
+    makeScopeTree(() => {
       const parent = getCurrentScope();
       expect(parent).toEqual({});
       watch(
@@ -80,7 +80,7 @@ describe('makeScope', () => {
       );
       expect(result_1).toBe('1');
 
-      makeScope(() => {
+      makeScopeTree(() => {
         const currentScope = getCurrentScope();
         expect(currentScope?.p).toBe(parent);
         watch(

@@ -1,4 +1,4 @@
-import { getCurrentScope, makeScope } from '@/activity/makeScope';
+import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { h, hFor, nextTick, render } from '@/api';
 
@@ -19,7 +19,7 @@ describe('hFor', () => {
   it('activity', async () => {
     let list = [1, 2, 3];
     const { fragment } = render(() => {
-      makeScope(() => {
+      makeScopeTree(() => {
         hFor(
           () => list,
           (value) => {
@@ -45,7 +45,7 @@ describe('hFor', () => {
     let list = [{ text: 1 }];
     let currentScope;
     const { fragment } = render(() => {
-      makeScope(() => {
+      makeScopeTree(() => {
         hFor(
           () => list,
           (value) => {

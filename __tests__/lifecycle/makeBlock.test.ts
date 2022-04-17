@@ -1,12 +1,12 @@
 import { render } from '@/html';
 import { getFragment } from '@/html/h';
-import { getCurrentBlock, makeBlock } from '@/lifecycle/makeBlock';
+import { getCurrentBlock, makeBlockTree } from '@/lifecycle/makeBlockTree';
 
 describe('makeBlock', () => {
   it('basic', () => {
     let block: any;
     function foo() {
-      makeBlock(() => {
+      makeBlockTree(() => {
         block = getCurrentBlock();
         expect(block?.start).toBe(getFragment()!.firstChild);
         expect(getFragment()!.firstChild?.textContent).toBe(`block start`);

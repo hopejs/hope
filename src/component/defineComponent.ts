@@ -1,4 +1,4 @@
-import { getCurrentScope, makeScope, Scope, ScopeProp } from '@/activity/makeScope';
+import { getCurrentScope, makeScopeTree, ScopeTree, ScopeProp } from '@/activity/makeScopeTree';
 import { forEachObj, isFunction, isObject } from '@/utils';
 
 export function defineComponent<T extends (...params: any[]) => void>(
@@ -6,13 +6,13 @@ export function defineComponent<T extends (...params: any[]) => void>(
 ): T {
   return ((...params: any[]) => {
     markParamsWithScope(getCurrentScope(), params);
-    makeScope(() => {
+    makeScopeTree(() => {
       block(...params);
     });
   }) as unknown as T;
 }
 
-function markParamsWithScope(scope: Scope | null, params: any[]) {
+function markParamsWithScope(scope: ScopeTree | null, params: any[]) {
   if (scope === null) return;
 
   for (const param of params) {

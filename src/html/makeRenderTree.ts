@@ -15,7 +15,7 @@ export interface RenderTree {
 
 let currentRenderTree: RenderTree | null = null;
 
-export const makeRender = (block: () => void) => {
+export const makeRenderTree = (block: () => void) => {
   initRender();
   block();
   closeRender();

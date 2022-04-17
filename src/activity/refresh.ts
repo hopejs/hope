@@ -1,10 +1,10 @@
 import { nextTick } from '@/api/scheduler';
-import { getCurrentScope, notify, Scope } from './makeScope';
+import { getCurrentScope, notify, ScopeTree } from './makeScopeTree';
 
 // void repeated refresh
 const memo = new WeakMap();
 
-export const refresh = (currentScope: Scope) => {
+export const refresh = (currentScope: ScopeTree) => {
   if (currentScope && !memo.has(currentScope)) {
     nextTick(() => {
       memo.delete(currentScope);

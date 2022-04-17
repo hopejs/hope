@@ -1,20 +1,20 @@
 import { watch } from '@/activity';
-import { getCurrentScope, Scope, setCurrentScope } from '@/activity/makeScope';
+import { getCurrentScope, ScopeTree, setCurrentScope } from '@/activity/makeScopeTree';
 import { render } from '@/html';
 import { getFragment } from '@/html/h';
 import { insert, nextSibling, parentNode, remove } from '@/renderer';
 import { bfs, isFunction } from '@/utils';
 import { nextTick } from '@/api/scheduler';
-import { Block, getCurrentBlock, makeBlock } from './makeBlock';
+import { BlockTree, getCurrentBlock, makeBlockTree } from './makeBlockTree';
 import { needDelete } from '@/activity/watch';
-import { getCurrentRenderTree, RenderTree } from '@/html/makeRender';
+import { getCurrentRenderTree, RenderTree } from '@/html/makeRenderTree';
 
-export const useBlock = <T>(
+export const useBlockTree = <T>(
   value: T | (() => T),
   component: (value: T) => void
 ) => {
   if (isFunction(value)) {
-    makeBlock(() => {
+    makeBlockTree(() => {
       const blockTree = getCurrentBlock()!;
       const scopeTree = getCurrentScope();
       let oldRenderTree: RenderTree;
@@ -42,7 +42,7 @@ export const useBlock = <T>(
 };
 
 const removeUnuseWatcher = (
-  scopeTree: Scope | null,
+  scopeTree: ScopeTree | null,
   renderTree: RenderTree
 ) => {
   if (scopeTree) {
@@ -52,7 +52,7 @@ const removeUnuseWatcher = (
   }
 };
 
-const removeNodes = (blockTree: Block) => {
+const removeNodes = (blockTree: BlockTree) => {
   const { start, end } = blockTree;
   let next = nextSibling(start);
   if (next !== end && next !== null) {

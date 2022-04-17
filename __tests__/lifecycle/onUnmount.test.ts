@@ -1,4 +1,4 @@
-import { getCurrentScope, makeScope } from '@/activity/makeScope';
+import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { h, hIf, nextTick, render } from '@/api';
 import { onUnmount } from '@/lifecycle/onUnmount';
@@ -8,7 +8,7 @@ describe('onUnmount', () => {
     let show = true;
     const handler = jest.fn();
     render(() => {
-      makeScope(() => {
+      makeScopeTree(() => {
         hIf(
           () => show,
           () => {

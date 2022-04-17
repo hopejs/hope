@@ -3,20 +3,20 @@ import { getFragment } from '@/html/h';
 import { error } from '@/log';
 import { createComment, createText, insert } from '@/renderer';
 
-export interface Block {
+export interface BlockTree {
   start: Node;
   end: Node;
   /** parent */
-  p?: Block;
+  p?: BlockTree;
   /** children */
-  c?: Block[] | null;
+  c?: BlockTree[] | null;
   /** onUnmount */
   oum?: (() => void)[] | null;
 }
 
-let currentBlock: Block | null = null;
+let currentBlock: BlockTree | null = null;
 
-export const makeBlock = (block: () => void) => {
+export const makeBlockTree = (block: () => void) => {
   const start = createPlaceholderNode('block start');
   const end = createPlaceholderNode('block end');
   const container = getCurrentElement() || getFragment();
@@ -35,7 +35,7 @@ export const makeBlock = (block: () => void) => {
 
 const initBlock = (start: Node, end: Node) => {
   const parent = currentBlock;
-  currentBlock = Object.create(null) as Block;
+  currentBlock = Object.create(null) as BlockTree;
   currentBlock.start = start;
   currentBlock.end = end;
   if (parent) {

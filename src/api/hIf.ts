@@ -1,11 +1,11 @@
-import { useBlock } from '@/lifecycle/useBlock';
+import { useBlockTree } from '@/lifecycle/useBlockTree';
 
 export const hIf = <T>(
   cond: T | (() => T),
   handleTrue: (value: T) => void,
   handleFalse?: (value: T) => void
 ) => {
-  useBlock(cond, (value) => {
+  useBlockTree(cond, (value) => {
     value ? handleTrue(value) : handleFalse?.(value);
   });
 };

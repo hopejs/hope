@@ -9,7 +9,7 @@ import {
 } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj, isFunction, isNumber, isString } from '@/utils';
-import { getCurrentRenderTree, RenderTree } from './makeRender';
+import { getCurrentRenderTree, RenderTree } from './makeRenderTree';
 
 /**
  * Allows the value of an object to be a function that returns the same value
