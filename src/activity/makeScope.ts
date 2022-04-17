@@ -1,3 +1,5 @@
+import { onUnmount } from '@/lifecycle/onUnmount';
+
 interface Subscriber {
   (): void;
   scopes?: Scope[];
@@ -43,7 +45,7 @@ export function notify(scope: Scope | null) {
 
 export function subscribe(scope: Scope | null, subscriber: Subscriber) {
   if (!scope) return;
-  (subscriber.scopes || (subscriber.scopes = [])).push(scope);
+  // (subscriber.scopes || (subscriber.scopes = [])).push(scope);
   (scope.subs || (scope.subs = [])).push(subscriber);
 }
 
@@ -53,6 +55,9 @@ function initScope() {
   if (parent) {
     (parent.c || (parent.c = [])).push(currentScope);
     currentScope.p = parent;
+    onUnmount(() => {
+      parent.c = parent.c?.filter((item) => item !== currentScope);
+    });
   }
 }
 

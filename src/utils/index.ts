@@ -38,7 +38,7 @@ export const forEachObj = <T extends Record<string, any>, K extends keyof T>(
 /**
  * breadth-first search
  */
-export const bfs = <T extends Record<string, any>>(
+export const bfs = <T extends Record<string, any> & { c?: any[] | null }>(
   root: T,
   handler: (node: T) => void
 ) => {

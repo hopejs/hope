@@ -1,4 +1,4 @@
-import { watch } from '@/activity';
+import { watch } from '@/activity/watch';
 import { isFunction } from '@/utils';
 
 export function setDomProp(el: any, key: any, value: any) {

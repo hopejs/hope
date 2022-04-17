@@ -1,4 +1,4 @@
-import { watch } from '@/activity';
+import { watch } from '@/activity/watch';
 import { isFunction } from '@/utils';
 
 export const xlinkNS = 'http://www.w3.org/1999/xlink';
