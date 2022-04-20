@@ -21,7 +21,10 @@ export const makeRenderTree = (block: () => void) => {
   closeRender();
 };
 
-export const getCurrentRenderTree = () => currentRenderTree;
+export const setCurrentRender = (value: RenderTree | null) => {
+  currentRenderTree = value;
+};
+export const getCurrentRender = () => currentRenderTree;
 export const addMountedHander = (handler: () => void) =>
   currentRenderTree &&
   (currentRenderTree.om || (currentRenderTree.om = [])).push(handler);

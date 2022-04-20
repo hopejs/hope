@@ -1,27 +1,27 @@
-import { getCurrentRenderTree, makeRenderTree } from '@/html/makeRenderTree';
+import { getCurrentRender, makeRenderTree } from '@/html/makeRenderTree';
 
 describe('makeRender', () => {
   it('basic', () => {
     makeRenderTree(() => {
-      expect(getCurrentRenderTree() !== null).toBe(true);
+      expect(getCurrentRender() !== null).toBe(true);
     });
-    expect(getCurrentRenderTree()).toBe(null);
+    expect(getCurrentRender()).toBe(null);
   });
 
   it('nest', () => {
     let parent: any;
     makeRenderTree(() => {
-      parent = getCurrentRenderTree();
+      parent = getCurrentRender();
       expect(parent !== null).toBe(true);
 
       makeRenderTree(() => {
-        expect(getCurrentRenderTree() !== null).toBe(true);
-        expect(getCurrentRenderTree() === parent).toBe(false);
-        expect(getCurrentRenderTree()?.p === parent).toBe(true);
+        expect(getCurrentRender() !== null).toBe(true);
+        expect(getCurrentRender() === parent).toBe(false);
+        expect(getCurrentRender()?.p === parent).toBe(true);
       });
 
-      expect(getCurrentRenderTree()).toBe(parent);
+      expect(getCurrentRender()).toBe(parent);
     });
-    expect(getCurrentRenderTree()).toBe(null);
+    expect(getCurrentRender()).toBe(null);
   });
 });

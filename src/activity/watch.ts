@@ -1,5 +1,7 @@
-import { getCurrentRenderTree, RenderTree } from '@/html/makeRenderTree';
+import { BlockTree, getCurrentBlock } from '@/lifecycle/makeBlockTree';
 import { getCurrentScope, subscribe } from './makeScopeTree';
+
+let currentWatcher: (() => void) | null = null;
 
 export const watch = <P>(prop: () => P, effect: (param: P) => void) => {
   let oldValue: P;
@@ -7,10 +9,12 @@ export const watch = <P>(prop: () => P, effect: (param: P) => void) => {
     const newValue = prop();
     if (oldValue === newValue) return;
     oldValue = newValue;
+    currentWatcher = watcher;
 
     effect(newValue);
+    currentWatcher = null;
   };
-  markWithRender(watcher);
+  markWithBlock(watcher);
   subscribe(getCurrentScope(prop), watcher);
   watcher();
 };
@@ -19,25 +23,30 @@ export const watch = <P>(prop: () => P, effect: (param: P) => void) => {
  * Flag used to determine whether to delete
  * @param watcher
  */
-export const markWithRender = (
-  watcher: (() => void) & { _rt?: RenderTree | null }
+export const markWithBlock = (
+  watcher: (() => void) & { _b?: BlockTree | null }
 ) => {
-  watcher._rt = getCurrentRenderTree();
+  watcher._b = getCurrentBlock();
 };
 
 export const needDelete = (
-  watcher: (() => void) & { _rt?: RenderTree | null },
-  renderTree: RenderTree
+  watcher: (() => void) & { _b?: BlockTree | null },
+  blockTree: BlockTree
 ) => {
-  let _renderTree = watcher._rt;
-  if (_renderTree === renderTree) {
+  // If the current watcher is deleted, the next data update will not respond
+  if (watcher === currentWatcher) {
+    return false;
+  }
+
+  let _blockTree = watcher._b;
+  if (_blockTree === blockTree) {
     return true;
   }
-  while (_renderTree?.p) {
-    if (_renderTree.p === renderTree) {
+  while (_blockTree?.p) {
+    if (_blockTree.p === blockTree) {
       return true;
     }
-    _renderTree = _renderTree.p;
+    _blockTree = _blockTree.p;
   }
   return false;
 };

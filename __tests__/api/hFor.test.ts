@@ -5,7 +5,8 @@ import { h, hFor, nextTick, render } from '@/api';
 describe('hFor', () => {
   it('basic', () => {
     const { fragment } = render(() => {
-      hFor([1, 2, 3], (value) => {
+      hFor([1, 2, 3], (key, value) => {
+        key(value);
         h.div(value);
       });
     });
@@ -22,7 +23,8 @@ describe('hFor', () => {
       makeScopeTree(() => {
         hFor(
           () => list,
-          (value) => {
+          (key, value) => {
+            key(value);
             h.div(value);
             refresh(getCurrentScope()!);
           }
@@ -48,7 +50,8 @@ describe('hFor', () => {
       makeScopeTree(() => {
         hFor(
           () => list,
-          (value) => {
+          (key, value) => {
+            key(value.text);
             h.div(() => value.text);
             currentScope = getCurrentScope()!;
           }

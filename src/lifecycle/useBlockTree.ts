@@ -1,39 +1,44 @@
 import { watch } from '@/activity';
-import { getCurrentScope, ScopeTree, setCurrentScope } from '@/activity/makeScopeTree';
-import { render } from '@/html';
-import { getFragment } from '@/html/h';
-import { insert, nextSibling, parentNode, remove } from '@/renderer';
+import {
+  getCurrentScope,
+  ScopeTree,
+  setCurrentScope,
+} from '@/activity/makeScopeTree';
+import { nextSibling, remove } from '@/renderer';
 import { bfs, isFunction } from '@/utils';
 import { nextTick } from '@/api/scheduler';
-import { BlockTree, getCurrentBlock, makeBlockTree } from './makeBlockTree';
+import {
+  BlockTree,
+  getCurrentBlock,
+  makeBlockTree,
+  setCurrentBlock,
+} from './makeBlockTree';
+import { getCurrentRender, setCurrentRender } from '@/html/makeRenderTree';
 import { needDelete } from '@/activity/watch';
-import { getCurrentRenderTree, RenderTree } from '@/html/makeRenderTree';
 
 export const useBlockTree = <T>(
   value: T | (() => T),
-  component: (value: T) => void
+  component: (value: T, blockTree?: BlockTree) => void
 ) => {
   if (isFunction(value)) {
     makeBlockTree(() => {
-      const blockTree = getCurrentBlock()!;
-      const scopeTree = getCurrentScope();
-      let oldRenderTree: RenderTree;
+      const blockTree = getCurrentBlock()!,
+        scopeTree = getCurrentScope(),
+        renderTree = getCurrentRender();
+
       watch(value, (v) => {
-        const oldScope = getCurrentScope();
+        const oldScope = getCurrentScope(),
+          oldBlock = getCurrentBlock(),
+          oldRender = getCurrentRender();
+
         setCurrentScope(scopeTree);
-        const { fragment } = render(() => {
-          oldRenderTree && removeUnuseWatcher(scopeTree, oldRenderTree);
-          oldRenderTree = getCurrentRenderTree()!;
-          component(v);
-        });
-        removeNodes(blockTree);
-        fragment &&
-          insert(
-            fragment,
-            parentNode(blockTree.end) || getFragment()!,
-            blockTree.end
-          );
+        setCurrentBlock(blockTree);
+        setCurrentRender(renderTree);
+        removeUnuseWatcher(scopeTree, blockTree);
+        component(v, blockTree);
         setCurrentScope(oldScope);
+        setCurrentBlock(oldBlock);
+        setCurrentRender(oldRender);
       });
     });
   } else {
@@ -41,18 +46,18 @@ export const useBlockTree = <T>(
   }
 };
 
-const removeUnuseWatcher = (
+export const removeUnuseWatcher = (
   scopeTree: ScopeTree | null,
-  renderTree: RenderTree
+  blockTree: BlockTree
 ) => {
   if (scopeTree) {
     scopeTree.subs = scopeTree.subs?.filter(
-      (watcher) => !needDelete(watcher, renderTree)
+      (watcher) => !needDelete(watcher, blockTree)
     );
   }
 };
 
-const removeNodes = (blockTree: BlockTree) => {
+export const removeNodes = (blockTree: BlockTree) => {
   const { start, end } = blockTree;
   let next = nextSibling(start);
   if (next !== end && next !== null) {

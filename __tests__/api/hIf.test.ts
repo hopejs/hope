@@ -16,17 +16,17 @@ describe('hIf', () => {
 
   it('activity', async () => {
     let cond = true;
+    let currentScope: any;
     const { fragment } = render(() => {
       makeScopeTree(() => {
         hIf(
           () => cond,
           () => {
             h.div('true');
-            refresh(getCurrentScope()!);
+            currentScope = getCurrentScope()!;
           },
           () => {
             h.span('false');
-            refresh(getCurrentScope()!);
           }
         );
       });
@@ -36,6 +36,7 @@ describe('hIf', () => {
     expect(fragment.children[0].outerHTML).toBe('<div>true</div>');
 
     cond = false;
+    refresh(currentScope);
     await nextTick();
     expect(fragment.childElementCount).toBe(1);
     expect(fragment.children[0].outerHTML).toBe('<span>false</span>');

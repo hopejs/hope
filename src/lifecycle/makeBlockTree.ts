@@ -36,6 +36,10 @@ export const makeBlockTree = (block: () => void) => {
   closeBlock();
 };
 
+export const setCurrentBlock = (value: BlockTree | null) => {
+  currentBlock = value;
+};
+
 const initBlock = (start: Node, end: Node) => {
   const parent = currentBlock;
   currentBlock = Object.create(null) as BlockTree;

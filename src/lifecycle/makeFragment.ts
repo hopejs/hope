@@ -4,22 +4,25 @@ export interface Fragment {
   els: Element[];
 }
 
-let fragment: Fragment | null = null;
+let currentFragment: Fragment | null = null;
 
-export const makeFragment = (key: string, handler: (key: string) => void) => {
-  initFragment(key);
-  handler(key);
-  clearFragment();
+export const makeFragment = (
+  handler: (key: (value: string | number) => void) => void
+) => {
+  initFragment();
+  handler((key) => {
+    currentFragment!.key = String(key);
+  });
+  closeFragment();
 };
 
-export const getCurrentFragment = () => fragment;
+export const getCurrentFragment = () => currentFragment;
 
-const initFragment = (key: string) => {
-  fragment = Object.create(null);
-  fragment!.key = key;
-  fragment!.els = [];
+const initFragment = () => {
+  currentFragment = Object.create(null) as Fragment;
+  currentFragment!.els = [];
 };
 
-const clearFragment = () => {
-  fragment = null;
+const closeFragment = () => {
+  currentFragment = null;
 };

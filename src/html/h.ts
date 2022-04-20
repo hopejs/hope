@@ -1,15 +1,17 @@
 import { watch } from '@/activity';
+import { getCurrentBlock } from '@/lifecycle/makeBlockTree';
 import { error } from '@/log';
 import {
   createElement,
   createFragment,
   insert,
+  parentNode,
   setElementText,
   setProp,
 } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj, isFunction, isNumber, isString } from '@/utils';
-import { getCurrentRenderTree, RenderTree } from './makeRenderTree';
+import { getCurrentRender, RenderTree } from './makeRenderTree';
 
 /**
  * Allows the value of an object to be a function that returns the same value
@@ -47,7 +49,7 @@ const setActivityText = (el: Element, text: () => string | number) => {
 export const h: H = new Proxy(Object.create(null), {
   get: (_: any, tagName: TagNames) => {
     return (props?: any, children?: (() => any) | string) => {
-      if (__DEV__ && getCurrentRenderTree() === null) {
+      if (__DEV__ && getCurrentRender() === null) {
         return error(
           `Must be passed to the render function as a component for rendering.`
         );
@@ -72,12 +74,11 @@ export const h: H = new Proxy(Object.create(null), {
       props && processProps(currentElement, props);
       if (text!) {
         setElementText(currentElement, text);
-        insert(currentElement, getCurrentContainer()!);
+        _insert(currentElement, getCurrentContainer()!);
       } else {
-        insert(currentElement, getCurrentContainer()!);
-        const container = getCurrentContainer();
-        const el = currentElement;
-        setCurrentContainer(currentElement);
+        const container = getCurrentContainer(),
+          el = currentElement;
+        setCurrentContainer(el);
         // If the returned value is a string,
         // it is considered to be rendering a string in response
         const childrenResult = (children as any)?.();
@@ -86,13 +87,23 @@ export const h: H = new Proxy(Object.create(null), {
         }
         setCurrentContainer(container);
         setCurrentElement(el);
+        _insert(el, container!);
       }
     };
   },
 });
 
+const _insert = (el: Element, container: Element | DocumentFragment) => {
+  const block = getCurrentBlock();
+  if (block && parentNode(block.end) === container) {
+    insert(el, container, block.end);
+  } else {
+    insert(el, container);
+  }
+};
+
 const setCurrentRenderTreeWithKey = (key: keyof RenderTree, value: any) => {
-  const renderTree = getCurrentRenderTree();
+  const renderTree = getCurrentRender();
   if (renderTree) {
     renderTree[key] = value;
   }
@@ -104,14 +115,14 @@ const setCurrentContainer = (el: Element | DocumentFragment | null) => {
   setCurrentRenderTreeWithKey('cc', el);
 };
 
-export const getCurrentElement = () => getCurrentRenderTree()?.ce || null;
+export const getCurrentElement = () => getCurrentRender()?.ce || null;
 export const getCurrentContainer = /*#__PURE__*/ () => {
-  const renderTree = getCurrentRenderTree();
+  const renderTree = getCurrentRender();
   if (renderTree === null) return null;
   return renderTree.cc || renderTree.f || (renderTree.f = createFragment());
 };
 export const getFragment = () => {
-  const renderTree = getCurrentRenderTree();
+  const renderTree = getCurrentRender();
   if (renderTree === null) return null;
   return renderTree.f || (renderTree.f = createFragment());
 };
