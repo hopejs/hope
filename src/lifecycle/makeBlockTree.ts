@@ -2,7 +2,6 @@ import { getCurrentElement } from '@/html';
 import { getFragment } from '@/html/h';
 import { error } from '@/log';
 import { createComment, createText, insert } from '@/renderer';
-import { Fragment } from './makeFragment';
 
 export interface BlockTree {
   start: Node;
@@ -11,8 +10,6 @@ export interface BlockTree {
   p?: BlockTree;
   /** children */
   c?: BlockTree[] | null;
-  /** fragments */
-  f?: Fragment[];
   /** onUnmount */
   oum?: (() => void)[] | null;
 }
