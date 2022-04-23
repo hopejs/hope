@@ -1,7 +1,6 @@
-import { getCurrentElement } from '@/html';
-import { getFragment } from '@/html/h';
+import { getCurrentContainer, internalInsert } from '@/html/h';
 import { error } from '@/log';
-import { createComment, createText, insert } from '@/renderer';
+import { createComment, createText } from '@/renderer';
 
 export interface BlockTree {
   start: Node;
@@ -19,16 +18,16 @@ let currentBlock: BlockTree | null = null;
 export const makeBlockTree = (block: () => void) => {
   const start = createPlaceholderNode('block start');
   const end = createPlaceholderNode('block end');
-  const container = getCurrentElement() || getFragment();
+  const container = getCurrentContainer();
   if (__DEV__ && container === null) {
     return error(
       `Must be passed to the render function as a component for rendering.`
     );
   }
 
+  internalInsert(start, container!);
+  internalInsert(end, container!);
   initBlock(start, end);
-  insert(start, container!);
-  insert(end, container!);
   block();
   closeBlock();
 };

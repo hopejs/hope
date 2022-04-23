@@ -4,21 +4,27 @@ import {
   ScopeTree,
   setCurrentScope,
 } from '@/activity/makeScopeTree';
-import { nextSibling, remove } from '@/renderer';
-import { bfs, isFunction } from '@/utils';
-import { nextTick } from '@/api/scheduler';
+import { isFunction } from '@/utils';
 import {
   BlockTree,
   getCurrentBlock,
   makeBlockTree,
   setCurrentBlock,
 } from './makeBlockTree';
-import { getCurrentRender, setCurrentRender } from '@/html/makeRenderTree';
-import { needDelete } from '@/activity/watch';
+import {
+  getCurrentRender,
+  RenderTree,
+  setCurrentRender,
+} from '@/html/makeRenderTree';
 
-export const useBlockTree = <T>(
+export const keepEnv = <T>(
   value: T | (() => T),
-  component: (value: T, blockTree?: BlockTree) => void
+  component: (
+    value: T,
+    blockTree?: BlockTree,
+    scopeTree?: ScopeTree,
+    renderTree?: RenderTree
+  ) => void
 ) => {
   if (isFunction(value)) {
     makeBlockTree(() => {
@@ -34,8 +40,7 @@ export const useBlockTree = <T>(
         setCurrentScope(scopeTree);
         setCurrentBlock(blockTree);
         setCurrentRender(renderTree);
-        removeUnuseWatcher(scopeTree, blockTree);
-        component(v, blockTree);
+        component(v, blockTree, scopeTree!);
         setCurrentScope(oldScope);
         setCurrentBlock(oldBlock);
         setCurrentRender(oldRender);
@@ -43,37 +48,5 @@ export const useBlockTree = <T>(
     });
   } else {
     component(value);
-  }
-};
-
-export const removeUnuseWatcher = (
-  scopeTree: ScopeTree | null,
-  blockTree: BlockTree
-) => {
-  if (scopeTree) {
-    scopeTree.subs = scopeTree.subs?.filter(
-      (watcher) => !needDelete(watcher, blockTree)
-    );
-  }
-};
-
-export const removeNodes = (blockTree: BlockTree) => {
-  const { start, end } = blockTree;
-  let next = nextSibling(start);
-  if (next !== end && next !== null) {
-    nextTick(() => {
-      bfs(blockTree, (node) => {
-        if (node.oum) {
-          node.oum.forEach((handler) => handler());
-          // It will only run once
-          node.oum = null;
-          node.c = null;
-        }
-      });
-    });
-  }
-  while (next !== end && next !== null) {
-    remove(next!);
-    next = nextSibling(start);
   }
 };

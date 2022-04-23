@@ -74,7 +74,7 @@ export const h: H = new Proxy(Object.create(null), {
       props && processProps(currentElement, props);
       if (text!) {
         setElementText(currentElement, text);
-        _insert(currentElement, getCurrentContainer()!);
+        internalInsert(currentElement, getCurrentContainer()!);
       } else {
         const container = getCurrentContainer(),
           el = currentElement;
@@ -87,13 +87,13 @@ export const h: H = new Proxy(Object.create(null), {
         }
         setCurrentContainer(container);
         setCurrentElement(el);
-        _insert(el, container!);
+        internalInsert(el, container!);
       }
     };
   },
 });
 
-const _insert = (el: Element, container: Element | DocumentFragment) => {
+export const internalInsert = (el: Node, container: Element | DocumentFragment) => {
   const block = getCurrentBlock();
   if (block && parentNode(block.end) === container) {
     insert(el, container, block.end);

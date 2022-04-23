@@ -1,12 +1,15 @@
-import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
+import {
+  getCurrentScope,
+  makeScopeTree,
+  ScopeTree,
+} from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { h, hFor, nextTick, render } from '@/api';
 
 describe('hFor', () => {
   it('basic', () => {
     const { fragment } = render(() => {
-      hFor([1, 2, 3], (key, value) => {
-        key(value);
+      hFor([1, 2, 3], (value) => {
         h.div(value);
       });
     });
@@ -19,14 +22,14 @@ describe('hFor', () => {
 
   it('activity', async () => {
     let list = [1, 2, 3];
+    let scope: ScopeTree;
     const { fragment } = render(() => {
       makeScopeTree(() => {
+        scope = getCurrentScope()!;
         hFor(
           () => list,
-          (key, value) => {
-            key(value);
+          (value) => {
             h.div(value);
-            refresh(getCurrentScope()!);
           }
         );
       });
@@ -38,6 +41,7 @@ describe('hFor', () => {
     expect(fragment.children[2].innerHTML).toBe('3');
 
     list = [4];
+    refresh(scope!);
     await nextTick();
     expect(fragment.childElementCount).toBe(1);
     expect(fragment.children[0].innerHTML).toBe('4');
@@ -48,12 +52,11 @@ describe('hFor', () => {
     let currentScope;
     const { fragment } = render(() => {
       makeScopeTree(() => {
+        currentScope = getCurrentScope()!;
         hFor(
           () => list,
-          (key, value) => {
-            key(value.text);
+          (value) => {
             h.div(() => value.text);
-            currentScope = getCurrentScope()!;
           }
         );
       });
