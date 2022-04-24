@@ -1,12 +1,11 @@
 import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
-import { h, hFor, nextTick, render } from '@/api';
+import { getCurrentElement, h, hFor, nextTick, render } from '@/api';
 
 describe('hFor', () => {
   it('basic', () => {
     const { fragment } = render(() => {
-      hFor([1, 2, 3], (key, value) => {
-        key(value);
+      hFor([1, 2, 3], (value) => {
         h.div(value);
       });
     });
@@ -23,8 +22,7 @@ describe('hFor', () => {
       makeScopeTree(() => {
         hFor(
           () => list,
-          (key, value) => {
-            key(value);
+          (value) => {
             h.div(value);
             refresh(getCurrentScope()!);
           }
@@ -48,12 +46,11 @@ describe('hFor', () => {
     let currentScope;
     const { fragment } = render(() => {
       makeScopeTree(() => {
+        currentScope = getCurrentScope()!;
         hFor(
           () => list,
-          (key, value) => {
-            key(value.text);
+          (value) => {
             h.div(() => value.text);
-            currentScope = getCurrentScope()!;
           }
         );
       });
@@ -75,5 +72,33 @@ describe('hFor', () => {
     await nextTick();
     expect(fragment.childElementCount).toBe(1);
     expect(fragment.children[0].innerHTML).toBe('3');
+  });
+
+  it('Empty at the beginning', async () => {
+    let list: any[] = [];
+    let currentScope: any;
+    let container: any;
+    render(() => {
+      h.div(() => {
+        container = getCurrentElement();
+        makeScopeTree(() => {
+          currentScope = getCurrentScope()!;
+          hFor(
+            () => list,
+            (value) => {
+              h.div(value);
+            }
+          );
+        });
+      });
+    });
+
+    expect(container.childElementCount).toBe(0);
+
+    list = [1];
+    refresh(currentScope);
+    await nextTick();
+    expect(container.childElementCount).toBe(1);
+    expect(container.children[0].innerHTML).toBe('1');
   });
 });
