@@ -16,6 +16,7 @@ import {
   RenderTree,
   setCurrentRender,
 } from '@/html/makeRenderTree';
+import { parentNode } from '@/renderer';
 
 export const keepEnv = <T>(
   value: T | (() => T),
@@ -39,7 +40,7 @@ export const keepEnv = <T>(
 
         setCurrentScope(scopeTree);
         setCurrentBlock(blockTree);
-        setCurrentRender(renderTree);
+        setCurrentRender(renderTree, parentNode(blockTree.start)!);
         component(v, blockTree, scopeTree!);
         setCurrentScope(oldScope);
         setCurrentBlock(oldBlock);

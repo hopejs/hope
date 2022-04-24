@@ -2,7 +2,7 @@ export interface RenderTree {
   /** currentElement */
   ce: Element | null;
   /** currentContainer */
-  cc: Element | null;
+  cc: ParentNode | null;
   /** fragment */
   f: DocumentFragment | null;
   /** parent */
@@ -21,8 +21,14 @@ export const makeRenderTree = (block: () => void) => {
   closeRender();
 };
 
-export const setCurrentRender = (value: RenderTree | null) => {
+export const setCurrentRender = (
+  value: RenderTree | null,
+  container?: ParentNode
+) => {
   currentRenderTree = value;
+  if (container && currentRenderTree) {
+    currentRenderTree.cc = container;
+  }
 };
 export const getCurrentRender = () => currentRenderTree;
 export const addMountedHander = (handler: () => void) =>
