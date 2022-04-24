@@ -1,5 +1,4 @@
-import { getCurrentElement } from '@/html';
-import { getFragment } from '@/html/h';
+import { getCurrentContainer } from '@/html/h';
 import { error } from '@/log';
 import { createComment, createText, insert } from '@/renderer';
 
@@ -19,7 +18,7 @@ let currentBlock: BlockTree | null = null;
 export const makeBlockTree = (block: () => void) => {
   const start = createPlaceholderNode('block start');
   const end = createPlaceholderNode('block end');
-  const container = getCurrentElement() || getFragment();
+  const container = getCurrentContainer();
   if (__DEV__ && container === null) {
     return error(
       `Must be passed to the render function as a component for rendering.`

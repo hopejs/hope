@@ -93,7 +93,7 @@ export const h: H = new Proxy(Object.create(null), {
   },
 });
 
-const _insert = (el: Element, container: Element | DocumentFragment) => {
+const _insert = (el: Element, container: ParentNode | DocumentFragment) => {
   const block = getCurrentBlock();
   if (block && parentNode(block.end) === container) {
     insert(el, container, block.end);
@@ -111,7 +111,7 @@ const setCurrentRenderTreeWithKey = (key: keyof RenderTree, value: any) => {
 const setCurrentElement = (el: Element | DocumentFragment | null) => {
   setCurrentRenderTreeWithKey('ce', el);
 };
-const setCurrentContainer = (el: Element | DocumentFragment | null) => {
+const setCurrentContainer = (el: ParentNode | DocumentFragment | null) => {
   setCurrentRenderTreeWithKey('cc', el);
 };
 
