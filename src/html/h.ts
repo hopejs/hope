@@ -116,7 +116,7 @@ const setCurrentContainer = (el: ParentNode | DocumentFragment | null) => {
 };
 
 export const getCurrentElement = () => getCurrentRender()?.ce || null;
-export const getCurrentContainer = /*#__PURE__*/ () => {
+export const getCurrentContainer = () => {
   const renderTree = getCurrentRender();
   if (renderTree === null) return null;
   return renderTree.cc || renderTree.f || (renderTree.f = createFragment());
