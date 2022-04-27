@@ -9,7 +9,7 @@ import {
   setProp,
 } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
-import { forEachObj, isFunction, isNumber, isString } from '@/utils';
+import { forEachObj } from '@/utils';
 import { getCurrentRender, RenderTree } from './makeRenderTree';
 
 /**
@@ -39,56 +39,65 @@ type H = {
   ) => void;
 };
 
-const setActivityText = (el: Element, text: () => string | number) => {
-  watch(text, (v) => {
-    setElementText(el, String(v));
-  });
+let tagName = '';
+let isSvg = 0;
+const handleTag = (props?: any, children?: (() => any) | string) => {
+  if (__DEV__ && getCurrentRender() === null) {
+    return error(
+      `Must be passed to the render function as a component for rendering.`
+    );
+  }
+
+  let text: string, currentElement: HTMLElement | SVGAElement;
+  const _tagName = tagName,
+    _isSvg = isSvg,
+    isFoTag = _tagName === 'foreignObject',
+    isSvgTag = _tagName === 'svg',
+    container = getCurrentContainer();
+
+  isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
+  currentElement = createElement(tagName as any, isSvg > 0 || isFoTag);
+
+  setCurrentElement(currentElement);
+  if (typeof props === 'function') {
+    children = props;
+    props = void 0;
+  } else if (typeof props === 'string' || typeof props === 'number') {
+    text = props as string;
+    children = props = void 0;
+  } else if (typeof children === 'string' || typeof children === 'number') {
+    text = children as string;
+    children = void 0;
+  }
+  props && processProps(currentElement, props);
+  if (text!) {
+    setElementText(currentElement, text);
+    _insert(currentElement, container!);
+  } else {
+    const el = currentElement;
+    setCurrentContainer(el);
+    // If the returned value is a string,
+    // it is considered to be rendering a string in response
+    const childrenResult = (children as any)?.();
+    if (
+      typeof childrenResult === 'string' ||
+      typeof childrenResult === 'number'
+    ) {
+      watch(children as () => string | number, (v) => {
+        setElementText(el, v as string);
+      });
+    }
+    setCurrentContainer(container);
+    setCurrentElement(el);
+    _insert(el, container!);
+  }
+
+  isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
 };
-
 export const h: H = new Proxy(Object.create(null), {
-  get: (_: any, tagName: TagNames) => {
-    return (props?: any, children?: (() => any) | string) => {
-      if (__DEV__ && getCurrentRender() === null) {
-        return error(
-          `Must be passed to the render function as a component for rendering.`
-        );
-      }
-
-      let text: string;
-      const currentElement = createElement(
-        tagName as any,
-        shouldAsSVG(tagName as any)
-      );
-      setCurrentElement(currentElement);
-      if (isFunction(props)) {
-        children = props;
-        props = void 0;
-      } else if (isString(props) || isNumber(props)) {
-        text = String(props);
-        children = props = void 0;
-      } else if (isString(children) || isNumber(children)) {
-        text = String(children);
-        children = void 0;
-      }
-      props && processProps(currentElement, props);
-      if (text!) {
-        setElementText(currentElement, text);
-        _insert(currentElement, getCurrentContainer()!);
-      } else {
-        const container = getCurrentContainer(),
-          el = currentElement;
-        setCurrentContainer(el);
-        // If the returned value is a string,
-        // it is considered to be rendering a string in response
-        const childrenResult = (children as any)?.();
-        if (isString(childrenResult) || isNumber(childrenResult)) {
-          setActivityText(el, children as () => string | number);
-        }
-        setCurrentContainer(container);
-        setCurrentElement(el);
-        _insert(el, container!);
-      }
-    };
+  get: (_: any, _tagName: TagNames) => {
+    tagName = _tagName;
+    return handleTag;
   },
 });
 
@@ -125,21 +134,6 @@ export const getFragment = () => {
   if (renderTree === null) return null;
   return renderTree.f || (renderTree.f = createFragment());
 };
-
-function shouldAsSVG(tagName: TagNames) {
-  if (tagName === 'svg') return true;
-  let el = getCurrentElement();
-  // If it is blank, it indicates that it is currently the first element of the whole page.
-  if (el == null) return false;
-
-  do {
-    if (el!.tagName === 'foreignObject') return false;
-    if (el!.tagName === 'svg') return true;
-    el = el!.parentElement;
-  } while (el?.parentElement);
-
-  return false;
-}
 
 function processProps(el: Element, props: any) {
   forEachObj(props, (value, key) => {
