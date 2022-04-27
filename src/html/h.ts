@@ -5,7 +5,6 @@ import {
   createElement,
   createFragment,
   insert,
-  parentNode,
   setElementText,
   setProp,
 } from '@/renderer';
@@ -95,7 +94,7 @@ export const h: H = new Proxy(Object.create(null), {
 
 const _insert = (el: Element, container: ParentNode | DocumentFragment) => {
   const block = getCurrentBlock();
-  if (block && parentNode(block.end) === container) {
+  if (block?.container === container) {
     insert(el, container, block.end);
   } else {
     insert(el, container);
