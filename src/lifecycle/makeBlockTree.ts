@@ -5,7 +5,8 @@ import { createComment, createText, insert } from '@/renderer';
 export interface BlockTree {
   start: Node;
   end: Node;
-  container: ParentNode;
+  /** container */
+  ct: ParentNode;
   /** parent */
   p?: BlockTree;
   /** children */
@@ -42,7 +43,7 @@ const initBlock = (start: Node, end: Node, container: ParentNode) => {
   currentBlock = Object.create(null) as BlockTree;
   currentBlock.start = start;
   currentBlock.end = end;
-  currentBlock.container = container;
+  currentBlock.ct = container;
   if (parent) {
     (parent.c || (parent.c = [])).push(currentBlock);
     currentBlock.p = parent;

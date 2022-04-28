@@ -103,7 +103,7 @@ export const h: H = new Proxy(Object.create(null), {
 
 const _insert = (el: Element, container: ParentNode | DocumentFragment) => {
   const block = getCurrentBlock();
-  if (block?.container === container) {
+  if (block?.ct === container) {
     insert(el, container, block.end);
   } else {
     insert(el, container);
