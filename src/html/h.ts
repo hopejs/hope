@@ -1,5 +1,8 @@
 import { watch } from '@/activity';
-import { getCurrentBlock } from '@/lifecycle/makeBlockTree';
+import {
+  getCurrentBlock,
+  pushNodeToCurrentBlock,
+} from '@/lifecycle/makeBlockTree';
 import { error } from '@/log';
 import {
   createElement,
@@ -104,6 +107,7 @@ export const h: H = new Proxy(Object.create(null), {
 const _insert = (el: Element, container: ParentNode | DocumentFragment) => {
   const block = getCurrentBlock();
   if (block?.ct === container) {
+    pushNodeToCurrentBlock(el);
     insert(el, container, block.end);
   } else {
     insert(el, container);

@@ -4,7 +4,7 @@ import {
   ScopeTree,
   setCurrentScope,
 } from '@/activity/makeScopeTree';
-import { nextSibling, parentNode, remove } from '@/renderer';
+import { parentNode, remove } from '@/renderer';
 import { bfs, isFunction } from '@/utils';
 import { nextTick } from '@/api/scheduler';
 import {
@@ -58,22 +58,20 @@ export const removeUnuseWatcher = (
 };
 
 export const removeNodes = (blockTree: BlockTree) => {
-  const { start, end } = blockTree;
-  let next = nextSibling(start);
-  if (next !== end && next !== null) {
-    nextTick(() => {
-      bfs(blockTree, (node) => {
-        if (node.oum) {
-          node.oum.forEach((handler) => handler());
-          // It will only run once
-          node.oum = null;
-          node.c = null;
-        }
-      });
+  if (blockTree.ns) {
+    for (const node of blockTree.ns) {
+      remove(node);
+    }
+    blockTree.ns = null;
+  }
+  nextTick(() => {
+    bfs(blockTree, (node) => {
+      if (node.oum) {
+        node.oum.forEach((handler) => handler());
+        // It will only run once
+        node.oum = null;
+        node.c = null;
+      }
     });
-  }
-  while (next !== end && next !== null) {
-    remove(next!);
-    next = nextSibling(start);
-  }
+  });
 };

@@ -13,6 +13,8 @@ export interface BlockTree {
   c?: BlockTree[] | null;
   /** onUnmount */
   oum?: (() => void)[] | null;
+  /** nodes */
+  ns?: Node[] | null;
 }
 
 let currentBlock: BlockTree | null = null;
@@ -61,3 +63,9 @@ export const addUnmountedHandler = (handler: () => void) =>
 
 const createPlaceholderNode = (text: string) =>
   __DEV__ ? createComment(text) : createText('');
+
+export const pushNodeToCurrentBlock = (node: Node) => {
+  if (currentBlock) {
+    (currentBlock.ns || (currentBlock.ns = [])).push(node);
+  }
+};
