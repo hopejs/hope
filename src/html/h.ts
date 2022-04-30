@@ -13,7 +13,7 @@ import {
 } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj } from '@/utils';
-import { getCurrentRender, RenderTree } from './makeRenderTree';
+import { getCurrentRender, HostElement, RenderTree } from './makeRenderTree';
 
 /**
  * Allows the value of an object to be a function that returns the same value
@@ -51,7 +51,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     );
   }
 
-  let text: string, currentElement: HTMLElement | SVGAElement;
+  let text: string, currentElement: HostElement;
   const _tagName = tagName,
     _isSvg = isSvg,
     isFoTag = _tagName === 'foreignObject',

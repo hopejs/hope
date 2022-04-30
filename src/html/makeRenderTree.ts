@@ -1,6 +1,17 @@
+export enum DynamicFlags {
+  TEXT = 1,
+  CLASS = 1 << 1,
+  STYLE = 1 << 2,
+  PROP = 1 << 3,
+  ATTR = 1 << 4,
+  /** 被 hIf 包住的节点，会发生结构变化 */
+  BLOCK = 1 << 5,
+}
+export type HostElement = (HTMLElement | SVGAElement) & { __flag?: DynamicFlags };
+
 export interface RenderTree {
   /** currentElement */
-  ce: Element | null;
+  ce: HostElement | null;
   /** currentContainer */
   cc: ParentNode | null;
   /** fragment */
