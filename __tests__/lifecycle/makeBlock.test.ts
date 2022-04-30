@@ -1,5 +1,5 @@
 import { render } from '@/html';
-import { getFragment } from '@/html/h';
+import { getFragment } from '@/html/makeRenderTree';
 import { getCurrentBlock, makeBlockTree } from '@/lifecycle/makeBlockTree';
 
 describe('makeBlock', () => {

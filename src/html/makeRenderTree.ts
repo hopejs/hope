@@ -1,3 +1,5 @@
+import { createFragment } from '@/renderer/render';
+
 export enum DynamicFlags {
   TEXT = 1,
   CLASS = 1 << 1,
@@ -7,7 +9,9 @@ export enum DynamicFlags {
   /** 被 hIf 包住的节点，会发生结构变化 */
   BLOCK = 1 << 5,
 }
-export type HostElement = (HTMLElement | SVGAElement) & { __flag?: DynamicFlags };
+export type HostElement = (HTMLElement | SVGAElement) & {
+  __flag?: DynamicFlags;
+};
 
 export interface RenderTree {
   /** currentElement */
@@ -59,5 +63,33 @@ const initRender = () => {
 };
 
 const closeRender = () => {
-  currentRenderTree = currentRenderTree?.p || null;
+  currentRenderTree = currentRenderTree!.p || null;
+};
+
+export const getCurrentElement = () =>
+  currentRenderTree && currentRenderTree.ce;
+
+export const getCurrentContainer = () => {
+  return (
+    currentRenderTree &&
+    (currentRenderTree.cc ||
+      currentRenderTree.f ||
+      (currentRenderTree.f = createFragment()))
+  );
+};
+
+export const getFragment = () => {
+  return (
+    currentRenderTree &&
+    (currentRenderTree.f || (currentRenderTree.f = createFragment()))
+  );
+};
+
+export const setCurrentElement = (el: HostElement | null) => {
+  currentRenderTree && (currentRenderTree.ce = el);
+};
+export const setCurrentContainer = (
+  el: ParentNode | DocumentFragment | null
+) => {
+  currentRenderTree && (currentRenderTree.cc = el);
 };

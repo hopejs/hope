@@ -1,5 +1,5 @@
 import { getCurrentElement, h, render } from '@/html';
-import { getCurrentContainer, getFragment } from '@/html/h';
+import { getCurrentContainer, getFragment } from '@/html/makeRenderTree';
 import { htmlNS, svgNS } from '@/utils';
 
 describe('html', () => {

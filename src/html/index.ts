@@ -1,2 +1,3 @@
 export { mount, render } from './mount';
-export { h, getCurrentElement } from './h';
+export { h } from './h';
+export { getCurrentElement } from './makeRenderTree';

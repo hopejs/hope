@@ -1,4 +1,4 @@
-import { getCurrentContainer } from '@/html/h';
+import { getCurrentContainer } from '@/html/makeRenderTree';
 import { error } from '@/log';
 import { createComment, createText, insert } from '@/renderer';
 

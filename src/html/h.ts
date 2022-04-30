@@ -4,16 +4,16 @@ import {
   pushNodeToCurrentBlock,
 } from '@/lifecycle/makeBlockTree';
 import { error } from '@/log';
-import {
-  createElement,
-  createFragment,
-  insert,
-  setElementText,
-  setProp,
-} from '@/renderer';
+import { createElement, insert, setElementText, setProp } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj } from '@/utils';
-import { getCurrentRender, HostElement, RenderTree } from './makeRenderTree';
+import {
+  getCurrentContainer,
+  getCurrentRender,
+  HostElement,
+  setCurrentContainer,
+  setCurrentElement,
+} from './makeRenderTree';
 
 /**
  * Allows the value of an object to be a function that returns the same value
@@ -112,31 +112,6 @@ const _insert = (el: Element, container: ParentNode | DocumentFragment) => {
   } else {
     insert(el, container);
   }
-};
-
-const setCurrentRenderTreeWithKey = (key: keyof RenderTree, value: any) => {
-  const renderTree = getCurrentRender();
-  if (renderTree) {
-    renderTree[key] = value;
-  }
-};
-const setCurrentElement = (el: Element | DocumentFragment | null) => {
-  setCurrentRenderTreeWithKey('ce', el);
-};
-const setCurrentContainer = (el: ParentNode | DocumentFragment | null) => {
-  setCurrentRenderTreeWithKey('cc', el);
-};
-
-export const getCurrentElement = () => getCurrentRender()?.ce || null;
-export const getCurrentContainer = () => {
-  const renderTree = getCurrentRender();
-  if (renderTree === null) return null;
-  return renderTree.cc || renderTree.f || (renderTree.f = createFragment());
-};
-export const getFragment = () => {
-  const renderTree = getCurrentRender();
-  if (renderTree === null) return null;
-  return renderTree.f || (renderTree.f = createFragment());
 };
 
 function processProps(el: Element, props: any) {
