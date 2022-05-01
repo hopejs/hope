@@ -3,8 +3,11 @@ import { getCurrentScope, subscribe } from './makeScopeTree';
 
 let currentWatcher: (() => void) | null = null;
 
-export const watch = <P>(prop: () => P, effect: (param: P) => void) => {
-  let oldValue: P;
+export const watch = <P>(
+  prop: () => P,
+  effect: (param: P) => void,
+  oldValue?: P
+) => {
   const watcher = () => {
     const newValue = prop();
     if (oldValue === newValue) return;
