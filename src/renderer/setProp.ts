@@ -6,7 +6,8 @@ import { setDomProp } from './setDomProp';
 import { setEvent } from './setEvent';
 import { setStyle } from './setStyle';
 
-const nativeOnRE = /^on[a-z]/;
+const nativeOnRE = /^on[a-z]/,
+  store = Object.create(null);
 
 export function setProp(
   el: HostElement,
@@ -14,6 +15,7 @@ export function setProp(
   value: any,
   isSVG?: boolean
 ) {
+  let storeKey;
   switch (key) {
     case 'class':
       setClass(el, value, isSVG);
@@ -22,9 +24,17 @@ export function setProp(
       setStyle(el, value);
       break;
     default:
-      if (isOn(key)) {
-        setEvent(el, parseEventName(key), value);
-      } else if (shouldSetAsProp(el, key, value, isSVG)) {
+      if (store[key] || isOn(key)) {
+        setEvent(
+          el,
+          key in store ? store[key] : (store[key] = parseEventName(key)),
+          value
+        );
+      } else if (
+        (storeKey = el.tagName + key + typeof value + isSVG) in store
+          ? store[storeKey]
+          : (store[storeKey] = shouldSetAsProp(el, key, value, isSVG))
+      ) {
         setDomProp(el, key, value);
       } else {
         setAttr(el, key, value, isSVG);
