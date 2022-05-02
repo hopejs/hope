@@ -9,15 +9,23 @@ export function setClass(
 ) {
   isFunction(value)
     ? isSVG
-      ? watch(value, (v) => {
-          el.setAttribute('class', v);
-        })
-      : watch(value, (v) => {
-          //@ts-ignore
-          el.className = v;
-        })
+      ? watch(
+          value,
+          (v) => {
+            el.setAttribute('class', v);
+          },
+          el.getAttribute('class') || ''
+        )
+      : watch(
+          value,
+          (v) => {
+            //@ts-ignore
+            el.className = v;
+          },
+          el.className
+        )
     : isSVG
-    ? el.setAttribute('class', value)
-    : // @ts-ignore
-      (el.className = value);
+    ? el.getAttribute('class') !== value && el.setAttribute('class', value)
+    : //@ts-ignore
+      el.className !== value && (el.className = value);
 }

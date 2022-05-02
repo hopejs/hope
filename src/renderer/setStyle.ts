@@ -19,30 +19,28 @@ export function setStyle(el: HostElement, value: StyleValue) {
 
   isFunction(value)
     ? watch(value, (v) => {
-        setStyleCommon(el, style, v, true);
+        setStyleCommon(style, v, true);
       })
-    : setStyleCommon(el, style, value);
+    : setStyleCommon(style, value);
 }
 
 function setStyleCommon(
-  el: HostElement,
   style: CSSStyleDeclaration,
   value: string | CSSStyleDeclarationWithFn,
   showError?: boolean
 ) {
   if (isString(value)) {
-    return (style.cssText = value);
+    return style.cssText !== value && (style.cssText = value);
   }
   forEachObj(
     value,
     (v, key: keyof Omit<CSSStyleDeclaration, 'length' | 'parentRule'>) => {
-      setStyleByObject(el, style, key, v, showError);
+      setStyleByObject(style, key, v, showError);
     }
   );
 }
 
 function setStyleByObject(
-  el: HostElement,
   style: CSSStyleDeclaration,
   key: keyof Omit<CSSStyleDeclaration, 'length' | 'parentRule'>,
   value: any,
@@ -51,8 +49,12 @@ function setStyleByObject(
   isFunction(value)
     ? showError
       ? __DEV__ && error(`Nested functions are not allowed.`)
-      : watch(value, (v: any) => {
-          style[key] = v;
-        })
-    : (style[key] = value);
+      : watch(
+          value,
+          (v: any) => {
+            style[key] = v;
+          },
+          style[key]
+        )
+    : style[key] !== value && (style[key] = value);
 }

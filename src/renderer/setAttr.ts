@@ -12,13 +12,22 @@ export function setAttr(
 ) {
   isFunction(value)
     ? isSVG
-      ? watch(value, (v: any) => {
-          el.setAttributeNS(xlinkNS, key, v);
-        })
-      : watch(value, (v: any) => {
-          el.setAttribute(key, v);
-        })
+      ? watch(
+          value,
+          (v: any) => {
+            el.setAttributeNS(xlinkNS, key, v);
+          },
+          el.getAttributeNS(xlinkNS, key)
+        )
+      : watch(
+          value,
+          (v: any) => {
+            el.setAttribute(key, v);
+          },
+          el.getAttribute(key)
+        )
     : isSVG
-    ? el.setAttributeNS(xlinkNS, key, value)
-    : el.setAttribute(key, value);
+    ? el.getAttributeNS(xlinkNS, key) !== value &&
+      el.setAttributeNS(xlinkNS, key, value)
+    : el.getAttribute(key) !== value && el.setAttribute(key, value);
 }
