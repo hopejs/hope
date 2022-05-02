@@ -1,6 +1,7 @@
 import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { getCurrentElement, h, hFor, nextTick, render } from '@/api';
+import { renderWithoutBlock } from '@/api/hFor';
 
 describe('hFor', () => {
   it('basic', () => {
@@ -100,5 +101,33 @@ describe('hFor', () => {
     await nextTick();
     expect(container.childElementCount).toBe(1);
     expect(container.children[0].innerHTML).toBe('1');
+  });
+
+  it('renderWithoutBlock', async () => {
+    let list: any[] = [1];
+    let currentScope: any;
+    let container: any;
+    renderWithoutBlock(() => {
+      h.div(() => {
+        container = getCurrentElement();
+        makeScopeTree(() => {
+          currentScope = getCurrentScope()!;
+          hFor(
+            () => list,
+            (value) => {
+              h.div(value);
+            }
+          );
+        });
+      });
+    });
+
+    expect(container.childElementCount).toBe(0);
+
+    list = [1, 2];
+    refresh(currentScope);
+    await nextTick();
+    expect(container.childElementCount).toBe(0);
+    expect(container.outerHTML).toBe('<div></div>');
   });
 });
