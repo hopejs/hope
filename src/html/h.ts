@@ -42,8 +42,8 @@ type H = {
   ) => void;
 };
 
-let tagName = '';
-let isSvg = 0;
+let tagName = '',
+  isSvg = 0;
 const handleTag = (props?: any, children?: (() => any) | string) => {
   if (__DEV__ && getCurrentRender() === null) {
     return error(
@@ -51,7 +51,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     );
   }
 
-  let text: string;
+  let text: string, childrenResult, el: HostElement;
   const _tagName = tagName,
     _isSvg = isSvg,
     isFoTag = _tagName === 'foreignObject',
@@ -59,7 +59,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     container = getCurrentContainer();
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
-  const el = createElement(tagName as any, isSvg > 0 || isFoTag);
+  el = createElement(tagName as any, isSvg > 0 || isFoTag);
 
   setCurrentElement(el);
   if (typeof props === 'function') {
@@ -70,25 +70,24 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     (text = children as string), (children = void 0);
   }
   props && processProps(el, props);
-  if (text!) {
-    setElementText(el, text), _insert(el, container!);
-  } else {
-    setCurrentContainer(el);
-    // If the returned value is a string,
-    // it is considered to be rendering a string in response
-    const childrenResult = (children as any)?.();
-    if (
-      typeof childrenResult === 'string' ||
-      typeof childrenResult === 'number'
-    ) {
-      watch(children as () => string | number, (v) => {
-        setElementText(el, v as string);
-      });
-    }
-    setCurrentContainer(container),
+
+  text!
+    ? (setElementText(el, text), _insert(el, container!)) // If the returned value is a string,
+    : // it is considered to be rendering a string in response
+      (setCurrentContainer(el),
+      (childrenResult = (children as any)?.()),
+      (typeof childrenResult === 'string' ||
+        typeof childrenResult === 'number') &&
+        watch(
+          children as () => string | number,
+          (v) => {
+            setElementText(el, v as string);
+          },
+          el.textContent
+        ),
+      setCurrentContainer(container),
       setCurrentElement(el),
-      _insert(el, container!);
-  }
+      _insert(el, container!));
 
   isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
 };
@@ -101,16 +100,13 @@ export const h: H = new Proxy(Object.create(null), {
 
 const _insert = (el: Element, container: ParentNode | DocumentFragment) => {
   const block = getCurrentBlock();
-  if (block?.ct === container) {
-    pushNodeToCurrentBlock(el);
-    insert(el, container, block.end);
-  } else {
-    insert(el, container);
-  }
+  block?.ct === container
+    ? (pushNodeToCurrentBlock(el), insert(el, container, block.end))
+    : insert(el, container);
 };
 
-function processProps(el: HostElement, props: any) {
+const processProps = (el: HostElement, props: any) => {
   forEachObj(props, (value, key) => {
     setProp(el, key as string, value);
   });
-}
+};
