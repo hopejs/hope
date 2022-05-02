@@ -1,4 +1,4 @@
-import { getCurrentContainer } from '@/html/makeRenderTree';
+import { getCurrentContainer, isNoBlock } from '@/html/makeRenderTree';
 import { error } from '@/log';
 import { createComment, createText, insert } from '@/renderer';
 
@@ -59,7 +59,8 @@ const closeBlock = () => {
 export const getCurrentBlock = () => currentBlock;
 
 export const addUnmountedHandler = (handler: () => void) =>
-  currentBlock && (currentBlock.oum || (currentBlock.oum = [])).push(handler);
+  isNoBlock() ||
+  (currentBlock && (currentBlock.oum || (currentBlock.oum = [])).push(handler));
 
 const createPlaceholderNode = (text: string) =>
   __DEV__ ? createComment(text) : createText('');

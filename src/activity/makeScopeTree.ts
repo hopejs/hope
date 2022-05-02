@@ -28,10 +28,7 @@ export function makeScopeTree(block: () => void) {
 }
 
 export function getCurrentScope(prop?: ScopeProp) {
-  if (prop) {
-    return prop.s || (prop.s = currentScope);
-  }
-  return currentScope;
+  return prop ? prop.s || (prop.s = currentScope) : currentScope;
 }
 
 export const setCurrentScope = (scope: ScopeTree | null) => {

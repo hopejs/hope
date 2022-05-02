@@ -53,8 +53,9 @@ export const setCurrentRender = (
 };
 export const getCurrentRender = () => currentRenderTree;
 export const addMountedHander = (handler: () => void) =>
-  currentRenderTree &&
-  (currentRenderTree.om || (currentRenderTree.om = [])).push(handler);
+  isNoBlock() ||
+  (currentRenderTree &&
+    (currentRenderTree.om || (currentRenderTree.om = [])).push(handler));
 
 const initRender = () => {
     const parent = currentRenderTree;
@@ -108,3 +109,12 @@ export const markWithDynamicFlags = (el: HostElement, flag: DynamicFlags) => {
 
 export const hasDynamicFlag = () => _hasDynamicFlag;
 export const setHasDynamicFlag = (value: boolean) => (_hasDynamicFlag = value);
+
+/**
+ * 1. hIf and hFor do not need to be executed.
+ * 2. No registration life cycle is required.
+ * 3. No need to register watcher.
+ */
+export const isNoBlock = () => {
+  return currentRenderTree?.t === RenderType.NO_BLOCK;
+};

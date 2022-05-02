@@ -1,3 +1,4 @@
+import { isNoBlock } from '@/html/makeRenderTree';
 import { removeNodes, useBlockTree } from '@/lifecycle/useBlockTree';
 
 export const hIf = <T>(
@@ -5,8 +6,9 @@ export const hIf = <T>(
   handleTrue: (value: T) => void,
   handleFalse?: (value: T) => void
 ) => {
-  useBlockTree(cond, (value, blockTree) => {
-    blockTree && removeNodes(blockTree);
-    value ? handleTrue(value) : handleFalse?.(value);
-  });
+  isNoBlock() ||
+    useBlockTree(cond, (value, blockTree) => {
+      blockTree && removeNodes(blockTree);
+      value ? handleTrue(value) : handleFalse?.(value);
+    });
 };

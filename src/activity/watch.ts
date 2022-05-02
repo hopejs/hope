@@ -1,3 +1,4 @@
+import { isNoBlock } from '@/html/makeRenderTree';
 import { BlockTree, getCurrentBlock } from '@/lifecycle/makeBlockTree';
 import { getCurrentScope, subscribe } from './makeScopeTree';
 
@@ -18,7 +19,7 @@ export const watch = <P>(
     currentWatcher = null;
   };
   markWithBlock(watcher);
-  subscribe(getCurrentScope(prop), watcher);
+  isNoBlock() || subscribe(getCurrentScope(prop), watcher);
   watcher();
 };
 
