@@ -8,9 +8,13 @@ import { createElement, insert, setElementText, setProp } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj } from '@/utils';
 import {
+  DynamicFlags,
   getCurrentContainer,
   getCurrentRender,
+  hasDynamicFlag,
   HostElement,
+  markWithDynamicFlags,
+  setHasDynamicFlag,
   setCurrentContainer,
   setCurrentElement,
 } from './makeRenderTree';
@@ -51,33 +55,30 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     );
   }
 
-  let text: string, currentElement: HostElement;
+  let text: string;
   const _tagName = tagName,
     _isSvg = isSvg,
     isFoTag = _tagName === 'foreignObject',
     isSvgTag = _tagName === 'svg',
-    container = getCurrentContainer();
+    container = getCurrentContainer(),
+    _hasDynamicFlag = hasDynamicFlag();
 
+  setHasDynamicFlag(false);
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
-  currentElement = createElement(tagName as any, isSvg > 0 || isFoTag);
+  const el = createElement(tagName as any, isSvg > 0 || isFoTag);
 
-  setCurrentElement(currentElement);
+  setCurrentElement(el);
   if (typeof props === 'function') {
-    children = props;
-    props = void 0;
+    (children = props), (props = void 0);
   } else if (typeof props === 'string' || typeof props === 'number') {
-    text = props as string;
-    children = props = void 0;
+    (text = props as string), (children = props = void 0);
   } else if (typeof children === 'string' || typeof children === 'number') {
-    text = children as string;
-    children = void 0;
+    (text = children as string), (children = void 0);
   }
-  props && processProps(currentElement, props);
+  props && processProps(el, props);
   if (text!) {
-    setElementText(currentElement, text);
-    _insert(currentElement, container!);
+    setElementText(el, text), _insert(el, container!);
   } else {
-    const el = currentElement;
     setCurrentContainer(el);
     // If the returned value is a string,
     // it is considered to be rendering a string in response
@@ -86,15 +87,20 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
       typeof childrenResult === 'string' ||
       typeof childrenResult === 'number'
     ) {
-      watch(children as () => string | number, (v) => {
-        setElementText(el, v as string);
-      });
+      markWithDynamicFlags(el, DynamicFlags.TEXT),
+        watch(children as () => string | number, (v) => {
+          setElementText(el, v as string);
+        });
     }
-    setCurrentContainer(container);
-    setCurrentElement(el);
-    _insert(el, container!);
+    setCurrentContainer(container),
+      setCurrentElement(el),
+      _insert(el, container!);
   }
 
+  hasDynamicFlag()
+    ? setHasDynamicFlag(true)
+    : markWithDynamicFlags(el, DynamicFlags.STATIC),
+    setHasDynamicFlag(_hasDynamicFlag);
   isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
 };
 export const h: H = new Proxy(Object.create(null), {
@@ -114,7 +120,7 @@ const _insert = (el: Element, container: ParentNode | DocumentFragment) => {
   }
 };
 
-function processProps(el: Element, props: any) {
+function processProps(el: HostElement, props: any) {
   forEachObj(props, (value, key) => {
     setProp(el, key as string, value);
   });

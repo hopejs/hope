@@ -1,3 +1,8 @@
+import {
+  DynamicFlags,
+  HostElement,
+  markWithDynamicFlags,
+} from '@/html/makeRenderTree';
 import { isFunction, isOn, isString, parseEventName } from '@/utils';
 import { setAttr } from './setAttr';
 import { setClass } from './setClass';
@@ -7,7 +12,12 @@ import { setStyle } from './setStyle';
 
 const nativeOnRE = /^on[a-z]/;
 
-export function setProp(el: Element, key: string, value: any, isSVG?: boolean) {
+export function setProp(
+  el: HostElement,
+  key: string,
+  value: any,
+  isSVG?: boolean
+) {
   switch (key) {
     case 'class':
       setClass(el, value, isSVG);
@@ -17,7 +27,8 @@ export function setProp(el: Element, key: string, value: any, isSVG?: boolean) {
       break;
     default:
       if (isOn(key)) {
-        setEvent(el, parseEventName(key), value);
+        markWithDynamicFlags(el, DynamicFlags.EVENT),
+          setEvent(el, parseEventName(key), value);
       } else if (shouldSetAsProp(el, key, value, isSVG)) {
         setDomProp(el, key, value);
       } else {

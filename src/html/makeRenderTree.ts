@@ -6,11 +6,11 @@ export enum DynamicFlags {
   STYLE = 1 << 2,
   PROP = 1 << 3,
   ATTR = 1 << 4,
-  /** 被 hIf 包住的节点，会发生结构变化 */
-  BLOCK = 1 << 5,
+  EVENT = 1 << 5,
+  STATIC = 1 << 6,
 }
 export type HostElement = (HTMLElement | SVGAElement) & {
-  __flag?: DynamicFlags;
+  _flag?: DynamicFlags;
 };
 
 export interface RenderTree {
@@ -28,7 +28,8 @@ export interface RenderTree {
   om?: (() => void)[] | null;
 }
 
-let currentRenderTree: RenderTree | null = null;
+let currentRenderTree: RenderTree | null = null,
+  _hasDynamicFlag = false;
 
 export const makeRenderTree = (block: () => void) => {
   initRender();
@@ -51,20 +52,19 @@ export const addMountedHander = (handler: () => void) =>
   (currentRenderTree.om || (currentRenderTree.om = [])).push(handler);
 
 const initRender = () => {
-  const parent = currentRenderTree;
-  currentRenderTree = Object.create(null) as RenderTree;
-  currentRenderTree.ce = null;
-  currentRenderTree.cc = null;
-  currentRenderTree.f = null;
-  if (parent) {
-    (parent.c || (parent.c = [])).push(currentRenderTree);
-    currentRenderTree.p = parent;
-  }
-};
-
-const closeRender = () => {
-  currentRenderTree = currentRenderTree!.p || null;
-};
+    const parent = currentRenderTree;
+    currentRenderTree = Object.create(null) as RenderTree;
+    currentRenderTree.ce = null;
+    currentRenderTree.cc = null;
+    currentRenderTree.f = null;
+    if (parent) {
+      (parent.c || (parent.c = [])).push(currentRenderTree);
+      currentRenderTree.p = parent;
+    }
+  },
+  closeRender = () => {
+    currentRenderTree = currentRenderTree!.p || null;
+  };
 
 export const getCurrentElement = () =>
   currentRenderTree && currentRenderTree.ce;
@@ -93,3 +93,11 @@ export const setCurrentContainer = (
 ) => {
   currentRenderTree && (currentRenderTree.cc = el);
 };
+
+export const markWithDynamicFlags = (el: HostElement, flag: DynamicFlags) => {
+  _hasDynamicFlag || (_hasDynamicFlag = true),
+    el._flag ? (el._flag |= flag) : (el._flag = flag);
+};
+
+export const hasDynamicFlag = () => _hasDynamicFlag;
+export const setHasDynamicFlag = (value: boolean) => (_hasDynamicFlag = value);
