@@ -1,8 +1,4 @@
-import {
-  DynamicFlags,
-  HostElement,
-  markWithDynamicFlags,
-} from '@/html/makeRenderTree';
+import { HostElement } from '@/html/makeRenderTree';
 import { isFunction, isOn, isString, parseEventName } from '@/utils';
 import { setAttr } from './setAttr';
 import { setClass } from './setClass';
@@ -27,8 +23,7 @@ export function setProp(
       break;
     default:
       if (isOn(key)) {
-        markWithDynamicFlags(el, DynamicFlags.EVENT),
-          setEvent(el, parseEventName(key), value);
+        setEvent(el, parseEventName(key), value);
       } else if (shouldSetAsProp(el, key, value, isSVG)) {
         setDomProp(el, key, value);
       } else {

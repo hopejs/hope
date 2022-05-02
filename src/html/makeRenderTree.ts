@@ -1,17 +1,6 @@
 import { createFragment } from '@/renderer/render';
 
-export enum DynamicFlags {
-  TEXT = 1,
-  CLASS = 1 << 1,
-  STYLE = 1 << 2,
-  PROP = 1 << 3,
-  ATTR = 1 << 4,
-  EVENT = 1 << 5,
-  STATIC = 1 << 6,
-}
-export type HostElement = (HTMLElement | SVGAElement) & {
-  _flag?: DynamicFlags;
-};
+export type HostElement = HTMLElement | SVGAElement;
 
 export enum RenderType {
   NORMAL,
@@ -35,8 +24,7 @@ export interface RenderTree {
   om?: (() => void)[] | null;
 }
 
-let currentRenderTree: RenderTree | null = null,
-  _hasDynamicFlag = false;
+let currentRenderTree: RenderTree | null = null;
 
 export const makeRenderTree = (block: (renderTree: RenderTree) => void) => {
   initRender();
@@ -101,14 +89,6 @@ export const setCurrentContainer = (
 ) => {
   currentRenderTree && (currentRenderTree.cc = el);
 };
-
-export const markWithDynamicFlags = (el: HostElement, flag: DynamicFlags) => {
-  _hasDynamicFlag || (_hasDynamicFlag = true),
-    el._flag ? (el._flag |= flag) : (el._flag = flag);
-};
-
-export const hasDynamicFlag = () => _hasDynamicFlag;
-export const setHasDynamicFlag = (value: boolean) => (_hasDynamicFlag = value);
 
 /**
  * 1. hIf and hFor do not need to be executed.

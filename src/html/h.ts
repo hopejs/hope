@@ -8,13 +8,9 @@ import { createElement, insert, setElementText, setProp } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj } from '@/utils';
 import {
-  DynamicFlags,
   getCurrentContainer,
   getCurrentRender,
-  hasDynamicFlag,
   HostElement,
-  markWithDynamicFlags,
-  setHasDynamicFlag,
   setCurrentContainer,
   setCurrentElement,
 } from './makeRenderTree';
@@ -60,10 +56,8 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     _isSvg = isSvg,
     isFoTag = _tagName === 'foreignObject',
     isSvgTag = _tagName === 'svg',
-    container = getCurrentContainer(),
-    _hasDynamicFlag = hasDynamicFlag();
+    container = getCurrentContainer();
 
-  setHasDynamicFlag(false);
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
   const el = createElement(tagName as any, isSvg > 0 || isFoTag);
 
@@ -87,20 +81,15 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
       typeof childrenResult === 'string' ||
       typeof childrenResult === 'number'
     ) {
-      markWithDynamicFlags(el, DynamicFlags.TEXT),
-        watch(children as () => string | number, (v) => {
-          setElementText(el, v as string);
-        });
+      watch(children as () => string | number, (v) => {
+        setElementText(el, v as string);
+      });
     }
     setCurrentContainer(container),
       setCurrentElement(el),
       _insert(el, container!);
   }
 
-  hasDynamicFlag()
-    ? setHasDynamicFlag(true)
-    : markWithDynamicFlags(el, DynamicFlags.STATIC),
-    setHasDynamicFlag(_hasDynamicFlag);
   isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
 };
 export const h: H = new Proxy(Object.create(null), {

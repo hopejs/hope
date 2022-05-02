@@ -1,9 +1,5 @@
 import { watch } from '@/activity/watch';
-import {
-  DynamicFlags,
-  HostElement,
-  markWithDynamicFlags,
-} from '@/html/makeRenderTree';
+import { HostElement } from '@/html/makeRenderTree';
 import { error } from '@/log';
 import { forEachObj, isFunction, isString } from '@/utils';
 
@@ -22,10 +18,9 @@ export function setStyle(el: HostElement, value: StyleValue) {
   const style = (el as HTMLElement).style;
 
   isFunction(value)
-    ? (markWithDynamicFlags(el, DynamicFlags.STYLE),
-      watch(value, (v) => {
+    ? watch(value, (v) => {
         setStyleCommon(el, style, v, true);
-      }))
+      })
     : setStyleCommon(el, style, value);
 }
 
@@ -54,11 +49,10 @@ function setStyleByObject(
   showError?: boolean
 ) {
   isFunction(value)
-    ? (markWithDynamicFlags(el, DynamicFlags.STYLE),
-      showError
-        ? __DEV__ && error(`Nested functions are not allowed.`)
-        : watch(value, (v: any) => {
-            style[key] = v;
-          }))
+    ? showError
+      ? __DEV__ && error(`Nested functions are not allowed.`)
+      : watch(value, (v: any) => {
+          style[key] = v;
+        })
     : (style[key] = value);
 }
