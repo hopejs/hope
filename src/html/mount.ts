@@ -2,7 +2,7 @@ import { error } from '@/log';
 import { insert, querySelector } from '@/renderer';
 import { bfs, isString } from '@/utils';
 import { nextTick } from '@/api/scheduler';
-import { getCurrentRender, makeRenderTree, RenderTree } from './makeRenderTree';
+import { makeRenderTree, RenderTree } from './makeRenderTree';
 
 interface RenderResult {
   fragment: DocumentFragment;
@@ -28,9 +28,9 @@ export function mount(
 
 export const render = (component: () => any): RenderResult => {
   let result: RenderTree;
-  makeRenderTree(() => {
+  makeRenderTree((renderTree) => {
     component();
-    result = getCurrentRender()!;
+    result = renderTree;
   });
   return {
     fragment: result!.f as DocumentFragment,

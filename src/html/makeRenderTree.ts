@@ -13,7 +13,14 @@ export type HostElement = (HTMLElement | SVGAElement) & {
   _flag?: DynamicFlags;
 };
 
+export enum RenderType {
+  NORMAL,
+  NO_BLOCK,
+}
+
 export interface RenderTree {
+  /** type */
+  t: RenderType;
   /** currentElement */
   ce: HostElement | null;
   /** currentContainer */
@@ -31,9 +38,9 @@ export interface RenderTree {
 let currentRenderTree: RenderTree | null = null,
   _hasDynamicFlag = false;
 
-export const makeRenderTree = (block: () => void) => {
+export const makeRenderTree = (block: (renderTree: RenderTree) => void) => {
   initRender();
-  block();
+  block(currentRenderTree!);
   closeRender();
 };
 
@@ -42,9 +49,7 @@ export const setCurrentRender = (
   container?: ParentNode
 ) => {
   currentRenderTree = value;
-  if (container && currentRenderTree) {
-    currentRenderTree.cc = container!;
-  }
+  container && currentRenderTree && (currentRenderTree.cc = container!);
 };
 export const getCurrentRender = () => currentRenderTree;
 export const addMountedHander = (handler: () => void) =>
@@ -53,13 +58,15 @@ export const addMountedHander = (handler: () => void) =>
 
 const initRender = () => {
     const parent = currentRenderTree;
-    currentRenderTree = Object.create(null) as RenderTree;
-    currentRenderTree.ce = null;
-    currentRenderTree.cc = null;
-    currentRenderTree.f = null;
+    currentRenderTree = {
+      ce: null,
+      cc: null,
+      f: null,
+      t: RenderType.NORMAL,
+    };
     if (parent) {
-      (parent.c || (parent.c = [])).push(currentRenderTree);
-      currentRenderTree.p = parent;
+      (parent.c || (parent.c = [])).push(currentRenderTree),
+        (currentRenderTree.p = parent);
     }
   },
   closeRender = () => {
