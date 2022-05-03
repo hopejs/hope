@@ -48,18 +48,24 @@ export const renderWithoutBlock = (component: () => void): DocumentFragment => {
   return result!;
 };
 
+const getNextCloneNodeCommon = (
+  node: HostElement,
+  nodeList: HostElement[],
+  key: 'firstChild' | 'nextSibling' | number
+) => {
+  return typeof key !== 'number'
+    ? (node[key] as HostElement)
+    : (nodeList[key] as HostElement);
+};
+
 export const getNextCloneNode = (
   currentBlock: BlockTree,
   nextKey: 'firstChild' | 'nextSibling' | number
 ) => {
-  currentBlock.tn =
-    typeof nextKey !== 'number'
-      ? (currentBlock.tn![nextKey] as HostElement)
-      : (currentBlock.tns![nextKey] as HostElement);
-  const result =
-    typeof nextKey !== 'number'
-      ? (currentBlock.cn![nextKey] as HostElement)
-      : (currentBlock.cns![nextKey] as HostElement);
-
-  return result;
+  currentBlock.tn = getNextCloneNodeCommon(
+    currentBlock.tn!,
+    currentBlock.tns!,
+    nextKey
+  );
+  return getNextCloneNodeCommon(currentBlock.cn!, currentBlock.cns!, nextKey);
 };
