@@ -54,8 +54,8 @@ const getNextCloneNodeCommon = (
   key: 'firstChild' | 'nextSibling' | number
 ) => {
   return typeof key !== 'number'
-    ? (node[key] as HostElement)
-    : (nodeList[key] as HostElement);
+    ? (node[key] as HostElement | null)
+    : (nodeList[key] as HostElement | null);
 };
 
 export const getNextCloneNode = (
@@ -67,5 +67,12 @@ export const getNextCloneNode = (
     currentBlock.tns!,
     nextKey
   );
-  return getNextCloneNodeCommon(currentBlock.cn!, currentBlock.cns!, nextKey);
+  const result = getNextCloneNodeCommon(
+    currentBlock.cn!,
+    currentBlock.cns!,
+    nextKey
+  );
+
+  result && currentBlock.tn && (result._flag = currentBlock.tn._flag);
+  return result;
 };
