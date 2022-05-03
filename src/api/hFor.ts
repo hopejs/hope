@@ -6,7 +6,7 @@ import {
 } from '@/html/makeRenderTree';
 import { internalInsert } from '@/lifecycle/makeBlockTree';
 import { removeNodes, useBlockTree } from '@/lifecycle/useBlockTree';
-import { cloneNode, firstChild, nextSibling } from '@/renderer';
+import { cloneNode } from '@/renderer';
 
 export const hFor = <T>(
   list: T[] | (() => T[]),
@@ -23,6 +23,7 @@ export const hFor = <T>(
     blockTree && removeNodes(blockTree),
       value.forEach((value, index, array) => {
         const cloneTemplate = (blockTree!.cn = cloneNode(template as any));
+        blockTree!.ncnk = 'firstChild';
         item(value, index, array);
         internalInsert(cloneTemplate as any, container);
         blockTree!.cn = null;
@@ -40,12 +41,9 @@ export const renderWithoutBlock = (component: () => void): DocumentFragment => {
   return result!;
 };
 
-export const getNextCloneNode = (cloneNode: Node) => {
-  let _firstChild: Node | null;
-  return !(_firstChild = firstChild(cloneNode)) ||
-    _firstChild.nodeType !== Node.ELEMENT_NODE ||
-    //@ts-ignore
-    _firstChild._ignore
-    ? nextSibling(cloneNode)
-    : _firstChild;
+export const getNextCloneNode = (
+  cloneNode: Node,
+  nextKey: 'firstChild' | 'nextSibling'
+) => {
+  return cloneNode[nextKey];
 };

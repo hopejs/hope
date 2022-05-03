@@ -21,6 +21,8 @@ export interface BlockTree {
   ns?: Node[] | null;
   /** clone node */
   cn?: Node | null;
+  /** next clone node key */
+  ncnk?: 'firstChild' | 'nextSibling';
 }
 
 let currentBlock: BlockTree | null = null;
