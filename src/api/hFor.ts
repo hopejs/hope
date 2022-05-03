@@ -4,7 +4,7 @@ import {
   makeRenderTree,
   RenderType,
 } from '@/html/makeRenderTree';
-import { internalInsert } from '@/lifecycle/makeBlockTree';
+import { BlockTree, internalInsert } from '@/lifecycle/makeBlockTree';
 import { removeNodes, useBlockTree } from '@/lifecycle/useBlockTree';
 import { cloneNode } from '@/renderer';
 
@@ -14,18 +14,25 @@ export const hFor = <T>(
 ) => {
   if (isNoBlock()) return;
   useBlockTree(list, (value, blockTree) => {
-    const template =
+    const templates =
         value.length &&
-        renderWithoutBlock(() => {
-          item(value[0], 0, value);
-        }),
+        Array.from(
+          renderWithoutBlock(() => {
+            item(value[0], 0, value);
+          }).childNodes
+        ),
       container = getCurrentContainer()!;
     blockTree && removeNodes(blockTree),
       value.forEach((value, index, array) => {
-        const cloneTemplate = (blockTree!.cn = cloneNode(template as any));
-        blockTree!.ncnk = 'firstChild';
+        const cloneTemplates: ChildNode[] = (blockTree!.cns = (
+          templates as any
+        ).map((item: ChildNode) => cloneNode(item)));
+        blockTree!.ncnk = 0;
         item(value, index, array);
-        internalInsert(cloneTemplate as any, container);
+        cloneTemplates.forEach((item) =>
+          internalInsert(item as any, container)
+        );
+        blockTree!.cns = null;
         blockTree!.cn = null;
       });
   });
@@ -42,8 +49,10 @@ export const renderWithoutBlock = (component: () => void): DocumentFragment => {
 };
 
 export const getNextCloneNode = (
-  cloneNode: Node,
-  nextKey: 'firstChild' | 'nextSibling'
+  currentBlock: BlockTree,
+  nextKey: 'firstChild' | 'nextSibling' | number
 ) => {
-  return cloneNode[nextKey];
+  return typeof nextKey !== 'number'
+    ? currentBlock.cn![nextKey]
+    : currentBlock.cns![nextKey];
 };

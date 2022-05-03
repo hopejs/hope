@@ -19,10 +19,12 @@ export interface BlockTree {
   oum?: (() => void)[] | null;
   /** nodes */
   ns?: Node[] | null;
+  /** clone node list */
+  cns?: Node[] | null;
   /** clone node */
   cn?: Node | null;
   /** next clone node key */
-  ncnk?: 'firstChild' | 'nextSibling';
+  ncnk?: 'firstChild' | 'nextSibling' | number;
 }
 
 let currentBlock: BlockTree | null = null;

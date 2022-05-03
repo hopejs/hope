@@ -53,7 +53,10 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     );
   }
 
-  let text: string, childrenResult, el: HostElement;
+  let text: string,
+    childrenResult,
+    el: HostElement,
+    currentCloneKey: 'firstChild' | 'nextSibling' | number;
   const _tagName = tagName,
     _isSvg = isSvg,
     isFoTag = _tagName === 'foreignObject',
@@ -62,10 +65,10 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     currentBlock = getCurrentBlock(),
     cloneElement =
       currentBlock &&
-      currentBlock.cn &&
+      currentBlock.cns &&
       (currentBlock.cn = getNextCloneNode(
-        currentBlock.cn as any,
-        currentBlock.ncnk!
+        currentBlock,
+        (currentCloneKey = currentBlock.ncnk!)
       ));
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
@@ -109,7 +112,9 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
   (cloneElement && (currentBlock.cn = cloneElement)) ||
     internalInsert(el, container!),
     currentBlock &&
-      (currentBlock.ncnk = 'nextSibling') &&
+      (typeof currentCloneKey! !== 'number'
+        ? (currentBlock.ncnk = 'nextSibling')
+        : (currentBlock.ncnk = currentCloneKey + 1)) &&
       currentBlock.ct === container &&
       pushNodeToCurrentBlock(el);
 
