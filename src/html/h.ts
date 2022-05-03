@@ -73,27 +73,21 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
         currentBlock,
         (currentCloneKey = currentBlock.ncnk!)
       )),
-    templateElement = currentBlock && currentBlock.tn,
-    end = () => {
-      (clonedElement &&
-        (currentBlock.cn = clonedElement) &&
-        (currentBlock.tn = templateElement)) ||
-        internalInsert(el, container!),
-        currentBlock &&
-          (typeof currentCloneKey! !== 'number'
-            ? (currentBlock.ncnk = 'nextSibling')
-            : (currentBlock.ncnk = currentCloneKey + 1)) &&
-          currentBlock.ct === container &&
-          pushNodeToCurrentBlock(el);
-
-      isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
-    };
+    templateElement = currentBlock && currentBlock.tn;
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
 
   // _flag is empty, indicating that the currently cloned element is a static node
   if (templateElement && !templateElement._flag) {
-    return end();
+    return (
+      (currentBlock.cn = clonedElement) && (currentBlock.tn = templateElement),
+      (typeof currentCloneKey! !== 'number'
+        ? (currentBlock.ncnk = 'nextSibling')
+        : (currentBlock.ncnk = currentCloneKey + 1)) &&
+        currentBlock.ct === container &&
+        pushNodeToCurrentBlock(templateElement),
+      isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg)
+    );
   }
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
@@ -132,7 +126,18 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
       setCurrentContainer(container),
       setCurrentElement(el));
 
-  end();
+  (clonedElement &&
+    (currentBlock.cn = clonedElement) &&
+    (currentBlock.tn = templateElement)) ||
+    internalInsert(el, container!),
+    currentBlock &&
+      (typeof currentCloneKey! !== 'number'
+        ? (currentBlock.ncnk = 'nextSibling')
+        : (currentBlock.ncnk = currentCloneKey + 1)) &&
+      currentBlock.ct === container &&
+      pushNodeToCurrentBlock(el);
+
+  isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
 };
 
 export const h: H = new Proxy(Object.create(null), {
