@@ -22,22 +22,9 @@ export const hFor = <T>(
       container = getCurrentContainer()!;
     blockTree && removeNodes(blockTree),
       value.forEach((value, index, array) => {
-        const cloneTemplate = (blockTree!.cn = template
-          ? cloneNode(template)
-          : null);
+        const cloneTemplate = (blockTree!.cn = cloneNode(template as any));
         item(value, index, array);
-        // The elements of the for loop are inserted into the document here
-        if (cloneTemplate) {
-          let child = firstChild(cloneTemplate),
-            _child = child;
-          while (child) {
-            // The sibling node must be obtained before insertion,
-            // Otherwise, you may get the nodes that have been mounted in the page.
-            _child = nextSibling(child);
-            internalInsert(child as any, container);
-            child = _child;
-          }
-        }
+        internalInsert(cloneTemplate as any, container);
         blockTree!.cn = null;
       });
   });

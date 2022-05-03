@@ -1,6 +1,10 @@
 import { watch } from '@/activity';
 import { getNextCloneNode } from '@/api/hFor';
-import { getCurrentBlock, internalInsert } from '@/lifecycle/makeBlockTree';
+import {
+  getCurrentBlock,
+  internalInsert,
+  pushNodeToCurrentBlock,
+} from '@/lifecycle/makeBlockTree';
 import { error } from '@/log';
 import { createElement, setElementText, setProp } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
@@ -99,7 +103,8 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
       setCurrentElement(el));
 
   (cloneElement && (currentBlock.cn = cloneElement)) ||
-    internalInsert(el, container!);
+    internalInsert(el, container!),
+    currentBlock && currentBlock.ct === container && pushNodeToCurrentBlock(el);
 
   isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
 };

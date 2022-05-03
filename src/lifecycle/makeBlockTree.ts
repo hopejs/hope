@@ -82,6 +82,6 @@ export const internalInsert = (
   container: ParentNode | DocumentFragment
 ) => {
   currentBlock && currentBlock.ct === container
-    ? (pushNodeToCurrentBlock(el), insert(el, container, currentBlock.end))
+    ? insert(el, container, currentBlock.end)
     : insert(el, container);
 };
