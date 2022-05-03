@@ -7,10 +7,13 @@ export enum DynamicFlags {
   PROP = 1 << 3,
   ATTR = 1 << 4,
   EVENT = 1 << 5,
+  /** Children have dynamic nodes */
+  CHILDREN = 1 << 6,
 }
 
 export type HostElement = (HTMLElement | SVGAElement) & {
   _flag?: DynamicFlags;
+  _ParentNode?: HostElement;
 };
 
 export enum RenderType {
@@ -111,5 +114,12 @@ export const isNoBlock = () => {
 };
 
 export const markFlag = (el: HostElement, flag: DynamicFlags) => {
-  isNoBlock() && '_flag' in el ? (el._flag! |= flag) : (el._flag = flag);
+  const run = (element: HostElement, f: DynamicFlags) =>
+    '_flag' in element ? (element._flag! |= f) : (element._flag = f);
+  if (isNoBlock()) {
+    run(el, flag);
+    while ((el = el._ParentNode as any)) {
+      run(el, DynamicFlags.CHILDREN);
+    }
+  }
 };

@@ -14,6 +14,7 @@ import {
   getCurrentContainer,
   getCurrentRender,
   HostElement,
+  isNoBlock,
   markFlag,
   setCurrentContainer,
   setCurrentElement,
@@ -100,6 +101,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     (clonedElement as HostElement) ||
     createElement(tagName as any, isSvg > 0 || isFoTag);
 
+  isNoBlock() && (el._ParentNode = container as HostElement);
   setCurrentElement(el);
   if (typeof props === 'function') {
     (children = props), (props = void 0);

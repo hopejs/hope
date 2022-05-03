@@ -135,20 +135,23 @@ describe('hFor', () => {
   it('renderWithoutBlock', async () => {
     let container: any;
     renderWithoutBlock(() => {
-      h.div(
-        {
-          class: () => 'class',
-          style: { color: () => 'red' },
-          id: () => 'id',
-          onClick: () => {},
-          attr: () => 'attr',
-        },
-        () => 'text'
-      );
-      container = getCurrentElement();
+      h.div(() => {
+        container = getCurrentElement();
+        h.div(
+          {
+            class: () => 'class',
+            style: { color: () => 'red' },
+            id: () => 'id',
+            onClick: () => {},
+            attr: () => 'attr',
+          },
+          () => 'text'
+        );
+      });
     });
 
-    expect(container._flag).toBe(
+    expect(container._flag).toBe(DynamicFlags.CHILDREN);
+    expect(container.firstChild._flag).toBe(
       DynamicFlags.TEXT |
         DynamicFlags.ATTR |
         DynamicFlags.CLASS |
