@@ -1,6 +1,17 @@
 import { createFragment } from '@/renderer/render';
 
-export type HostElement = HTMLElement | SVGAElement;
+export enum DynamicFlags {
+  TEXT = 1,
+  CLASS = 1 << 1,
+  STYLE = 1 << 2,
+  PROP = 1 << 3,
+  ATTR = 1 << 4,
+  EVENT = 1 << 5,
+}
+
+export type HostElement = (HTMLElement | SVGAElement) & {
+  _flag?: DynamicFlags;
+};
 
 export enum RenderType {
   NORMAL,
@@ -97,4 +108,8 @@ export const setCurrentContainer = (
  */
 export const isNoBlock = () => {
   return currentRenderTree?.t === RenderType.NO_BLOCK;
+};
+
+export const markFlag = (el: HostElement, flag: DynamicFlags) => {
+  isNoBlock() && '_flag' in el ? (el._flag! |= flag) : (el._flag = flag);
 };

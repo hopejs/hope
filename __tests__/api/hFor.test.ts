@@ -2,6 +2,7 @@ import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { getCurrentElement, h, hFor, nextTick, render } from '@/api';
 import { renderWithoutBlock } from '@/api/hFor';
+import { DynamicFlags } from '@/html/makeRenderTree';
 
 describe('hFor', () => {
   it('basic', () => {
@@ -131,6 +132,33 @@ describe('hFor', () => {
     expect(container.outerHTML).toBe('<div></div>');
   });
 
+  it('renderWithoutBlock', async () => {
+    let container: any;
+    renderWithoutBlock(() => {
+      h.div(
+        {
+          class: () => 'class',
+          style: { color: () => 'red' },
+          id: () => 'id',
+          onClick: () => {},
+          attr: () => 'attr',
+        },
+        () => 'text'
+      );
+      container = getCurrentElement();
+    });
+
+    expect(container._flag).toBe(
+      DynamicFlags.TEXT |
+        DynamicFlags.ATTR |
+        DynamicFlags.CLASS |
+        DynamicFlags.EVENT |
+        DynamicFlags.PROP |
+        DynamicFlags.STYLE |
+        DynamicFlags.TEXT
+    );
+  });
+
   it('benchmark example', () => {
     let rows = [{ id: 1, label: 'label' }];
     // let currentScope: any;
@@ -146,7 +174,6 @@ describe('hFor', () => {
               () => rows,
               (row) => {
                 h.tr({ class: 'danger' }, () => {
-                  debugger
                   h.td({ class: 'col-md-1' }, row.id);
                   h.td({ class: 'col-md-4' }, () => {
                     h.a(() => row.label);

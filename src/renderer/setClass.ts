@@ -1,5 +1,5 @@
 import { watch } from '@/activity/watch';
-import { HostElement } from '@/html/makeRenderTree';
+import { DynamicFlags, HostElement, markFlag } from '@/html/makeRenderTree';
 import { isFunction } from '@/utils';
 
 export function setClass(
@@ -8,22 +8,23 @@ export function setClass(
   isSVG?: boolean
 ) {
   isFunction(value)
-    ? isSVG
-      ? watch(
-          value,
-          (v) => {
-            el.setAttribute('class', v);
-          },
-          el.getAttribute('class') || ''
-        )
-      : watch(
-          value,
-          (v) => {
-            //@ts-ignore
-            el.className = v;
-          },
-          el.className
-        )
+    ? (markFlag(el, DynamicFlags.CLASS),
+      isSVG
+        ? watch(
+            value,
+            (v) => {
+              el.setAttribute('class', v);
+            },
+            el.getAttribute('class') || ''
+          )
+        : watch(
+            value,
+            (v) => {
+              //@ts-ignore
+              el.className = v;
+            },
+            el.className
+          ))
     : isSVG
     ? el.getAttribute('class') !== value && el.setAttribute('class', value)
     : //@ts-ignore

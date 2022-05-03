@@ -1,4 +1,4 @@
-import { HostElement } from '@/html/makeRenderTree';
+import { DynamicFlags, HostElement, markFlag } from '@/html/makeRenderTree';
 import { isFunction, isOn, isString, parseEventName } from '@/utils';
 import { setAttr } from './setAttr';
 import { setClass } from './setClass';
@@ -25,6 +25,7 @@ export function setProp(
       break;
     default:
       if (store[key] || isOn(key)) {
+        markFlag(el, DynamicFlags.EVENT);
         setEvent(
           el,
           key in store ? store[key] : (store[key] = parseEventName(key)),

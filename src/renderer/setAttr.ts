@@ -1,5 +1,5 @@
 import { watch } from '@/activity/watch';
-import { HostElement } from '@/html/makeRenderTree';
+import { DynamicFlags, HostElement, markFlag } from '@/html/makeRenderTree';
 import { isFunction } from '@/utils';
 
 export const xlinkNS = 'http://www.w3.org/1999/xlink';
@@ -11,21 +11,22 @@ export function setAttr(
   isSVG?: boolean
 ) {
   isFunction(value)
-    ? isSVG
-      ? watch(
-          value,
-          (v: any) => {
-            el.setAttributeNS(xlinkNS, key, v);
-          },
-          el.getAttributeNS(xlinkNS, key)
-        )
-      : watch(
-          value,
-          (v: any) => {
-            el.setAttribute(key, v);
-          },
-          el.getAttribute(key)
-        )
+    ? (markFlag(el, DynamicFlags.ATTR),
+      isSVG
+        ? watch(
+            value,
+            (v: any) => {
+              el.setAttributeNS(xlinkNS, key, v);
+            },
+            el.getAttributeNS(xlinkNS, key)
+          )
+        : watch(
+            value,
+            (v: any) => {
+              el.setAttribute(key, v);
+            },
+            el.getAttribute(key)
+          ))
     : isSVG
     ? el.getAttributeNS(xlinkNS, key) !== value &&
       el.setAttributeNS(xlinkNS, key, value)

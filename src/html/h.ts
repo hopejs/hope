@@ -10,9 +10,11 @@ import { createElement, setElementText, setProp } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj } from '@/utils';
 import {
+  DynamicFlags,
   getCurrentContainer,
   getCurrentRender,
   HostElement,
+  markFlag,
   setCurrentContainer,
   setCurrentElement,
 } from './makeRenderTree';
@@ -95,13 +97,14 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
       (childrenResult = (children as any)?.()),
       (typeof childrenResult === 'string' ||
         typeof childrenResult === 'number') &&
+        (markFlag(el, DynamicFlags.TEXT),
         watch(
           children as () => string | number,
           (v) => {
             setElementText(el, v as string);
           },
           el.textContent
-        ),
+        )),
       setCurrentContainer(container),
       setCurrentElement(el));
 
@@ -116,6 +119,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
 
   isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
 };
+
 export const h: H = new Proxy(Object.create(null), {
   get: (_: any, _tagName: TagNames) => {
     tagName = _tagName;

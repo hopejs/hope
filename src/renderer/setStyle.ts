@@ -1,5 +1,5 @@
 import { watch } from '@/activity/watch';
-import { HostElement } from '@/html/makeRenderTree';
+import { DynamicFlags, HostElement, markFlag } from '@/html/makeRenderTree';
 import { error } from '@/log';
 import { forEachObj, isFunction, isString } from '@/utils';
 
@@ -18,13 +18,15 @@ export function setStyle(el: HostElement, value: StyleValue) {
   const style = (el as HTMLElement).style;
 
   isFunction(value)
-    ? watch(value, (v) => {
-        setStyleCommon(style, v, true);
-      })
-    : setStyleCommon(style, value);
+    ? (markFlag(el, DynamicFlags.STYLE),
+      watch(value, (v) => {
+        setStyleCommon(el, style, v, true);
+      }))
+    : setStyleCommon(el, style, value);
 }
 
 function setStyleCommon(
+  el: HostElement,
   style: CSSStyleDeclaration,
   value: string | CSSStyleDeclarationWithFn,
   showError?: boolean
@@ -35,26 +37,30 @@ function setStyleCommon(
   forEachObj(
     value,
     (v, key: keyof Omit<CSSStyleDeclaration, 'length' | 'parentRule'>) => {
-      setStyleByObject(style, key, v, showError);
+      setStyleByObject(el, style, key, v, showError);
     }
   );
 }
 
 function setStyleByObject(
+  el: HostElement,
   style: CSSStyleDeclaration,
   key: keyof Omit<CSSStyleDeclaration, 'length' | 'parentRule'>,
   value: any,
   showError?: boolean
 ) {
-  isFunction(value)
-    ? showError
+  if (isFunction(value)) {
+    showError
       ? __DEV__ && error(`Nested functions are not allowed.`)
-      : watch(
+      : (markFlag(el, DynamicFlags.STYLE),
+        watch(
           value,
           (v: any) => {
             style[key] = v;
           },
           style[key]
-        )
-    : style[key] !== value && (style[key] = value);
+        ));
+  } else {
+    style[key] !== value && (style[key] = value);
+  }
 }
