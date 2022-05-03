@@ -18,11 +18,15 @@ export interface BlockTree {
   /** onUnmount */
   oum?: (() => void)[] | null;
   /** nodes */
-  ns?: Node[] | null;
+  ns?: HostElement[] | null;
+  /** template node list */
+  tns?: HostElement[] | null;
+  /** template node */
+  tn?: HostElement | null;
   /** clone node list */
-  cns?: Node[] | null;
+  cns?: HostElement[] | null;
   /** clone node */
-  cn?: Node | null;
+  cn?: HostElement | null;
   /** next clone node key */
   ncnk?: 'firstChild' | 'nextSibling' | number;
 }
@@ -75,7 +79,7 @@ export const addUnmountedHandler = (handler: () => void) =>
 const createPlaceholderNode = (text: string) =>
   __DEV__ ? createComment(text) : createText('');
 
-export const pushNodeToCurrentBlock = (node: Node) => {
+export const pushNodeToCurrentBlock = (node: HostElement) => {
   if (currentBlock) {
     (currentBlock.ns || (currentBlock.ns = [])).push(node);
   }

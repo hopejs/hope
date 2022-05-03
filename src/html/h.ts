@@ -71,7 +71,29 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
       (currentBlock.cn = getNextCloneNode(
         currentBlock,
         (currentCloneKey = currentBlock.ncnk!)
-      ));
+      )),
+    templateElement = currentBlock && currentBlock.tn,
+    end = () => {
+      (clonedElement &&
+        (currentBlock.cn = clonedElement) &&
+        (currentBlock.tn = templateElement)) ||
+        internalInsert(el, container!),
+        currentBlock &&
+          (typeof currentCloneKey! !== 'number'
+            ? (currentBlock.ncnk = 'nextSibling')
+            : (currentBlock.ncnk = currentCloneKey + 1)) &&
+          currentBlock.ct === container &&
+          pushNodeToCurrentBlock(el);
+
+      isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
+    };
+
+  isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
+
+  // _flag is empty, indicating that the currently cloned element is a static node
+  if (templateElement && !templateElement._flag) {
+    return end();
+  }
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
   el =
@@ -108,16 +130,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
       setCurrentContainer(container),
       setCurrentElement(el));
 
-  (clonedElement && (currentBlock.cn = clonedElement)) ||
-    internalInsert(el, container!),
-    currentBlock &&
-      (typeof currentCloneKey! !== 'number'
-        ? (currentBlock.ncnk = 'nextSibling')
-        : (currentBlock.ncnk = currentCloneKey + 1)) &&
-      currentBlock.ct === container &&
-      pushNodeToCurrentBlock(el);
-
-  isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
+  end();
 };
 
 export const h: H = new Proxy(Object.create(null), {

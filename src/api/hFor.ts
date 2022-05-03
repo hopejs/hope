@@ -1,5 +1,6 @@
 import {
   getCurrentContainer,
+  HostElement,
   isNoBlock,
   makeRenderTree,
   RenderType,
@@ -14,13 +15,13 @@ export const hFor = <T>(
 ) => {
   if (isNoBlock()) return;
   useBlockTree(list, (value, blockTree) => {
-    const templates =
-        value.length &&
-        Array.from(
-          renderWithoutBlock(() => {
-            item(value[0], 0, value);
-          }).childNodes
-        ),
+    const templates = (blockTree!.tns = value.length
+        ? (Array.from(
+            renderWithoutBlock(() => {
+              item(value[0], 0, value);
+            }).childNodes
+          ) as HostElement[])
+        : null),
       container = getCurrentContainer()!;
     blockTree && removeNodes(blockTree),
       value.forEach((value, index, array) => {
@@ -32,8 +33,7 @@ export const hFor = <T>(
         cloneTemplates.forEach((item) =>
           internalInsert(item as any, container)
         );
-        blockTree!.cns = null;
-        blockTree!.cn = null;
+        blockTree!.cns = blockTree!.cn = blockTree!.tn = null;
       });
   });
 };
@@ -52,7 +52,14 @@ export const getNextCloneNode = (
   currentBlock: BlockTree,
   nextKey: 'firstChild' | 'nextSibling' | number
 ) => {
-  return typeof nextKey !== 'number'
-    ? currentBlock.cn![nextKey]
-    : currentBlock.cns![nextKey];
+  currentBlock.tn =
+    typeof nextKey !== 'number'
+      ? (currentBlock.tn![nextKey] as HostElement)
+      : (currentBlock.tns![nextKey] as HostElement);
+  const result =
+    typeof nextKey !== 'number'
+      ? (currentBlock.cn![nextKey] as HostElement)
+      : (currentBlock.cns![nextKey] as HostElement);
+
+  return result;
 };

@@ -8,7 +8,7 @@ describe('hFor', () => {
   it('basic', () => {
     const { fragment } = render(() => {
       hFor([1, 2, 3], (value) => {
-        h.div(value);
+        h.div(() => value);
       });
     });
 
@@ -25,7 +25,7 @@ describe('hFor', () => {
         hFor(
           () => list,
           (value) => {
-            h.div(value);
+            h.div(() => value);
             refresh(getCurrentScope()!);
           }
         );
