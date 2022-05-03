@@ -63,7 +63,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     isSvgTag = _tagName === 'svg',
     container = getCurrentContainer(),
     currentBlock = getCurrentBlock(),
-    cloneElement =
+    clonedElement =
       currentBlock &&
       currentBlock.cns &&
       (currentBlock.cn = getNextCloneNode(
@@ -73,12 +73,8 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
   el =
-    (cloneElement as HostElement) ||
+    (clonedElement as HostElement) ||
     createElement(tagName as any, isSvg > 0 || isFoTag);
-
-  // Prevent reuse next time
-  // @ts-ignore
-  cloneElement && (cloneElement._ignore = true);
 
   setCurrentElement(el);
   if (typeof props === 'function') {
@@ -109,7 +105,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
       setCurrentContainer(container),
       setCurrentElement(el));
 
-  (cloneElement && (currentBlock.cn = cloneElement)) ||
+  (clonedElement && (currentBlock.cn = clonedElement)) ||
     internalInsert(el, container!),
     currentBlock &&
       (typeof currentCloneKey! !== 'number'
