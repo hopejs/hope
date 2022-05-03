@@ -48,6 +48,8 @@ const setElementText = (el: Element, text: string) => {
 
 const parentNode = (node: Node) => node.parentNode;
 
+const firstChild = (node: Node) => node.firstChild;
+
 const nextSibling = (node: Node) => node.nextSibling;
 
 const cloneNode = (node: Node) => {
@@ -67,6 +69,7 @@ export {
   setText,
   setElementText,
   parentNode,
+  firstChild,
   nextSibling,
   cloneNode,
   querySelector,

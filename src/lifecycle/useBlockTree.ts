@@ -20,12 +20,12 @@ export const useBlockTree = <T>(
   value: T | (() => T),
   component: (value: T, blockTree?: BlockTree) => void
 ) => {
-  if (isFunction(value)) {
-    makeBlockTree(() => {
-      const blockTree = getCurrentBlock()!,
-        scopeTree = getCurrentScope(),
-        renderTree = getCurrentRender();
+  makeBlockTree(() => {
+    const blockTree = getCurrentBlock()!,
+      scopeTree = getCurrentScope(),
+      renderTree = getCurrentRender();
 
+    if (isFunction(value)) {
       watch(value, (v) => {
         const oldScope = getCurrentScope(),
           oldBlock = getCurrentBlock(),
@@ -40,10 +40,10 @@ export const useBlockTree = <T>(
         setCurrentBlock(oldBlock);
         setCurrentRender(oldRender);
       });
-    });
-  } else {
-    component(value);
-  }
+    } else {
+      component(value, blockTree);
+    }
+  });
 };
 
 export const removeUnuseWatcher = (

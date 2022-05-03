@@ -1,4 +1,8 @@
-import { getCurrentContainer, isNoBlock } from '@/html/makeRenderTree';
+import {
+  getCurrentContainer,
+  HostElement,
+  isNoBlock,
+} from '@/html/makeRenderTree';
 import { error } from '@/log';
 import { createComment, createText, insert } from '@/renderer';
 
@@ -15,6 +19,8 @@ export interface BlockTree {
   oum?: (() => void)[] | null;
   /** nodes */
   ns?: Node[] | null;
+  /** clone node */
+  cn?: Node | null;
 }
 
 let currentBlock: BlockTree | null = null;
@@ -69,4 +75,13 @@ export const pushNodeToCurrentBlock = (node: Node) => {
   if (currentBlock) {
     (currentBlock.ns || (currentBlock.ns = [])).push(node);
   }
+};
+
+export const internalInsert = (
+  el: HostElement | DocumentFragment,
+  container: ParentNode | DocumentFragment
+) => {
+  currentBlock && currentBlock.ct === container
+    ? (pushNodeToCurrentBlock(el), insert(el, container, currentBlock.end))
+    : insert(el, container);
 };

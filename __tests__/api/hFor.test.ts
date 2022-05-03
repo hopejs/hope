@@ -130,4 +130,47 @@ describe('hFor', () => {
     expect(container.childElementCount).toBe(0);
     expect(container.outerHTML).toBe('<div></div>');
   });
+
+  it('benchmark example', () => {
+    let rows = [{ id: 1, label: 'label' }];
+    // let currentScope: any;
+    let container: any;
+
+    render(() => {
+      h.div(() => {
+        makeScopeTree(() => {
+          // currentScope = getCurrentScope()!;
+          h.tbody(() => {
+            container = getCurrentElement();
+            hFor(
+              () => rows,
+              (row) => {
+                h.tr({ class: 'danger' }, () => {
+                  debugger
+                  h.td({ class: 'col-md-1' }, row.id);
+                  h.td({ class: 'col-md-4' }, () => {
+                    h.a(() => row.label);
+                  });
+                  h.td({ class: 'col-md-1' }, () => {
+                    h.a(() => {
+                      h.span({
+                        class: 'glyphicon glyphicon-remove',
+                        'aria-hidden': 'true',
+                      });
+                    });
+                  });
+                  h.td({ class: 'col-md-6' });
+                });
+              }
+            );
+          });
+        });
+      });
+    });
+
+    expect(container.children.length).toBe(1);
+    expect(container.children[0].outerHTML).toBe(
+      `<tr class=\"danger\"><td class=\"col-md-1\">1</td><td class=\"col-md-4\"><a>label</a></td><td class=\"col-md-1\"><a><span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></a></td><td class=\"col-md-6\"></td></tr>`
+    );
+  });
 });

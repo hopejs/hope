@@ -1,10 +1,8 @@
 import { watch } from '@/activity';
-import {
-  getCurrentBlock,
-  pushNodeToCurrentBlock,
-} from '@/lifecycle/makeBlockTree';
+import { getNextCloneNode } from '@/api/hFor';
+import { getCurrentBlock, internalInsert } from '@/lifecycle/makeBlockTree';
 import { error } from '@/log';
-import { createElement, insert, setElementText, setProp } from '@/renderer';
+import { createElement, setElementText, setProp } from '@/renderer';
 import { StyleValue } from '@/renderer/setStyle';
 import { forEachObj } from '@/utils';
 import {
@@ -56,10 +54,21 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     _isSvg = isSvg,
     isFoTag = _tagName === 'foreignObject',
     isSvgTag = _tagName === 'svg',
-    container = getCurrentContainer();
+    container = getCurrentContainer(),
+    currentBlock = getCurrentBlock(),
+    cloneElement =
+      currentBlock &&
+      currentBlock.cn &&
+      (currentBlock.cn = getNextCloneNode(currentBlock.cn as any));
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
-  el = createElement(tagName as any, isSvg > 0 || isFoTag);
+  el =
+    (cloneElement as HostElement) ||
+    createElement(tagName as any, isSvg > 0 || isFoTag);
+
+  // Prevent reuse next time
+  // @ts-ignore
+  cloneElement && (cloneElement._ignore = true);
 
   setCurrentElement(el);
   if (typeof props === 'function') {
@@ -72,9 +81,10 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
   props && processProps(el, props);
 
   text!
-    ? (setElementText(el, text), _insert(el, container!)) // If the returned value is a string,
-    : // it is considered to be rendering a string in response
-      (setCurrentContainer(el),
+    ? setElementText(el, text)
+    : (setCurrentContainer(el),
+      // If the returned value is a string,
+      // it is considered to be rendering a string in response
       (childrenResult = (children as any)?.()),
       (typeof childrenResult === 'string' ||
         typeof childrenResult === 'number') &&
@@ -86,8 +96,10 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
           el.textContent
         ),
       setCurrentContainer(container),
-      setCurrentElement(el),
-      _insert(el, container!));
+      setCurrentElement(el));
+
+  (cloneElement && (currentBlock.cn = cloneElement)) ||
+    internalInsert(el, container!);
 
   isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg);
 };
@@ -97,13 +109,6 @@ export const h: H = new Proxy(Object.create(null), {
     return handleTag;
   },
 });
-
-const _insert = (el: Element, container: ParentNode | DocumentFragment) => {
-  const block = getCurrentBlock();
-  block?.ct === container
-    ? (pushNodeToCurrentBlock(el), insert(el, container, block.end))
-    : insert(el, container);
-};
 
 const processProps = (el: HostElement, props: any) => {
   forEachObj(props, (value, key) => {
