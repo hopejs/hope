@@ -160,7 +160,9 @@ describe('activity tag', () => {
       createElement('div', false)
     );
 
-    (currentElement as unknown as Element).dispatchEvent(new Event('click'));
+    (currentElement as unknown as Element).dispatchEvent(
+      new Event('click', { bubbles: true })
+    );
     await nextTick();
     // @ts-ignore
     expect(currentElement.outerHTML).toBe(`<div somekey=\"b\"></div>`);

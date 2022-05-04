@@ -84,7 +84,7 @@ describe('defineComponent', () => {
     expect(container.innerHTML).toBe('<button>0</button>');
 
     // @ts-ignore
-    currentElement.dispatchEvent(new Event('click'));
+    currentElement.dispatchEvent(new Event('click', { bubbles: true }));
     await nextTick();
     expect(container.innerHTML).toBe('<button>1</button>');
   });
