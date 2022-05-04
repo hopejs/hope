@@ -36,14 +36,11 @@ export const setCurrentScope = (scope: ScopeTree | null) => {
 };
 
 export function notify(scope: ScopeTree | null) {
-  if (!scope?.subs?.length) return;
-  scope.subs.forEach((sub) => sub());
+  scope && scope.subs && scope.subs.forEach((sub) => sub());
 }
 
 export function subscribe(scope: ScopeTree | null, subscriber: Subscriber) {
-  if (!scope) return;
-  // (subscriber.scopes || (subscriber.scopes = [])).push(scope);
-  (scope.subs || (scope.subs = [])).push(subscriber);
+  scope && (scope.subs || (scope.subs = [])).push(subscriber);
 }
 
 function initScope() {
@@ -59,5 +56,5 @@ function initScope() {
 }
 
 function closeScope() {
-  currentScope = currentScope?.p || null;
+  currentScope = (currentScope && currentScope.p) || null;
 }

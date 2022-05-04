@@ -35,6 +35,7 @@ export const hFor = <T>(
         }
         blockTree!.cns = blockTree!.cn = blockTree!.tn = null;
       });
+    blockTree!.tns = null;
   });
 };
 
