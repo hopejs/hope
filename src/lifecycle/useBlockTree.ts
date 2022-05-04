@@ -59,9 +59,7 @@ export const removeUnuseWatcher = (
 
 export const removeNodes = (blockTree: BlockTree) => {
   if (blockTree.ns) {
-    for (const node of blockTree.ns) {
-      remove(node);
-    }
+    blockTree.ns.forEach((item) => remove(item, blockTree.ct));
     blockTree.ns = null;
   }
   nextTick(() => {

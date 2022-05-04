@@ -9,12 +9,7 @@ const insert = (
   parent.insertBefore(child, anchor || null);
 };
 
-const remove = (child: Node) => {
-  const parent = child.parentNode;
-  if (parent) {
-    parent.removeChild(child);
-  }
-};
+const remove = (child: Node, parent: ParentNode) => parent.removeChild(child);
 
 const createFragment = () => document.createDocumentFragment();
 
