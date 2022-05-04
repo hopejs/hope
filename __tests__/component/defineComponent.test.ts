@@ -2,7 +2,7 @@ import { getCurrentScope } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { nextTick } from '@/api';
 import { defineComponent } from '@/component';
-import { getCurrentElement, h, mount, render } from '@/html';
+import { getCurrentElement, h, render } from '@/html';
 import { createElement } from '@/renderer';
 
 describe('defineComponent', () => {
@@ -12,7 +12,7 @@ describe('defineComponent', () => {
     });
 
     const container = createElement('div', false);
-    mount(render(com), container);
+    render(com, container);
     expect(container.innerHTML).toBe('<div></div>');
   });
 
@@ -25,10 +25,7 @@ describe('defineComponent', () => {
     });
 
     const container = createElement('div', false);
-    mount(
-      render(() => parent(child)),
-      container
-    );
+    render(() => parent(child), container);
     expect(container.innerHTML).toBe('<div><span></span></div>');
   });
 
@@ -41,7 +38,7 @@ describe('defineComponent', () => {
     });
 
     const container = createElement('div', false);
-    mount(render(parent), container);
+    render(parent, container);
     expect(container.innerHTML).toBe('<div>a</div>');
 
     text = 'b';
@@ -63,7 +60,7 @@ describe('defineComponent', () => {
     });
 
     const container = createElement('div', false);
-    mount(render(parent), container);
+    render(parent, container);
     expect(container.innerHTML).toBe('<div><span>a</span></div>');
 
     text = 'b';
@@ -82,7 +79,7 @@ describe('defineComponent', () => {
     });
 
     const container = createElement('div', false);
-    mount(render(counter), container);
+    render(counter, container);
 
     expect(container.innerHTML).toBe('<button>0</button>');
 

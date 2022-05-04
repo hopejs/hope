@@ -10,7 +10,7 @@ export interface BlockTree {
   start: Node;
   end: Node;
   /** container */
-  ct: ParentNode;
+  ct: HostElement;
   /** parent */
   p?: BlockTree;
   /** children */
@@ -54,7 +54,7 @@ export const setCurrentBlock = (value: BlockTree | null) => {
   currentBlock = value;
 };
 
-const initBlock = (start: Node, end: Node, container: ParentNode) => {
+const initBlock = (start: Node, end: Node, container: HostElement) => {
   const parent = currentBlock;
   currentBlock = Object.create(null) as BlockTree;
   currentBlock.start = start;

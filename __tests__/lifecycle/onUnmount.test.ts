@@ -2,6 +2,7 @@ import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { h, hIf, nextTick, render } from '@/api';
 import { onUnmount } from '@/lifecycle/onUnmount';
+import { createElement } from '@/renderer/render';
 
 describe('onUnmount', () => {
   it('basic', async () => {
@@ -19,7 +20,7 @@ describe('onUnmount', () => {
           }
         );
       });
-    });
+    }, createElement('div', false));
 
     expect(handler).toBeCalledTimes(0);
 

@@ -1,4 +1,4 @@
-import { h, mount, render } from '@/html';
+import { h, render } from '@/html';
 import { createElement } from '@/renderer';
 
 describe('mount', () => {
@@ -8,7 +8,7 @@ describe('mount', () => {
     }
 
     const container = createElement('div', false);
-    mount(render(Foo), container);
+    render(Foo, container);
     expect(container.innerHTML).toBe('<div></div>');
   });
 
@@ -20,7 +20,7 @@ describe('mount', () => {
     }
 
     const container = createElement('div', false);
-    mount(render(Foo), container);
+    render(Foo, container);
     expect(container.innerHTML).toBe('<div><span>hello hope!</span></div>');
   });
 
@@ -35,7 +35,7 @@ describe('mount', () => {
     }
 
     const container = createElement('div', false);
-    mount(render(Foo), container);
+    render(Foo, container);
     expect(container.innerHTML).toBe(
       '<div class="class-name" style="font-size: 12px; color: black;"><span>hello hope!</span></div>'
     );
@@ -52,7 +52,7 @@ describe('mount', () => {
     }
 
     const container = createElement('div', false);
-    mount(render(Foo), container);
+    render(Foo, container);
     expect(container.innerHTML).toBe(
       '<div><span class="class-name" style="font-size: 12px; color: black;">hello hope!</span></div>'
     );

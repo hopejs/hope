@@ -1,24 +1,26 @@
 import { render } from '@/html';
-import { getFragment } from '@/html/makeRenderTree';
+import { getRoot } from '@/html/makeRenderTree';
 import { getCurrentBlock, makeBlockTree } from '@/lifecycle/makeBlockTree';
+import { createElement } from '@/renderer';
 
 describe('makeBlock', () => {
   it('basic', () => {
     let block: any;
+    const root = createElement('div', false);
     function foo() {
       makeBlockTree(() => {
         block = getCurrentBlock();
-        expect(block?.start).toBe(getFragment()!.firstChild);
-        expect(getFragment()!.firstChild?.textContent).toBe(`block start`);
-        expect(getFragment()!.childNodes.length).toBe(2);
+        expect(block?.start).toBe(getRoot()!.firstChild);
+        expect(getRoot()!.firstChild?.textContent).toBe(`block start`);
+        expect(getRoot()!.childNodes.length).toBe(2);
       });
     }
 
-    const { fragment } = render(foo);
+    render(foo, root);
 
-    expect(block?.end).toBe(fragment.lastChild);
+    expect(block?.end).toBe(root.lastChild);
     expect(getCurrentBlock()).toBe(null);
-    expect(fragment.lastChild?.textContent).toBe(`block end`);
-    expect(fragment.childNodes.length).toBe(2);
+    expect(root.lastChild?.textContent).toBe(`block end`);
+    expect(root.childNodes.length).toBe(2);
   });
 });

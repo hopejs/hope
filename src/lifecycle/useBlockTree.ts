@@ -4,7 +4,7 @@ import {
   ScopeTree,
   setCurrentScope,
 } from '@/activity/makeScopeTree';
-import { parentNode, remove } from '@/renderer';
+import { remove } from '@/renderer';
 import { bfs, isFunction } from '@/utils';
 import { nextTick } from '@/api/scheduler';
 import {
@@ -33,7 +33,7 @@ export const useBlockTree = <T>(
 
         setCurrentScope(scopeTree);
         setCurrentBlock(blockTree);
-        setCurrentRender(renderTree, parentNode(blockTree.start)!);
+        setCurrentRender(renderTree, blockTree.ct);
         removeUnuseWatcher(scopeTree, blockTree);
         component(v, blockTree);
         setCurrentScope(oldScope);

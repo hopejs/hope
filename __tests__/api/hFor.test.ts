@@ -3,24 +3,27 @@ import { refresh } from '@/activity/refresh';
 import { getCurrentElement, h, hFor, nextTick, render } from '@/api';
 import { renderWithoutBlock } from '@/api/hFor';
 import { DynamicFlags, HostElement } from '@/html/makeRenderTree';
+import { createElement } from '@/renderer';
 
 describe('hFor', () => {
   it('basic', () => {
-    const { fragment } = render(() => {
+    const container = createElement('div', false);
+    render(() => {
       hFor([1, 2, 3], (value) => {
         h.div(() => value);
       });
-    });
+    }, container);
 
-    expect(fragment.childElementCount).toBe(3);
-    expect(fragment.children[0].innerHTML).toBe('1');
-    expect(fragment.children[1].innerHTML).toBe('2');
-    expect(fragment.children[2].innerHTML).toBe('3');
+    expect(container.childElementCount).toBe(3);
+    expect(container.children[0].innerHTML).toBe('1');
+    expect(container.children[1].innerHTML).toBe('2');
+    expect(container.children[2].innerHTML).toBe('3');
   });
 
   it('activity', async () => {
+    const container = createElement('div', false);
     let list = [1, 2, 3];
-    const { fragment } = render(() => {
+    render(() => {
       makeScopeTree(() => {
         hFor(
           () => list,
@@ -30,23 +33,24 @@ describe('hFor', () => {
           }
         );
       });
-    });
+    }, container);
 
-    expect(fragment.childElementCount).toBe(3);
-    expect(fragment.children[0].innerHTML).toBe('1');
-    expect(fragment.children[1].innerHTML).toBe('2');
-    expect(fragment.children[2].innerHTML).toBe('3');
+    expect(container.childElementCount).toBe(3);
+    expect(container.children[0].innerHTML).toBe('1');
+    expect(container.children[1].innerHTML).toBe('2');
+    expect(container.children[2].innerHTML).toBe('3');
 
     list = [4];
     await nextTick();
-    expect(fragment.childElementCount).toBe(1);
-    expect(fragment.children[0].innerHTML).toBe('4');
+    expect(container.childElementCount).toBe(1);
+    expect(container.children[0].innerHTML).toBe('4');
   });
 
   it('activity after list updated', async () => {
+    const container = createElement('div', false);
     let list = [{ text: 1 }];
     let currentScope;
-    const { fragment } = render(() => {
+    render(() => {
       makeScopeTree(() => {
         currentScope = getCurrentScope()!;
         hFor(
@@ -56,33 +60,34 @@ describe('hFor', () => {
           }
         );
       });
-    });
+    }, container);
 
-    expect(fragment.childElementCount).toBe(1);
-    expect(fragment.children[0].innerHTML).toBe('1');
+    expect(container.childElementCount).toBe(1);
+    expect(container.children[0].innerHTML).toBe('1');
 
     list = [{ text: 2 }];
     // @ts-ignore
     refresh(currentScope);
     await nextTick();
-    expect(fragment.childElementCount).toBe(1);
-    expect(fragment.children[0].innerHTML).toBe('2');
+    expect(container.childElementCount).toBe(1);
+    expect(container.children[0].innerHTML).toBe('2');
 
     list[0].text = 3;
     // @ts-ignore
     refresh(currentScope);
     await nextTick();
-    expect(fragment.childElementCount).toBe(1);
-    expect(fragment.children[0].innerHTML).toBe('3');
+    expect(container.childElementCount).toBe(1);
+    expect(container.children[0].innerHTML).toBe('3');
   });
 
   it('Empty at the beginning', async () => {
     let list: any[] = [];
     let currentScope: any;
-    let container: any;
+    let div: any;
+    const container = createElement('div', false);
     render(() => {
       h.div(() => {
-        container = getCurrentElement();
+        div = getCurrentElement();
         makeScopeTree(() => {
           currentScope = getCurrentScope()!;
           hFor(
@@ -93,15 +98,15 @@ describe('hFor', () => {
           );
         });
       });
-    });
+    }, container);
 
-    expect(container.childElementCount).toBe(0);
+    expect(div.childElementCount).toBe(0);
 
     list = [1];
     refresh(currentScope);
     await nextTick();
-    expect(container.childElementCount).toBe(1);
-    expect(container.children[0].innerHTML).toBe('1');
+    expect(div.childElementCount).toBe(1);
+    expect(div.children[0].innerHTML).toBe('1');
   });
 
   it('renderWithoutBlock', async () => {
@@ -176,14 +181,15 @@ describe('hFor', () => {
   it('benchmark example', () => {
     let rows = [{ id: 1, label: 'label' }];
     // let currentScope: any;
-    let container: any;
+    let tbody: any;
+    const container = createElement('div', false);
 
     render(() => {
       h.div(() => {
         makeScopeTree(() => {
           // currentScope = getCurrentScope()!;
           h.tbody(() => {
-            container = getCurrentElement();
+            tbody = getCurrentElement();
             hFor(
               () => rows,
               (row) => {
@@ -207,10 +213,10 @@ describe('hFor', () => {
           });
         });
       });
-    });
+    }, container);
 
-    expect(container.children.length).toBe(1);
-    expect(container.children[0].outerHTML).toBe(
+    expect(tbody.children.length).toBe(1);
+    expect(tbody.children[0].outerHTML).toBe(
       `<tr class=\"danger\"><td class=\"col-md-1\">1</td><td class=\"col-md-4\"><a>label</a></td><td class=\"col-md-1\"><a><span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span></a></td><td class=\"col-md-6\"></td></tr>`
     );
   });

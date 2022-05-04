@@ -7,7 +7,7 @@ import {
 } from '@/html/makeRenderTree';
 import { BlockTree, internalInsert } from '@/lifecycle/makeBlockTree';
 import { removeNodes, useBlockTree } from '@/lifecycle/useBlockTree';
-import { cloneNode } from '@/renderer';
+import { cloneNode, createElement } from '@/renderer';
 
 export const hFor = <T>(
   list: T[] | (() => T[]),
@@ -39,14 +39,14 @@ export const hFor = <T>(
   });
 };
 
-export const renderWithoutBlock = (component: () => void): DocumentFragment => {
-  let result: DocumentFragment;
+export const renderWithoutBlock = (component: () => void) => {
+  const root = createElement('div', false);
   makeRenderTree((renderTree) => {
     renderTree.t = RenderType.NO_BLOCK;
+    renderTree.r = root;
     component();
-    result = renderTree.f!;
   });
-  return result!;
+  return root;
 };
 
 const getNextCloneNodeCommon = (

@@ -1,5 +1,3 @@
-import { createFragment } from '@/renderer/render';
-
 export enum DynamicFlags {
   TEXT = 1,
   CLASS = 1 << 1,
@@ -31,14 +29,14 @@ export enum RenderType {
 }
 
 export interface RenderTree {
+  /** root element */
+  r: HostElement;
   /** type */
   t: RenderType;
   /** currentElement */
   ce: HostElement | null;
   /** currentContainer */
-  cc: ParentNode | null;
-  /** fragment */
-  f: DocumentFragment | null;
+  cc: HostElement | null;
   /** parent */
   p?: RenderTree;
   /** children */
@@ -57,7 +55,7 @@ export const makeRenderTree = (block: (renderTree: RenderTree) => void) => {
 
 export const setCurrentRender = (
   value: RenderTree | null,
-  container?: ParentNode
+  container?: HostElement
 ) => {
   currentRenderTree = value;
   container && currentRenderTree && (currentRenderTree.cc = container!);
@@ -73,12 +71,11 @@ const initRender = () => {
     currentRenderTree = {
       ce: null,
       cc: null,
-      f: null,
       t: RenderType.NORMAL,
-    };
+    } as any;
     if (parent) {
-      (parent.c || (parent.c = [])).push(currentRenderTree),
-        (currentRenderTree.p = parent);
+      (parent.c || (parent.c = [])).push(currentRenderTree!),
+        (currentRenderTree!.p = parent);
     }
   },
   closeRender = () => {
@@ -89,25 +86,17 @@ export const getCurrentElement = () =>
   currentRenderTree && currentRenderTree.ce;
 
 export const getCurrentContainer = () => {
-  return (currentRenderTree &&
-    (currentRenderTree.cc ||
-      currentRenderTree.f ||
-      (currentRenderTree.f = createFragment()))) as HostElement | null;
+  return currentRenderTree && (currentRenderTree.cc || currentRenderTree.r);
 };
 
-export const getFragment = () => {
-  return (
-    currentRenderTree &&
-    (currentRenderTree.f || (currentRenderTree.f = createFragment()))
-  );
+export const getRoot = () => {
+  return currentRenderTree && currentRenderTree.r;
 };
 
 export const setCurrentElement = (el: HostElement | null) => {
   currentRenderTree && (currentRenderTree.ce = el);
 };
-export const setCurrentContainer = (
-  el: ParentNode | DocumentFragment | null
-) => {
+export const setCurrentContainer = (el: HostElement | null) => {
   currentRenderTree && (currentRenderTree.cc = el);
 };
 
