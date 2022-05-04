@@ -67,12 +67,5 @@ export const getNextCloneNode = (
     currentBlock.tns!,
     nextKey
   );
-  const result = getNextCloneNodeCommon(
-    currentBlock.cn!,
-    currentBlock.cns!,
-    nextKey
-  );
-
-  result && currentBlock.tn && (result._flag = currentBlock.tn._flag);
-  return result;
+  return getNextCloneNodeCommon(currentBlock.cn!, currentBlock.cns!, nextKey);
 };

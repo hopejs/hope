@@ -59,7 +59,9 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
   let text: string,
     childrenResult,
     el: HostElement,
-    currentCloneKey: 'firstChild' | 'nextSibling' | number;
+    currentCloneKey: 'firstChild' | 'nextSibling' | number,
+    collectFlag = false,
+    isSvgEl = false;
   const _tagName = tagName,
     _isSvg = isSvg,
     isFoTag = _tagName === 'foreignObject',
@@ -73,12 +75,15 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
         currentBlock,
         (currentCloneKey = currentBlock.ncnk!)
       )),
-    templateElement = currentBlock && currentBlock.tn;
+    templateElement = currentBlock && currentBlock.tn,
+    isCloned = !!templateElement,
+    flag = isCloned ? templateElement._flag : 0;
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
+  isSvgEl = isSvg > 0 || isFoTag;
 
   // _flag is empty, indicating that the currently cloned element is a static node
-  if (templateElement && !templateElement._flag) {
+  if (isCloned && !flag) {
     return (
       (currentBlock.cn = clonedElement) && (currentBlock.tn = templateElement),
       (typeof currentCloneKey! !== 'number'
@@ -91,11 +96,9 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
   }
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
-  el =
-    (clonedElement as HostElement) ||
-    createElement(tagName as any, isSvg > 0 || isFoTag);
+  el = (clonedElement as HostElement) || createElement(tagName as any, isSvgEl);
 
-  isNoBlock() && (el._ParentNode = container as HostElement);
+  (collectFlag = isNoBlock()) && (el._ParentNode = container as HostElement);
   setCurrentElement(el);
   if (typeof props === 'function') {
     (children = props), (props = void 0);
@@ -104,25 +107,34 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
   } else if (typeof children === 'string' || typeof children === 'number') {
     (text = children as string), (children = void 0);
   }
-  props && processProps(el, props);
+  isCloned
+    ? (flag! & DynamicFlags.CLASS ||
+        flag! & DynamicFlags.ATTR ||
+        flag! & DynamicFlags.EVENT ||
+        flag! & DynamicFlags.PROP ||
+        flag! & DynamicFlags.STYLE) &&
+      props &&
+      processProps(el, props, isSvgEl, (isCloned && flag) as any)
+    : props && processProps(el, props, isSvgEl, (isCloned && flag) as any);
 
   text!
-    ? setElementText(el, text)
-    : (setCurrentContainer(el),
+    ? // At this time, the text node is static and does not need to be set repeatedly
+      isCloned || setElementText(el, text)
+    : (isCloned && flag! & DynamicFlags.TEXT
+        ? watch(children as () => string | number, (v) => {
+            setElementText(el, v as string);
+          })
+        : setCurrentContainer(el),
       currentBlock && (currentBlock.ncnk = 'firstChild'),
       // If the returned value is a string,
       // it is considered to be rendering a string in response
       (childrenResult = (children as any)?.()),
       (typeof childrenResult === 'string' ||
         typeof childrenResult === 'number') &&
-        (markFlag(el, DynamicFlags.TEXT),
-        watch(
-          children as () => string | number,
-          (v) => {
-            setElementText(el, v as string);
-          },
-          el.textContent
-        )),
+        (collectFlag && markFlag(el, DynamicFlags.TEXT),
+        watch(children as () => string | number, (v) => {
+          setElementText(el, v as string);
+        })),
       setCurrentContainer(container),
       setCurrentElement(el));
 
@@ -147,8 +159,13 @@ export const h: H = new Proxy(Object.create(null), {
   },
 });
 
-const processProps = (el: HostElement, props: any) => {
+const processProps = (
+  el: HostElement,
+  props: any,
+  isSvg?: boolean,
+  flag?: DynamicFlags
+) => {
   forEachObj(props, (value, key) => {
-    setProp(el, key as string, value);
+    setProp(el, key as string, value, isSvg, flag);
   });
 };

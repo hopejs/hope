@@ -1,4 +1,9 @@
-import { DynamicFlags, HostElement, markFlag } from '@/html/makeRenderTree';
+import {
+  DynamicFlags,
+  HostElement,
+  isNoBlock,
+  markFlag,
+} from '@/html/makeRenderTree';
 import { isFunction, isOn, isString, parseEventName } from '@/utils';
 import { setAttr } from './setAttr';
 import { setClass } from './setClass';
@@ -13,19 +18,26 @@ export function setProp(
   el: HostElement,
   key: string,
   value: any,
-  isSVG?: boolean
+  isSVG?: boolean,
+  flag?: DynamicFlags
 ) {
-  let storeKey;
+  let storeKey,
+    collectFlag = isNoBlock(),
+    hasFlag = !collectFlag && !!flag;
   switch (key) {
     case 'class':
-      setClass(el, value, isSVG);
+      hasFlag
+        ? flag! & DynamicFlags.CLASS && setClass(el, value, isSVG)
+        : setClass(el, value, isSVG, collectFlag);
       break;
     case 'style':
-      setStyle(el, value);
+      hasFlag
+        ? flag! & DynamicFlags.STYLE && setStyle(el, value)
+        : setStyle(el, value, collectFlag);
       break;
     default:
       if (store[key] || isOn(key)) {
-        markFlag(el, DynamicFlags.EVENT);
+        collectFlag && markFlag(el, DynamicFlags.EVENT);
         setEvent(
           el,
           key in store ? store[key] : (store[key] = parseEventName(key)),
@@ -36,9 +48,13 @@ export function setProp(
           ? store[storeKey]
           : (store[storeKey] = shouldSetAsProp(el, key, value, isSVG))
       ) {
-        setDomProp(el, key, value);
+        hasFlag
+          ? flag! & DynamicFlags.PROP && setDomProp(el, key, value)
+          : setDomProp(el, key, value, collectFlag);
       } else {
-        setAttr(el, key, value, isSVG);
+        hasFlag
+          ? flag! & DynamicFlags.ATTR && setAttr(el, key, value, isSVG)
+          : setAttr(el, key, value, isSVG, collectFlag);
       }
       break;
   }

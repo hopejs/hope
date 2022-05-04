@@ -8,27 +8,19 @@ export function setAttr(
   el: HostElement,
   key: string,
   value: any,
-  isSVG?: boolean
+  isSVG?: boolean,
+  collectFlag?: boolean
 ) {
   isFunction(value)
-    ? (markFlag(el, DynamicFlags.ATTR),
+    ? (collectFlag && markFlag(el, DynamicFlags.ATTR),
       isSVG
-        ? watch(
-            value,
-            (v: any) => {
-              el.setAttributeNS(xlinkNS, key, v);
-            },
-            el.getAttributeNS(xlinkNS, key)
-          )
-        : watch(
-            value,
-            (v: any) => {
-              el.setAttribute(key, v);
-            },
-            el.getAttribute(key)
-          ))
+        ? watch(value, (v: any) => {
+            el.setAttributeNS(xlinkNS, key, v);
+          })
+        : watch(value, (v: any) => {
+            el.setAttribute(key, v);
+          }))
     : isSVG
-    ? el.getAttributeNS(xlinkNS, key) !== value &&
-      el.setAttributeNS(xlinkNS, key, value)
-    : el.getAttribute(key) !== value && el.setAttribute(key, value);
+    ? el.setAttributeNS(xlinkNS, key, value)
+    : el.setAttribute(key, value);
 }

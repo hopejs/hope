@@ -14,22 +14,27 @@ export type StyleValue =
   | CSSStyleDeclarationWithFn
   | (() => string | CSSStyleDeclarationWithFn);
 
-export function setStyle(el: HostElement, value: StyleValue) {
+export function setStyle(
+  el: HostElement,
+  value: StyleValue,
+  collectFlag?: boolean
+) {
   const style = (el as HTMLElement).style;
 
   isFunction(value)
-    ? (markFlag(el, DynamicFlags.STYLE),
+    ? (collectFlag && markFlag(el, DynamicFlags.STYLE),
       watch(value, (v) => {
-        setStyleCommon(el, style, v, true);
+        setStyleCommon(el, style, v, true, collectFlag);
       }))
-    : setStyleCommon(el, style, value);
+    : setStyleCommon(el, style, value, false, collectFlag);
 }
 
 function setStyleCommon(
   el: HostElement,
   style: CSSStyleDeclaration,
   value: string | CSSStyleDeclarationWithFn,
-  showError?: boolean
+  showError?: boolean,
+  collectFlag?: boolean
 ) {
   if (isString(value)) {
     return style.cssText !== value && (style.cssText = value);
@@ -37,7 +42,7 @@ function setStyleCommon(
   forEachObj(
     value,
     (v, key: keyof Omit<CSSStyleDeclaration, 'length' | 'parentRule'>) => {
-      setStyleByObject(el, style, key, v, showError);
+      setStyleByObject(el, style, key, v, showError, collectFlag);
     }
   );
 }
@@ -47,20 +52,15 @@ function setStyleByObject(
   style: CSSStyleDeclaration,
   key: keyof Omit<CSSStyleDeclaration, 'length' | 'parentRule'>,
   value: any,
-  showError?: boolean
+  showError?: boolean,
+  collectFlag?: boolean
 ) {
-  if (isFunction(value)) {
-    showError
+  isFunction(value)
+    ? showError
       ? __DEV__ && error(`Nested functions are not allowed.`)
-      : (markFlag(el, DynamicFlags.STYLE),
-        watch(
-          value,
-          (v: any) => {
-            style[key] = v;
-          },
-          style[key]
-        ));
-  } else {
-    style[key] !== value && (style[key] = value);
-  }
+      : (collectFlag && markFlag(el, DynamicFlags.STYLE),
+        watch(value, (v: any) => {
+          style[key] = v;
+        }))
+    : (style[key] = value);
 }
