@@ -110,7 +110,7 @@ export const setCurrentContainer = (
  * 3. No need to register watcher.
  */
 export const isNoBlock = () => {
-  return currentRenderTree?.t === RenderType.NO_BLOCK;
+  return !!currentRenderTree && currentRenderTree.t === RenderType.NO_BLOCK;
 };
 
 export const markFlag = (el: HostElement, flag: DynamicFlags) => {

@@ -30,9 +30,9 @@ export const hFor = <T>(
         ).map((item: ChildNode) => cloneNode(item)));
         blockTree!.ncnk = 0;
         item(value, index, array);
-        cloneTemplates.forEach((item) =>
-          internalInsert(item as any, container)
-        );
+        for (const item of cloneTemplates) {
+          internalInsert(item as any, container);
+        }
         blockTree!.cns = blockTree!.cn = blockTree!.tn = null;
       });
   });
