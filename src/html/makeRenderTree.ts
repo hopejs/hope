@@ -12,8 +12,14 @@ export enum DynamicFlags {
 }
 
 export type HostElement = (HTMLElement | SVGAElement) & {
-  _flag?: DynamicFlags;
-  _ParentNode?: HostElement;
+  /** Dynamic flag, only exist in the template node */
+  _f?: DynamicFlags;
+  /** parent node, only exist in the template node */
+  _pn?: HostElement;
+  /** firstChild */
+  _fc?: HostElement;
+  /** nextSibling */
+  _ns?: HostElement;
 };
 
 export enum RenderType {
@@ -113,13 +119,14 @@ export const isNoBlock = () => {
   return !!currentRenderTree && currentRenderTree.t === RenderType.NO_BLOCK;
 };
 
+const runMarkFlag = (element: HostElement, f: DynamicFlags) =>
+  '_f' in element ? (element._f! |= f) : (element._f = f);
+
 export const markFlag = (el: HostElement, flag: DynamicFlags) => {
-  const run = (element: HostElement, f: DynamicFlags) =>
-    '_flag' in element ? (element._flag! |= f) : (element._flag = f);
   if (isNoBlock()) {
-    run(el, flag);
-    while ((el = el._ParentNode as any)) {
-      run(el, DynamicFlags.CHILDREN);
+    runMarkFlag(el, flag);
+    while ((el = el._pn as any)) {
+      runMarkFlag(el, DynamicFlags.CHILDREN);
     }
   }
 };
