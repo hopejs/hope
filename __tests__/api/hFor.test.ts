@@ -2,7 +2,7 @@ import { getCurrentScope, makeScopeTree } from '@/activity/makeScopeTree';
 import { refresh } from '@/activity/refresh';
 import { getCurrentElement, h, hFor, nextTick, render } from '@/api';
 import { renderWithoutBlock } from '@/api/hFor';
-import { DynamicFlags } from '@/html/makeRenderTree';
+import { DynamicFlags, HostElement } from '@/html/makeRenderTree';
 
 describe('hFor', () => {
   it('basic', () => {
@@ -134,6 +134,8 @@ describe('hFor', () => {
 
   it('renderWithoutBlock', async () => {
     let container: any;
+    let span: HostElement;
+    let div: HostElement;
     renderWithoutBlock(() => {
       h.div(() => {
         container = getCurrentElement();
@@ -147,11 +149,20 @@ describe('hFor', () => {
           },
           () => 'text'
         );
+        div = getCurrentElement()!;
+        h.span('nothing');
+        span = getCurrentElement()!;
       });
     });
 
-    expect(container._flag).toBe(DynamicFlags.CHILDREN);
-    expect(container.firstChild._flag).toBe(
+    expect(container._fc).toBe(div!);
+    expect(container._fc._ns).toBe(span!);
+    expect(container._lc).toBe(span!);
+    expect(div!._pn).toBe(container);
+    expect(span!._pn).toBe(container);
+
+    expect(container._f).toBe(DynamicFlags.CHILDREN);
+    expect(container.firstChild._f).toBe(
       DynamicFlags.TEXT |
         DynamicFlags.ATTR |
         DynamicFlags.CLASS |

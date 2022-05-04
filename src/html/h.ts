@@ -66,7 +66,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     _isSvg = isSvg,
     isFoTag = _tagName === 'foreignObject',
     isSvgTag = _tagName === 'svg',
-    container = getCurrentContainer(),
+    container = getCurrentContainer()!,
     currentBlock = getCurrentBlock(),
     clonedElement =
       currentBlock &&
@@ -96,7 +96,13 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
     );
   }
 
-  (collectFlag = isNoBlock()) && (el._pn = container as HostElement);
+  // For performance, the nodes are saved through private attributes
+  (collectFlag = isNoBlock()) &&
+    ((el._pn = container as HostElement),
+    container._fc
+      ? (container._lc = container._lc!._ns = el)
+      : (container._fc = container._lc = el));
+
   setCurrentElement(el);
   if (typeof props === 'function') {
     (children = props), (props = void 0);

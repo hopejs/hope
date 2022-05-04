@@ -12,12 +12,15 @@ export enum DynamicFlags {
 }
 
 export type HostElement = (HTMLElement | SVGAElement) & {
-  /** Dynamic flag, only exist in the template node */
+  /** only exist in the template node */
+  /** Dynamic flag */
   _f?: DynamicFlags;
-  /** parent node, only exist in the template node */
+  /** parent node */
   _pn?: HostElement;
   /** firstChild */
   _fc?: HostElement;
+  /** lastChild */
+  _lc?: HostElement;
   /** nextSibling */
   _ns?: HostElement;
 };
@@ -86,12 +89,10 @@ export const getCurrentElement = () =>
   currentRenderTree && currentRenderTree.ce;
 
 export const getCurrentContainer = () => {
-  return (
-    currentRenderTree &&
+  return (currentRenderTree &&
     (currentRenderTree.cc ||
       currentRenderTree.f ||
-      (currentRenderTree.f = createFragment()))
-  );
+      (currentRenderTree.f = createFragment()))) as HostElement | null;
 };
 
 export const getFragment = () => {
