@@ -81,6 +81,7 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
 
   isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
   isSvgEl = isSvg > 0 || isFoTag;
+  el = (clonedElement as HostElement) || createElement(tagName as any, isSvgEl);
 
   // _flag is empty, indicating that the currently cloned element is a static node
   if (isCloned && !flag) {
@@ -90,13 +91,10 @@ const handleTag = (props?: any, children?: (() => any) | string) => {
         ? (currentBlock.ncnk = 'nextSibling')
         : (currentBlock.ncnk = currentCloneKey + 1)) &&
         currentBlock.ct === container &&
-        pushNodeToCurrentBlock(templateElement),
+        pushNodeToCurrentBlock(el),
       isSvgTag ? isSvg-- : isFoTag && (isSvg = _isSvg)
     );
   }
-
-  isSvgTag ? isSvg++ : isFoTag && (isSvg = 0);
-  el = (clonedElement as HostElement) || createElement(tagName as any, isSvgEl);
 
   (collectFlag = isNoBlock()) && (el._ParentNode = container as HostElement);
   setCurrentElement(el);
