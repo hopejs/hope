@@ -1,3 +1,5 @@
+import { ScopeTree } from '@/activity/makeScopeTree';
+
 export enum DynamicFlags {
   TEXT = 1,
   CLASS = 1 << 1,
@@ -21,6 +23,8 @@ export type HostElement = (HTMLElement | SVGAElement) & {
   _lc?: HostElement;
   /** nextSibling */
   _ns?: HostElement;
+  /** scope tree */
+  _st?: ScopeTree | null;
 };
 
 export enum RenderType {

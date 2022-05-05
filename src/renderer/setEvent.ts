@@ -1,4 +1,3 @@
-import { withRefresh } from '@/activity/refresh';
 import { addCutomEventListener } from '@/event';
 import { HostElement } from '@/html/makeRenderTree';
 import { error } from '@/log';
@@ -10,7 +9,7 @@ export function setEvent(
   handler: EventListener
 ) {
   if (isFunction(handler)) {
-    addCutomEventListener(el, type, withRefresh(handler));
+    addCutomEventListener(el, type, handler);
   } else if (__DEV__) {
     error(`Event listener must be a function.`);
   }
